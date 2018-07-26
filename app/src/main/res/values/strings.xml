@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">PipedKotlin</string>
+    <string name="app_name">Piped</string>
+    <string name="loginInfo">ECS offer a comprehensive nationwide commissioning service to the pipeline industry.  From the professional preparation of commissioning plans, to the onsite operations, we have the facilities and skilled personnel to enable a speedy transition from pipe installation to connection.</string>
+    <string name="loginInfo2">This app has been designed for use by ECS and clients.</string>
+    <string name="loginTel">For assistance call +44 (0)1492 541449</string>
+    <string name="loginEnterCompanyId">Enter Company ID</string>
 </resources>

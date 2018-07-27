@@ -27,7 +27,9 @@ class CommsManager(delegate: CommsManagerDelegate) {
 
     val delegate = delegate
     public final val WEBSERVER_VALIDATE_COMPANY_ID = "http://www.cobalttechno.co.uk/irateservice.asmx/GetCompanyIDCount?company_id="
-
+    public final val WEBSERVER_GET_LIST_ITEMS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetAllListItems"
+    public final val WEBSERVER_GET_CLIENTS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetAllClients"
+    public final val WEBSERVER_GET_MODULE_PREFS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetExcelModulePreferences?company_id="
 
     // Retrieves an XML file from the server
     public fun getXMLDocument(urlString: String, context: Context)
@@ -48,6 +50,7 @@ class CommsManager(delegate: CommsManagerDelegate) {
     // Static functions
     companion object {
 
+        // List of CobaltXMLRows each row has an array list of CobaltXmlFields with dict pairs
         fun convertXmlData(rawXML: String): List<CobaltXmlRow> {
 
             // Read the XML File
@@ -64,20 +67,25 @@ class CommsManager(delegate: CommsManagerDelegate) {
 
             for (i in 0..rowsList.length - 1)
             {
+
                 var rowNode: Node = rowsList.item(i)
 
                 if (rowNode.nodeType == Node.ELEMENT_NODE)
                 {
+                    var xmlRow = CobaltXmlRow()
+
                     val elem = rowNode as Element
                     for (j in 0..elem.attributes.length - 1)
                     {
                         val fieldName = elem.attributes.item(j).nodeName.toString()
                         var fieldValue = elem.attributes.item(j).nodeValue.toString()
-                        var xmlRow = CobaltXmlRow()
-                        xmlRow.key = fieldName
-                        xmlRow.value = fieldValue
-                        myList.add(xmlRow)
+                        var xmlField = CobaltXmlField()
+                        xmlField.key = fieldName
+                        xmlField.value = fieldValue
+                        xmlRow.fields.add(xmlField)
                     }
+
+                    myList.add(xmlRow)
                 }
             }
 

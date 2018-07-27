@@ -7,6 +7,16 @@ import android.widget.EditText
 
 open class BaseActivity: AppCompatActivity() {
 
-
+    public fun nz(value: String?): String
+    {
+        if (value == null)
+        {
+            return ""
+        }
+        else
+        {
+            return value
+        }
+    }
 
 }

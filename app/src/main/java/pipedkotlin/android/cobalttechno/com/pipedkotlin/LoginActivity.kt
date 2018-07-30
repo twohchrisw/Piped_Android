@@ -40,7 +40,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
         for (p in EXLDProcess.allProcesses(this))
         {
-            Log.d("cobalt", "Process Col ID: " + p.columnId.toString() + " CreateDate: " + p.create_timestamp)
+            Log.d("cobalt", "Process Col ID: " + p.columnId.toString() + " CreateDate: " + p.create_timestamp + " VehicleID: " + p.vehicle_id.toString() + " Vehicle Name: " + p.vehicle_name)
         }
 
 

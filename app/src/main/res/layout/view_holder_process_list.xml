@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:id="@+id/tvProcessNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="TextView"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/lblSchemeName"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Scheme Name:"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvSchemeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="this is where it will go"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/lblClientName"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Client Name:"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvClientName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="this is where it will go"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/lblCreatedOn"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Scheme Name:"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvCreatedOn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="this is where it will go"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

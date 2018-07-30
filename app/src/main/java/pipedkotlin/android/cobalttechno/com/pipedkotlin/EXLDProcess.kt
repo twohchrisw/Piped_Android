@@ -391,6 +391,7 @@ data class EXLDProcess(val columnId: Int = -1,
 
     }
 
+    // Save the process
     public fun save(context: Context)
     {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:MM:SS")
@@ -591,6 +592,19 @@ data class EXLDProcess(val columnId: Int = -1,
                         EXLDProcess.c_vehicle_name to vehicle_name
                         ).whereArgs(EXLDProcess.COLUMN_ID + " = " + columnId.toString()).exec()
             }
+        }
+    }
+
+    // A formatted process description either LOCAL (if not synced) or using the company ud
+    public fun processNoDescription(): String
+    {
+        if (server_process_id > 0)
+        {
+            return company_id.toUpperCase() + "-PROCESS-" + String.format("%05d", server_process_id)
+        }
+        else
+        {
+            return "LOCAL-PROCESS-" + String.format("%05d", columnId)
         }
     }
 }

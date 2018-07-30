@@ -32,6 +32,19 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             btnEnterCompanyId.visibility = View.VISIBLE
             btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
         }
+
+        // TESTING
+
+        val process = EXLDProcess()
+        process.save(this)
+
+        for (p in EXLDProcess.allProcesses(this))
+        {
+            Log.d("cobalt", "Process Col ID: " + p.columnId.toString() + " CreateDate: " + p.create_timestamp)
+        }
+
+
+        // END TESTING
     }
 
     // Get the company id from the user

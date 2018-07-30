@@ -32,5 +32,32 @@ open class AlertHelper(context: Context) {
         builder.create().show()
     }
 
+    // Simple alert with no response
+    public fun dialogForOKAlert(title: String, message: String, positiveAction: () -> Unit)
+    {
+        builder.setTitle(title)
+        builder.setMessage(message)
+
+        builder.setPositiveButton("OK", { dialog, i ->
+            positiveAction.invoke()
+            dialog.dismiss()
+        })
+
+        builder.create().show()
+    }
+
+    // Simple alert with no response and no follow action
+    public fun dialogForOKAlertNoAction(title: String, message: String)
+    {
+        builder.setTitle(title)
+        builder.setMessage(message)
+
+        builder.setPositiveButton("OK", { dialog, i ->
+            dialog.dismiss()
+        })
+
+        builder.create().show()
+    }
+
 
 }

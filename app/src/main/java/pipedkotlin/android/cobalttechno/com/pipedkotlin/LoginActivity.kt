@@ -1,12 +1,9 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.text.InputType
 import android.util.Log
+import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import com.android.volley.VolleyError
 
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
@@ -22,10 +19,19 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //TODO: If we already have a company id, initiate the downloads - I think??
-
-        btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
-        btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
+        val existingCompanyId = EXLDSettings.getExistingCompanyId(this)
+        if (existingCompanyId.length > 1)
+        {
+            // We have an existing company id, download list items, prefs and clients
+            AppGlobals.instance.companyId = existingCompanyId
+            loadListItems()
+        }
+        else {
+            // Wait for the user to provide a company id
+            btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
+            btnEnterCompanyId.visibility = View.VISIBLE
+            btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
+        }
     }
 
     // Get the company id from the user
@@ -45,8 +51,8 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         comms.getXMLDocument(urlString, this)
     }
 
-    // Load the main process list
-    fun loadProcessList()
+    // Load the load lists
+    fun loadListItems()
     {
         parsingContext = ParsingContext.LoadListItems
         val comms = CommsManager(this)
@@ -54,7 +60,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         comms.getXMLDocument(urlString, this)
     }
 
-    // Load the . . .
+    // Load the list of clients from webservice
     fun loadClients()
     {
         parsingContext = ParsingContext.LoadClients
@@ -63,13 +69,19 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         comms.getXMLDocument(urlString, this)
     }
 
-    // Load the . . .
+    // Load the module preferences from webservice
     fun loadModulePreferences()
     {
         parsingContext = ParsingContext.ModulePrefs
         val comms = CommsManager(this)
         var urlString = comms.WEBSERVER_GET_MODULE_PREFS + AppGlobals.instance.companyId
         comms.getXMLDocument(urlString, this)
+    }
+
+    // Load the main process list
+    fun loadMainProcessList()
+    {
+
     }
 
     // MARK: Comms Manager Delegate
@@ -140,19 +152,20 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         if (companyIdIsValid)
         {
             AppGlobals.instance.companyId = attemptedCompanyId
-            //TODO: Assign the global company id and write it to the settings database
-            loadProcessList()
+            EXLDSettings.writeCompanyIdToDatabase(this, attemptedCompanyId)
+            loadListItems()
         }
         else
         {
             if (companyIsOverlimit)
             {
-                //TODO: Message user
+                val alertHelper = AlertHelper(this)
+                alertHelper.dialogForOKAlertNoAction("Company Registrations Overlimit", "Your company has used its full complement of registrations for this app.  Please contact you administrator")
             }
             else
             {
-                //TODO: Inform user of invalid company id
-                //TODO: Then relaunch the companyid dialog
+                val alertHelper = AlertHelper(this)
+                alertHelper.dialogForOKAlert("Invalid Company ID", "The company id you have entered was not found in our database.", ::getCompanyId)
             }
         }
     }
@@ -161,20 +174,16 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     fun parseListItems(rawXML: String)
     {
         val xmlList = CommsManager.convertXmlData(rawXML)
-        // TODO: Delete all current list items
+        EXLDListItems.deleteAll(this)
 
         // Add the list items to the database
         for (row: CobaltXmlRow in xmlList)
         {
-            val listName = row.getFieldForKey("ListName")?.value
-            val listValue = row.getFieldForKey("ListValue")?.value
-            val companyId = row.getFieldForKey("CompanyId")?.value
+            val listName = nz(row.getFieldForKey("ListName")?.value)
+            val listValue = nz(row.getFieldForKey("ListValue")?.value)
+            val companyId = nz(row.getFieldForKey("CompanyId")?.value)
 
-            if (listName != null && listValue != null && companyId != null)
-            {
-                // TODO: Write to database
-                Log.d("cobalt", "ListName: " + listName + " ListValue: " + listValue + " CompanyId: " + companyId)
-            }
+            EXLDListItems.addNew(this, companyId, listValue, listName)
         }
 
         loadClients()
@@ -183,20 +192,16 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     fun parseClients(rawXML: String)
     {
         val xmlList = CommsManager.convertXmlData(rawXML)
-        // TODO: Delete all current list items
+        EXLDClients.deleteAll(this)
 
         // Add the list items to the database
         for (row: CobaltXmlRow in xmlList)
         {
-            val clientId = row.getFieldForKey("client_id")?.value
-            val clientName = row.getFieldForKey("client_name")?.value
-            val companyId = row.getFieldForKey("company_id")?.value
+            val clientId = nz(row.getFieldForKey("client_id")?.value)
+            val clientName = nz(row.getFieldForKey("client_name")?.value)
+            val companyId = nz(row.getFieldForKey("company_id")?.value)
 
-            if (clientId != null && clientName != null && companyId != null)
-            {
-                // TODO: Write to database
-                Log.d("cobalt", "ClientId: " + clientId + " ClientName: " + clientName + " CompanyId: " + companyId)
-            }
+            EXLDClients.addNew(this, clientId, clientName, companyId)
         }
 
         loadModulePreferences()
@@ -205,7 +210,6 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     fun parseModulePrefs(rawXML: String)
     {
         val xmlList = CommsManager.convertXmlData(rawXML)
-        // TODO: Delete all current list items
 
         // Add the list items to the database
         for (row: CobaltXmlRow in xmlList)
@@ -222,12 +226,10 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             val allowSwabbing = nz(row.getFieldForKey("allow_swabbing")?.value)
             val allowAuditing = nz(row.getFieldForKey("allow_auditing")?.value)
 
-            //TODO: Write to database
-            Log.d("cobalt", "AllowFilling: " + allowFilling)
+            EXLDSettings.writePermissions(this, allowSurveying, allowFilling, allowPE, allowDI, allowChlor, allowDechlor, allowFlush, allowFlush2, allowSamping, allowSwabbing, allowAuditing)
         }
 
-        // TODO: We're fully loaded I think, load menu?
+        loadMainProcessList()
     }
-
 
 }

@@ -4,8 +4,12 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
-class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>): RecyclerView.Adapter<RecyclerView.ViewHolder>()
+class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickListener: ProcessListRecyclerViewClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
+    interface ProcessListRecyclerViewClickListener {
+        fun listItemClicked(process: EXLDProcess)
+    }
+
     override fun getItemCount(): Int {
         return processes.size
     }
@@ -19,10 +23,16 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>): RecyclerView
         viewHolder.schemeName.text = process.scheme_name
         viewHolder.clientName.text = process.client
         viewHolder.createdOn.text = process.create_timestamp
+
+        // Add the click listener
+        viewHolder.itemView.setOnClickListener({
+            clickListener.listItemClicked(process)
+        })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_process_list, parent, false)
         return ViewHolderProcessList(view)
     }
+
 }

@@ -18,7 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProcessListActivity"></activity>
+        <activity android:name=".ProcessListActivity" />
+        <activity
+            android:name=".ProcessMenuActivity"
+            android:parentActivityName=".ProcessListActivity" />
+        <activity
+            android:name=".DetailsActivity"
+            android:parentActivityName=".ProcessMenuActivity" />
+        <activity android:name=".ListSelectionActivity"></activity>
     </application>
 
 </manifest>

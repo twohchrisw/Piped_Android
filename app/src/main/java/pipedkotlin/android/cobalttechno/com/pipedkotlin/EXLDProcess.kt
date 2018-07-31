@@ -6,7 +6,7 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class EXLDProcess(val columnId: Int = -1,
+data class EXLDProcess(val columnId: Long = -1,
                   var address: String = "",
                   var client: String = "",
                   var company_id: String = "",
@@ -191,6 +191,7 @@ data class EXLDProcess(val columnId: Int = -1,
                        var vehicle_name: String = ""
                        )
 {
+    var processSyncInProgress = false
 
     companion object {
         val TABLE_NAME = "EXLDProcess"
@@ -381,7 +382,7 @@ data class EXLDProcess(val columnId: Int = -1,
         fun allProcesses(context: Context):List<EXLDProcess>
         {
             val processes = context.database.use {
-                select(EXLDProcess.TABLE_NAME).orderBy(c_server_process_id, SqlOrderDirection.DESC).exec {
+                select(EXLDProcess.TABLE_NAME).orderBy(COLUMN_ID, SqlOrderDirection.DESC).exec {
                     parseList<EXLDProcess>(classParser())
                 }
             }
@@ -389,19 +390,37 @@ data class EXLDProcess(val columnId: Int = -1,
             return processes
         }
 
+        fun processForId(context: Context, columnId: Long): EXLDProcess?
+        {
+            val processes = context.database.use {
+                select(EXLDProcess.TABLE_NAME).whereArgs(COLUMN_ID + " = " + columnId.toString()).exec {
+                    parseList<EXLDProcess>(classParser())
+                }
+            }
+
+            if (processes.isNotEmpty()) {
+                return processes.get(0)
+            }
+            else
+            {
+                return null
+            }
+        }
+
     }
 
     // Save the process
-    public fun save(context: Context)
+    public fun save(context: Context): Long
     {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:MM:SS")
         val today = sdf.format(Date())
+        var saveId: Long = -1
 
         if (columnId < 1)
         {
             // Insert
             context.database.use {
-                insert(EXLDProcess.TABLE_NAME, EXLDProcess.c_create_timestamp to today, EXLDProcess.c_create_device to "Android")
+                saveId = insert(EXLDProcess.TABLE_NAME, EXLDProcess.c_create_timestamp to today, EXLDProcess.c_create_device to "Android", EXLDProcess.c_company_id to company_id)
             }
         }
         else
@@ -593,6 +612,8 @@ data class EXLDProcess(val columnId: Int = -1,
                         ).whereArgs(EXLDProcess.COLUMN_ID + " = " + columnId.toString()).exec()
             }
         }
+
+        return saveId
     }
 
     // A formatted process description either LOCAL (if not synced) or using the company ud

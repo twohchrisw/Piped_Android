@@ -1,16 +1,20 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import com.android.volley.VolleyError
+import org.jetbrains.anko.UI
 import org.jetbrains.anko.startActivity
 
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     lateinit var btnEnterCompanyId: Button
+    lateinit var progressBar: ProgressBar
 
     var attemptedCompanyId = ""
 
@@ -21,12 +25,16 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        progressBar = findViewById(R.id.progressBar) as ProgressBar
+        progressBar.visibility = View.GONE
         val existingCompanyId = EXLDSettings.getExistingCompanyId(this)
+
         if (existingCompanyId.length > 1)
         {
             // We have an existing company id, download list items, prefs and clients
             AppGlobals.instance.companyId = existingCompanyId
-            //TODO: Activity indicator whilst loading
+            Log.d("cobalt", "List sets company id as " + AppGlobals.instance.companyId)
+            progressBar.visibility = View.VISIBLE
             loadListItems()
         }
         else {
@@ -36,6 +44,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
         }
     }
+
 
     // Get the company id from the user
     fun getCompanyId()
@@ -47,6 +56,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     // Validate the company id with the server
     fun validateCompanyId(value: String)
     {
+        progressBar.visibility = View.VISIBLE
         parsingContext = ParsingContext.CountOfCompanyIds
         val comms = CommsManager(this)
         attemptedCompanyId = value
@@ -161,6 +171,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         }
         else
         {
+            progressBar.visibility = View.GONE
             if (companyIsOverlimit)
             {
                 val alertHelper = AlertHelper(this)

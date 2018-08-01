@@ -23,7 +23,6 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
         val LIST_NAME_INSTALLATION_TECH = "IT"
         val LIST_NAME_CLIENTS = "Client"
         val LIST_NAME_SCHEMES = "Scheme"
-        val LIST_NAME_PIPETYPE = "PipeType"
     }
 
     enum class ListContext(val value: Int)
@@ -118,12 +117,10 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
 
                 ListContext.pipeType.value -> {
                     supportActionBar?.title = "Pipe Type"
-                    listName = LIST_NAME_PIPETYPE
                 }
 
                 ListContext.pumpType.value -> {
                     supportActionBar?.title = "Pump Type"
-                    //TODO: What happens here
                 }
 
                 ListContext.schemes.value -> {
@@ -168,6 +165,14 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
         val intent = Intent()
         intent.putExtra("listId", listContext)
         intent.putExtra("listValue", client.clientName)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
+    }
+
+    override fun stringItemClicked(value: String) {
+        val intent = Intent()
+        intent.putExtra("listId", listContext)
+        intent.putExtra("listValue", value)
         setResult(Activity.RESULT_OK, intent)
         finish()
     }

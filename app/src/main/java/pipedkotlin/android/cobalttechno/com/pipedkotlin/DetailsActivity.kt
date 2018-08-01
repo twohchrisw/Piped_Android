@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import org.jetbrains.anko.db.INTEGER
 import org.jetbrains.anko.startActivityForResult
 
 class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyclerClickListener {
@@ -30,6 +31,30 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = DetailsRecyclerAdapter(this)
     }
+
+    fun savePipeLength(value: String)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val intValue = value.toIntOrNull()
+        if (intValue != null)
+        {
+            p.pipe_length = intValue
+            p.save(this)
+            assignOutlets()
+        }
+    }
+
+    fun savePipeDiameter(value: String)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val intValue = value.toIntOrNull()
+        if (intValue != null) {
+            p.pipe_diameter = intValue
+            p.save(this)
+            assignOutlets()
+        }
+    }
+
 
     // One of the main details rows has been selected
     override fun listItemClicked(menuItem: Int) {
@@ -62,6 +87,18 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 val addressIntent = Intent(this, GetAddressActivity::class.java)
                 startActivityForResult(addressIntent, ActivityRequestCodes.addressSelection.value)
             }
+            DetailsRecyclerAdapter.MenuItems.pipeType.value -> {
+                listIntent.putExtra("ListType", ListSelectionActivity.ListContext.pipeType.value)
+                startActivityForResult(listIntent, ActivityRequestCodes.listSelection.value)
+            }
+            DetailsRecyclerAdapter.MenuItems.pipeLength.value -> {
+                val alertHelper = AlertHelper(this)
+                alertHelper.dialogForTextInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_length.toString(), ::savePipeLength)
+            }
+            DetailsRecyclerAdapter.MenuItems.pipeDiameter.value -> {
+                val alertHelper = AlertHelper(this)
+                alertHelper.dialogForTextInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
+            }
         }
 
     }
@@ -82,6 +119,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 ListSelectionActivity.ListContext.vehicles.value -> p.vehicle_name = listItem
                 ListSelectionActivity.ListContext.installTechs.value -> p.pt_installation_tech = listItem
                 ListSelectionActivity.ListContext.clients.value -> p.client = listItem
+                ListSelectionActivity.ListContext.pipeType.value -> p.pipe_description = listItem
             }
         }
 

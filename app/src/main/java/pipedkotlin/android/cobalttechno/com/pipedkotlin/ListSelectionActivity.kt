@@ -1,10 +1,14 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.app.Activity
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.select
@@ -24,7 +28,7 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
 
     enum class ListContext(val value: Int)
     {
-        technicians(0), vehicles(1), installTechs(2), clients(3), schemes(4), pipeType(5), pumpType(6)
+        technicians(0), vehicles(1), installTechs(2), clients(3), schemes(4), pipeType(5), pumpType(6), installTechOther(7)
     }
     var listContext = ListContext.technicians.value
 
@@ -32,9 +36,59 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_selection)
 
-        val listContext = intent.getIntExtra("ListType", 0)
+        listContext = intent.getIntExtra("ListType", 0)
         assignOutlets()
+
+
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        if (listContext == ListContext.installTechs.value || listContext == ListContext.schemes.value)
+        {
+            val inflater = menuInflater
+            inflater.inflate(R.menu.install_tech_other_menu, menu)
+        }
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        when(item?.itemId)
+        {
+            R.id.mnuOther -> {
+                val alertHelper = AlertHelper(this)
+                if (listContext == ListContext.installTechs.value) {
+                    alertHelper.dialogForTextInput("Other Installation Technique", AppGlobals.instance.activeProcess.pt_installation_tech_other, ::installTechOtherSelected)
+                }
+                if (listContext == ListContext.schemes.value)
+                {
+                    alertHelper.dialogForTextInput("Other Scheme Name", AppGlobals.instance.activeProcess.scheme_name, ::schemeOtherSelected)
+                }
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun installTechOtherSelected(value: String)
+    {
+        AppGlobals.instance.activeProcess.pt_installation_tech_other = value
+        AppGlobals.instance.activeProcess.pt_installation_tech = "other"
+        AppGlobals.instance.activeProcess.save(this)
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+
+    fun schemeOtherSelected(value: String)
+    {
+        AppGlobals.instance.activeProcess.scheme_name = value
+        AppGlobals.instance.activeProcess.save(this)
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+
 
     fun assignOutlets()
     {
@@ -102,10 +156,19 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
     // MARK: Click Listener
 
     override fun listItemClicked(listContext: Int, listItem: EXLDListItems) {
-        Log.d("cobalt", "clicked " + listItem.listItem)
+        // Now return the value back to the calling activity
+        val intent = Intent()
+        intent.putExtra("listId", listContext)
+        intent.putExtra("listValue", listItem.listItem)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 
     override fun clientItemClicked(client: EXLDClients) {
-        Log.d("cobalt", "clicked " + client.clientName)
+        val intent = Intent()
+        intent.putExtra("listId", listContext)
+        intent.putExtra("listValue", client.clientName)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 }

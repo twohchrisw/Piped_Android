@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.MenuItem
+import android.widget.TextView
 import org.jetbrains.anko.startActivity
 
 class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.ProcessMenuRecyclerClickListener {
@@ -18,15 +19,26 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
     }
 
     lateinit var recyclerView: RecyclerView
+    lateinit var headerProcess: TextView
+    lateinit var headerAddress: TextView
     var menuMode = ProcessMenuActivity.MENU_MODE_MAIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_menu)
-        supportActionBar?.title = AppGlobals.instance.activeProcess.processNoDescription()
+
         menuMode = intent.getIntExtra(MENU_MODE_KEY, MENU_MODE_MAIN)
         assignOutlets()
-        Log.d("cobalt", "Menu Mode is " + menuMode.toString() + " Process Company Id is " + AppGlobals.instance.activeProcess.company_id)
+
+        if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
+        {
+            supportActionBar?.title = "Process Menu"
+        }
+
+        if (menuMode == ProcessMenuActivity.MENU_MODE_TASKS)
+        {
+            supportActionBar?.title = "Tasks"
+        }
     }
 
     fun assignOutlets()
@@ -34,6 +46,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         recyclerView = findViewById(R.id.menuRecyclerView) as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = ProcessMenuRecyclerAdapter(menuMode, this)
+
+        headerProcess = findViewById(R.id.tvHeaderProcess) as TextView
+        headerAddress = findViewById(R.id.tvHeaderAddress) as TextView
+
+        headerProcess.text = AppGlobals.instance.activeProcess.processNoDescription()
+        headerAddress.text = AppGlobals.instance.activeProcess.address
     }
 
     fun loadTasksMenu()

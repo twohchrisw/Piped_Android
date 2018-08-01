@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import org.jetbrains.anko.startActivityForResult
 
 class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyclerClickListener {
 
@@ -13,7 +14,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
     enum class ActivityRequestCodes(val value: Int)
     {
-        listSelection(0)
+        listSelection(0), addressSelection(1)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +58,10 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 listIntent.putExtra("ListType", ListSelectionActivity.ListContext.schemes.value)
                 startActivityForResult(listIntent, ActivityRequestCodes.listSelection.value)
             }
+            DetailsRecyclerAdapter.MenuItems.address.value -> {
+                val addressIntent = Intent(this, GetAddressActivity::class.java)
+                startActivityForResult(addressIntent, ActivityRequestCodes.addressSelection.value)
+            }
         }
 
     }
@@ -78,7 +83,11 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 ListSelectionActivity.ListContext.installTechs.value -> p.pt_installation_tech = listItem
                 ListSelectionActivity.ListContext.clients.value -> p.client = listItem
             }
+        }
 
+        if (requestCode == ActivityRequestCodes.addressSelection.value && data != null)
+        {
+            AppGlobals.instance.activeProcess.address = data!!.getStringExtra("address")
         }
 
         p.save(this)

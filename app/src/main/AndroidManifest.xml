@@ -29,7 +29,11 @@
         <activity
             android:name=".ListSelectionActivity"
             android:parentActivityName=".DetailsActivity" />
-        <activity android:name=".GetAddressActivity" android:parentActivityName=".DetailsActivity"></activity>
+        <activity
+            android:name=".GetAddressActivity"
+            android:parentActivityName=".DetailsActivity" />
+        <activity android:name=".NotesActivity" />
+        <activity android:name=".DateTimeActivity"></activity>
     </application>
 
 </manifest>

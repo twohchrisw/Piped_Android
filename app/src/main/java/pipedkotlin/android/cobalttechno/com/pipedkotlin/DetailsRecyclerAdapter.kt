@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.ViewGroup
+import java.util.*
 
 class DetailsRecyclerAdapter(val clickListener: DetailsRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
@@ -113,12 +114,12 @@ class DetailsRecyclerAdapter(val clickListener: DetailsRecyclerClickListener): R
 
             MenuItems.startDate.value -> {
                 title?.text = "Start Date/Time"
-                value?.text = if (p.start_time.isNotEmpty()) p.start_time else "(none)"
+                value?.text = if (p.start_time.isNotEmpty()) DateHelper.dbDateStringFormatted(p.start_time) else "(none)"
             }
 
             MenuItems.finishDate.value -> {
                 title?.text = "Finish Date/Time"
-                value?.text = if (p.finish_time.isNotEmpty()) p.finish_time else "(none)"
+                value?.text = if (p.finish_time.isNotEmpty()) DateHelper.dbDateStringFormatted(p.finish_time) else "(none)"
             }
         }
     }

@@ -1,13 +1,17 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.format.Time
 import android.util.Log
 import org.jetbrains.anko.db.INTEGER
 import org.jetbrains.anko.startActivityForResult
+import java.util.*
 
 class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyclerClickListener {
 
@@ -15,7 +19,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
     enum class ActivityRequestCodes(val value: Int)
     {
-        listSelection(0), addressSelection(1)
+        listSelection(0), addressSelection(1), notes(3), startDate(4), finishDate(5)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +59,50 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
         }
     }
 
+    fun getDateTime(defaultDateTime: String, dateContext: ActivityRequestCodes)
+    {
+        var selectedYear = 0
+        var selectedMonth = 0
+        var selectedDay = 0
+
+        val defaultDate = DateHelper.dbStringToDate(defaultDateTime, Date())
+        val c = Calendar.getInstance()
+        c.setTime(defaultDate)
+
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        val hour = c.get(Calendar.HOUR_OF_DAY)
+        val minute = c.get(Calendar.MINUTE)
+
+        val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+            selectedYear = year
+            selectedMonth = month
+            selectedDay = dayOfMonth
+
+            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { view, selectedHour, selectedMinute ->
+                val selectedDateTime = DateHelper.dateFromValues(selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute)
+                val dateAsString = DateHelper.dateToDBString(selectedDateTime)
+
+                if (dateContext == ActivityRequestCodes.startDate)
+                {
+                    AppGlobals.instance.activeProcess.start_time = dateAsString
+                }
+
+                if (dateContext == ActivityRequestCodes.finishDate)
+                {
+                    AppGlobals.instance.activeProcess.finish_time = dateAsString
+                }
+
+                AppGlobals.instance.activeProcess.save(this)
+                assignOutlets()
+
+            }, hour, minute, true)
+            timePicker.show()
+
+        }, year, month, day)
+        datePicker.show()
+    }
 
     // One of the main details rows has been selected
     override fun listItemClicked(menuItem: Int) {
@@ -99,6 +147,17 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 val alertHelper = AlertHelper(this)
                 alertHelper.dialogForTextInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
             }
+            DetailsRecyclerAdapter.MenuItems.notes.value -> {
+                val notesIntent = Intent(this, NotesActivity::class.java)
+                notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.general_other)
+                startActivityForResult(notesIntent, ActivityRequestCodes.notes.value)
+            }
+            DetailsRecyclerAdapter.MenuItems.startDate.value -> {
+                getDateTime(AppGlobals.instance.activeProcess.start_time, ActivityRequestCodes.startDate)
+            }
+            DetailsRecyclerAdapter.MenuItems.finishDate.value -> {
+                getDateTime(AppGlobals.instance.activeProcess.finish_time, ActivityRequestCodes.finishDate)
+            }
         }
 
     }
@@ -126,6 +185,11 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
         if (requestCode == ActivityRequestCodes.addressSelection.value && data != null)
         {
             AppGlobals.instance.activeProcess.address = data!!.getStringExtra("address")
+        }
+
+        if (requestCode == ActivityRequestCodes.notes.value && data != null)
+        {
+            AppGlobals.instance.activeProcess.general_other = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
         }
 
         p.save(this)

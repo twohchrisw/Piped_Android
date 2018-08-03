@@ -33,7 +33,11 @@
             android:name=".GetAddressActivity"
             android:parentActivityName=".DetailsActivity" />
         <activity android:name=".NotesActivity" />
-        <activity android:name=".DateTimeActivity"></activity>
+        <activity android:name=".DateTimeActivity" />
+        <activity
+            android:name=".TestingActivity"
+            android:parentActivityName=".ProcessMenuActivity"
+            ></activity>
     </application>
 
 </manifest>

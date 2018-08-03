@@ -96,7 +96,19 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_TASKS)
         {
-
+            when (menuItem)
+            {
+                ProcessMenuRecyclerAdapter.TaskMenuItems.peTest.value -> {
+                    val testingIntent = Intent(this, TestingActivity::class.java)
+                    testingIntent.putExtra(TestingActivity.TESTING_CONTEXT_EXTRA, "PE")
+                    startActivity(testingIntent)
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.diTest.value -> {
+                    val testingIntent = Intent(this, TestingActivity::class.java)
+                    testingIntent.putExtra(TestingActivity.TESTING_CONTEXT_EXTRA, "DI")
+                    startActivity(testingIntent)
+                }
+            }
         }
     }
 }

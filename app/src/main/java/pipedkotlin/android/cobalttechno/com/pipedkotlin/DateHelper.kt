@@ -50,5 +50,18 @@ class DateHelper {
             }
         }
 
+        fun dateIsValid(dateString: String): Boolean
+        {
+            try {
+                val date = SimpleDateFormat(DB_DATE_FORMAT).parse(dateString)
+                return true
+            }
+            catch (e: Exception)
+            {
+            }
+
+            return false
+        }
+
     }
 }

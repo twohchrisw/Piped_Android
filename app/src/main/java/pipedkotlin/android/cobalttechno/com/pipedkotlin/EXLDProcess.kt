@@ -415,12 +415,29 @@ data class EXLDProcess(val columnId: Long = -1,
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:MM:SS")
         val today = sdf.format(Date())
         var saveId: Long = -1
+        var defaultCoordinate = -10000.0
 
         if (columnId < 1)
         {
             // Insert
             context.database.use {
-                saveId = insert(EXLDProcess.TABLE_NAME, EXLDProcess.c_create_timestamp to today, EXLDProcess.c_create_device to "Android", EXLDProcess.c_company_id to company_id)
+                saveId = insert(EXLDProcess.TABLE_NAME, EXLDProcess.c_create_timestamp to today, EXLDProcess.c_create_device to "Android", EXLDProcess.c_company_id to company_id,
+                        EXLDProcess.c_pt_lat to defaultCoordinate,
+                        EXLDProcess.c_pt_long to defaultCoordinate,
+                        EXLDProcess.c_swab_removed_lat to defaultCoordinate,
+                        EXLDProcess.c_swab_removed_long to defaultCoordinate,
+                        EXLDProcess.c_pt_sampl_taken_to_lat to defaultCoordinate,
+                        EXLDProcess.c_pt_sampl_taken_to_long to defaultCoordinate,
+                        EXLDProcess.c_location_lat to defaultCoordinate,
+                        EXLDProcess.c_location_long to defaultCoordinate,
+                        EXLDProcess.c_pt_flush_start_lat to defaultCoordinate,
+                        EXLDProcess.c_pt_flush_start_long to defaultCoordinate,
+                        EXLDProcess.c_pt_flush_start_lat2 to defaultCoordinate,
+                        EXLDProcess.c_pt_flush_start_long2 to defaultCoordinate,
+                        EXLDProcess.c_pt_dec_start_lat to defaultCoordinate,
+                        EXLDProcess.c_pt_dec_start_long to defaultCoordinate,
+                        EXLDProcess.c_pt_chlor_start_lat to defaultCoordinate,
+                        EXLDProcess.c_pt_chlor_start_long to defaultCoordinate)
             }
         }
         else

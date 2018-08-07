@@ -23,6 +23,8 @@ open class BaseActivity: AppCompatActivity() {
     lateinit var fusedLocationClient: FusedLocationProviderClient
     val NULL_COORDINATE: Double = -10000.0
     val LOCATION_PERMISSION_REQUEST_CODE = 1
+    var lastLat: Double = NULL_COORDINATE
+    var lastLng: Double = NULL_COORDINATE
 
     // MARK: Location
 
@@ -47,7 +49,8 @@ open class BaseActivity: AppCompatActivity() {
         {
             fusedLocationClient.lastLocation.addOnCompleteListener {
                 if (it.result != null)
-                {
+                {   lastLat = it.result.latitude
+                    lastLng = it.result.longitude
                     Log.d("cobalt", "Lat: " + it.result.latitude + " Lng: " + it.result.longitude)
                     action.invoke(it.result.latitude, it.result.longitude)
                 }
@@ -110,5 +113,7 @@ open class BaseActivity: AppCompatActivity() {
             return value
         }
     }
+
+
 
 }

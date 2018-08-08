@@ -5,6 +5,7 @@ import android.provider.SyncStateContract.Helpers.insert
 import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 data class EXLDProcess(val columnId: Long = -1,
                   var address: String = "",
@@ -412,7 +413,7 @@ data class EXLDProcess(val columnId: Long = -1,
     // Save the process
     public fun save(context: Context): Long
     {
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:MM:SS")
+        val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
         var saveId: Long = -1
         var defaultCoordinate = -10000.0
@@ -645,4 +646,80 @@ data class EXLDProcess(val columnId: Long = -1,
             return "LOCAL-PROCESS-" + String.format("%05d", columnId)
         }
     }
+
+    fun initialiseForPETest(context: Context)
+    {
+        pt_reading1_time = ""
+        pt_reading2_time = ""
+        pt_reading3_time = ""
+        pt_reading_1 = 0.0
+        pt_reading_2 = 0.0
+        pt_reading_3 = 0.0
+        pe_pdf_calc_result = 0.0
+        pe_test_has_calculated = 0
+        pe_pdf_log_pa_t1 = 0.0
+        pe_pdf_log_pa_t2 = 0.0
+        pe_pdf_log_pa_t3 = 0.0
+        pe_pdf_log_t1 = 0.0
+        pe_pdf_log_t2 = 0.0
+        pe_pdf_log_t3 = 0.0
+        pe_pdf_n1 = 0.0
+        pe_pdf_n2 = 0.0
+        pe_pdf_pass = 0
+        pt_pressurising_start = ""
+        pt_pressurising_finish = ""
+        pt_pe_readings_count = 3
+
+        save(context)
+    }
+
+    fun calculatePEReadingTimes(context: Context)
+    {
+        val startTime = DateHelper.dbStringToDate(pt_pressurising_start, Date())
+        val finishTime = DateHelper.dbStringToDate(pt_pressurising_finish, Date())
+        val millisDiff = finishTime.time - startTime.time
+        val r1Addition = millisDiff
+        val r2Addition = 8 * millisDiff
+        val r3Addition = 20 * millisDiff
+        val r1Time = finishTime.time + r1Addition
+        val r2Time = finishTime.time + r2Addition
+        val r3Time = finishTime.time + r3Addition
+
+        pt_reading1_time = DateHelper.millisToDBString(r1Time)
+        pt_reading2_time = DateHelper.millisToDBString(r2Time)
+        pt_reading3_time = DateHelper.millisToDBString(r3Time)
+
+        save(context)
+    }
+
+    fun isWaitingForPEData():Boolean
+    {
+        val haveReading1 = pt_reading_1 > 0
+        val haveReading2 = pt_reading_2 > 0
+        val haveReading3 = pt_reading_3 > 0
+
+        if (haveReading1 && haveReading2 && haveReading3)
+        {
+            return false
+        }
+        else
+        {
+            return true
+        }
+    }
+
+    fun havePECalculationResult(): Boolean
+    {
+        return pe_pdf_calc_result != 0.0
+    }
+
+    fun peCalcResultDescription(): String
+    {
+        val n1 = pe_pdf_n1.formatForDecPlaces(4)
+        val n2 = pe_pdf_n2.formatForDecPlaces(4)
+        val result = pe_pdf_calc_result.formatForDecPlaces(4)
+        return "n2 / n1 = " + n2 + " / " + n1 + " = " + result
+    }
+
+
 }

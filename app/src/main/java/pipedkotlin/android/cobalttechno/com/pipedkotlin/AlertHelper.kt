@@ -16,6 +16,7 @@ open class AlertHelper(context: Context) {
     {
         dialogEditText.inputType = InputType.TYPE_CLASS_TEXT
         dialogEditText.setText(defaultValue)
+        dialogEditText.setSelectAllOnFocus(true)
         builder.setTitle(title)
         builder.setView(dialogEditText)
 

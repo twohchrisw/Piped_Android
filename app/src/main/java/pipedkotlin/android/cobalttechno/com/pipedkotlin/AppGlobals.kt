@@ -11,5 +11,6 @@ public class AppGlobals private constructor() {
 
     var companyId = ""
     var activeProcess = EXLDProcess()
+    var tibiisController = TibiisController()
 
 }

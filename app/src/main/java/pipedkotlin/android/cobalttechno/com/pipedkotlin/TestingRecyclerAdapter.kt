@@ -1,13 +1,10 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
-import android.icu.lang.UCharacter.GraphemeClusterBreak.L
-import android.icu.lang.UCharacter.JoiningGroup.PE
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import junit.framework.Test
 
-class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingContext, val clickListener: TestingRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
+class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingContext, val arePEReadingsComplete: Boolean, val clickListener: TestingRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
     interface TestingRecyclerClickListener {
         fun didSelectPERow(row: Int)
@@ -165,27 +162,27 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                 }
                 PERows.startPressure.value -> {
                     title?.text = "Start Pressure (bar)"
-                    value?.text = p.pt_start_pressure.formatForDecPlaces(2)
+                    value?.text = p.pt_start_pressure.formatForDecPlaces(3)
                 }
                 PERows.stp.value -> {
                     title?.text = "System Test Pressure (bar)"
-                    value?.text = p.pt_system_test_pressure.formatForDecPlaces(2)
+                    value?.text = p.pt_system_test_pressure.formatForDecPlaces(3)
                 }
                 PERows.reading1.value -> {
                     val reading1Date = p.pt_reading1_time
-                    val r1Time = DateHelper.dbDateStringFormatted(reading1Date)
+                    val r1Time = DateHelper.dbDateStringFormattedWithSeconds(reading1Date)
                     title?.text = "Reading 1: " + r1Time.valueOrNone()
                     value?.text = p.pt_reading_1.formatForDecPlaces(3)
                 }
                 PERows.reading2.value -> {
                     val readingDate = p.pt_reading2_time
-                    val rTime = DateHelper.dbDateStringFormatted(readingDate)
+                    val rTime = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 2: " + rTime.valueOrNone()
                     value?.text = p.pt_reading_2.formatForDecPlaces(3)
                 }
                 PERows.reading3.value -> {
                     val readingDate = p.pt_reading3_time
-                    val rTime = DateHelper.dbDateStringFormatted(readingDate)
+                    val rTime = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 3: " + rTime.valueOrNone()
                     value?.text = p.pt_reading_3.formatForDecPlaces(3)
                 }
@@ -224,21 +221,21 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                 }
                 DIRows.startPressure.value -> {
                     title?.text = "Start Pressure (bar)"
-                    value?.text = p.pt_di_start_pressure.formatForDecPlaces(2)
+                    value?.text = p.pt_di_start_pressure.formatForDecPlaces(3)
                 }
                 DIRows.stp.value -> {
                     title?.text = "System Test Pressure (bar)"
-                    value?.text = p.pt_di_stp.formatForDecPlaces(2)
+                    value?.text = p.pt_di_stp.formatForDecPlaces(3)
                 }
                 DIRows.reading15.value -> {
                     val readingDate = p.pt_di_r15_time
-                    val r15Time = DateHelper.dbDateStringFormatted(readingDate)
+                    val r15Time = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 15m: " + r15Time.valueOrNone()
                     value?.text = p.pt_di_r15_value.formatForDecPlaces(3)
                 }
                 DIRows.reading60.value -> {
                     val readingDate = p.pt_di_r60_time
-                    val r60Time = DateHelper.dbDateStringFormatted(readingDate)
+                    val r60Time = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 60m: " + r60Time.valueOrNone()
                     value?.text = p.pt_di_r60_value.formatForDecPlaces(3)
                 }
@@ -293,9 +290,50 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
         viewHolder.pressurisingStarted?.text = "Pressurising Started:"
         viewHolder.pressureReaced?.text = "Pressure Reached: "
-        viewHolder.calcResult?.text = "Calc Result:"
-        viewHolder.testStatus?.text = "[Section needs completing]"
+        viewHolder.calcResult?.text = "Calc Result: N/A"
+        viewHolder.testStatus?.text = "In Progress"
         viewHolder.headerText?.text = "NOTES"
+
+        if (DateHelper.dateIsValid(p.pt_pressurising_start))
+        {
+            viewHolder.pressurisingStarted?.text = "Pressurising Started: " + DateHelper.dbDateStringFormattedWithSeconds(p.pt_pressurising_start)
+        }
+
+        if (DateHelper.dateIsValid(p.pt_pressurising_finish))
+        {
+            viewHolder.pressureReaced?.text = "Pressure Reached: " + DateHelper.dbDateStringFormattedWithSeconds(p.pt_pressurising_finish)
+        }
+
+        if (arePEReadingsComplete)
+        {
+            if (p.isWaitingForPEData()) {
+                viewHolder.testStatus?.text = "Waiting for data"
+            }
+            else
+            {
+                viewHolder.testStatus?.text = "Ready to Calculate"
+            }
+        }
+
+        // Calculation results
+        if (DateHelper.dateIsValid(p.pt_pressurising_finish))
+        {
+            if (arePEReadingsComplete && !p.isWaitingForPEData() && p.havePECalculationResult())
+            {
+                if (p.pe_pdf_pass == 0)
+                {
+                    viewHolder.testStatus?.text = "Test Failed!"
+                    //TODO: Format label for failed
+                }
+                else
+                {
+                    viewHolder.testStatus?.text = "Test Passed"
+                    //TODO: Format label for passed
+                }
+
+                viewHolder.calcResult?.text = p.peCalcResultDescription()
+            }
+        }
     }
 
     // Readings footer for DI

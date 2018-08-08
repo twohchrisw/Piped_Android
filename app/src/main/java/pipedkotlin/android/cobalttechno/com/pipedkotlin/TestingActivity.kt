@@ -1,5 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -10,9 +11,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 
 import kotlinx.android.synthetic.main.activity_testing_acitivty.*
+import org.jetbrains.anko.find
+import org.jetbrains.anko.startActivityForResult
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerClickListener {
 
@@ -22,15 +28,36 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     lateinit var btnAction: Button
     lateinit var tvConnectStatus: TextView
     lateinit var btnConnect: Button
+    lateinit var linPressurising: LinearLayout // The section of the action panel that displays the pressurising spinner
+    lateinit var tvPressurisingLabel: TextView
+    lateinit var linWaitingForReading: LinearLayout // The sectkon of the action panel that shows 'Waiting for Reading 1'
+    lateinit var tvWaiting: TextView
+    lateinit var linCountdown: LinearLayout
+    lateinit var tvCountdown: TextView
+    lateinit var progCountdown: ProgressBar
 
     // Vars
     var tibiisSession = TibiisSessionData()
     var testingSession = TestingSessionData()
     lateinit var calcManager: TestingCalcs
+    var timer = Timer()
+    var readingsHaveCompleted = false
+
+    // Constants
+    val BUTTON_TEXT_START_PRESS = "Start Pressurising"
+    val BUTTON_TEXT_STOP_PRESS = "Pressure Reached"
+    val BUTTON_TEXT_CALCULATE = "Calculate"
+    val BUTTON_TEXT_VIEW_CHART = "View Results"
+    val BUTTON_TEXT_START_TEST = "Start Test"
+
+    enum class ActivityRequestCodes(val value: Int) {
+        peNotes(1), diNotes(2), listSelection(3)
+    }
 
     companion object {
         val TESTING_CONTEXT_EXTRA = "TESTING_CONTEXT_EXTRA"
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +85,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         addListeners()
         loadData()
         getCurrentLocation(::locationReceived)
+        formatForViewWillAppear()
 
         //TODO: setupTestingActionPanel
         //TODO: setupTibiis
+        //TODO: Request DI Loss value if not set
+        //TODO: Check Test Status (formatForViewWillAppear - to load current states)
     }
 
     fun assignOutlets()
@@ -71,6 +101,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         btnAction = findViewById(R.id.btnAction) as Button
         tvConnectStatus = findViewById(R.id.tvConnectStatus) as TextView
         btnConnect = findViewById(R.id.btnConnect) as Button
+        linPressurising = findViewById(R.id.linPressurising) as LinearLayout
+        tvPressurisingLabel = findViewById(R.id.tvPressurisingLabel) as TextView
+        linWaitingForReading = findViewById(R.id.linWaitingForReading) as LinearLayout
+        tvWaiting = findViewById(R.id.tvWaitingLabel) as TextView
+        linCountdown = findViewById(R.id.linCountdown) as LinearLayout
+        tvCountdown = findViewById(R.id.tvCountdown) as TextView
+        progCountdown = findViewById(R.id.progCountdown) as ProgressBar
     }
 
     fun addListeners()
@@ -79,9 +116,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         btnConnect.setOnClickListener { view -> connectButtonTapped() }
     }
 
-    fun loadData()
+    fun loadData(scrollToReading: Int = 0)
     {
-        recyclerView.adapter = TestingRecyclerAdapter(testingSession.testingContext, this)
+        runOnUiThread {
+            val recyclerLayout = recyclerView.layoutManager as LinearLayoutManager
+            val firstVisible = recyclerLayout.findFirstCompletelyVisibleItemPosition()
+            recyclerView.adapter = TestingRecyclerAdapter(testingSession.testingContext, arePEReadingsComplete(), this)
+            recyclerLayout.scrollToPosition(firstVisible)
+        }
     }
 
     // MARK: Passed functions to dialogs for row selections
@@ -143,25 +185,16 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setInstallTech()
     {
-        val p = AppGlobals.instance.activeProcess
-
-        //TODO: Install Tech List
-
-        p.save(this)
-        loadData()
+        val listIntent = Intent(this, ListSelectionActivity::class.java)
+        listIntent.putExtra("ListType", ListSelectionActivity.ListContext.installTechs.value)
+        startActivityForResult(listIntent, ActivityRequestCodes.listSelection.value)
     }
 
     fun setPumpSize()
     {
-        val p = AppGlobals.instance.activeProcess
-        if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
-            //TODO: Pump Size List
-        }
-        else
-        {
-            //TODO: Pumpsize List
-        }
-        p.save(this)
+        val listIntent = Intent(this, ListSelectionActivity::class.java)
+        listIntent.putExtra("ListType", ListSelectionActivity.ListContext.pumpType.value)
+        startActivityForResult(listIntent, ActivityRequestCodes.listSelection.value)
     }
 
     fun setAllowedLoss()
@@ -251,15 +284,69 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         loadData()
     }
 
+    // Display the notes dialog
+    // Results handled in onActivityResult
     fun setNotes()
     {
-        //TODO: Notes
+        val notesIntent = Intent(this, NotesActivity::class.java)
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+        {
+            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.pt_pe_notes)
+            startActivityForResult(notesIntent, ActivityRequestCodes.peNotes.value)
+        }
+        else
+        {
+
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (requestCode == ActivityRequestCodes.peNotes.value && data != null)
+        {
+            AppGlobals.instance.activeProcess.pt_pe_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+        }
+
+        if (requestCode == ActivityRequestCodes.diNotes.value && data != null)
+        {
+            AppGlobals.instance.activeProcess.pt_di_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+        }
+
+        if (requestCode == ActivityRequestCodes.listSelection.value && data != null)
+        {
+            val listId = data!!.getIntExtra("listId", -1)
+            val listItem = data!!.getStringExtra("listValue")
+
+            when (listId)
+            {
+                ListSelectionActivity.ListContext.installTechs.value -> {
+                    if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
+                        AppGlobals.instance.activeProcess.pt_pe_it = listItem
+                    }
+                    else
+                    {
+                        // Nothing here for DI
+                    }
+                }
+                ListSelectionActivity.ListContext.pumpType.value -> {
+                    if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
+                        AppGlobals.instance.activeProcess.pt_pe_pump_size = listItem
+                    }
+                    else
+                    {
+                        AppGlobals.instance.activeProcess.pt_di_pump_size = listItem
+                    }
+                }
+            }
+        }
+
+        AppGlobals.instance.activeProcess.save(this)
+        loadData()
     }
 
 
     // MARK: TestingRecyclerClickListener
-
-
 
     override fun didSelectPERow(row: Int) {
         val alert = AlertHelper(this)
@@ -279,8 +366,6 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             TestingRecyclerAdapter.PERows.reading2.value -> alert.dialogForTextInput("Reading 2", p.pt_reading_2.toString(), ::setReading2)
             TestingRecyclerAdapter.PERows.reading3.value -> alert.dialogForTextInput("Reading 3", p.pt_reading_3.toString(), ::setReading3)
             TestingRecyclerAdapter.PERows.notes.value -> setNotes()
-
-
         }
     }
 
@@ -302,4 +387,205 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             TestingRecyclerAdapter.DIRows.notes.value -> setNotes()
         }
     }
+
+    fun formatForViewWillAppear()
+    {
+        formatActionPanelForDefault()
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+        {
+            loadCheckPE()
+
+            if (arePEReadingsComplete())
+            {
+                formatActionPanelForCalculate()
+            }
+        }
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            loadCheckDI()
+
+            if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_di_r60_time))
+            {
+                formatActionPanelForCalculate()
+            }
+        }
+    }
+
+
+
+
+
+    fun formatActionPanelForDefault()
+    {
+        linPressurising.visibility = View.GONE
+        linWaitingForReading.visibility = View.GONE
+        linCountdown.visibility = View.GONE
+        btnAction.visibility = View.VISIBLE
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+        {
+            btnAction.setText(BUTTON_TEXT_START_PRESS)
+        }
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            btnAction.setText(BUTTON_TEXT_START_TEST)
+        }
+    }
+
+    fun formatActionPanelForCalculate()
+    {
+        runOnUiThread {
+            btnAction.visibility = View.VISIBLE
+            btnAction.setText(BUTTON_TEXT_CALCULATE)
+            linPressurising.visibility = View.GONE
+            linWaitingForReading.visibility = View.GONE
+            linCountdown.visibility = View.GONE
+        }
+    }
+
+    fun formatActionPanelForPressurising()
+    {
+        hideActionPanelTopContent()
+        btnAction.visibility = View.VISIBLE
+        btnAction.setText(BUTTON_TEXT_STOP_PRESS)
+        linPressurising.visibility = View.VISIBLE
+        linWaitingForReading.visibility = View.GONE
+        linCountdown.visibility = View.GONE
+    }
+
+    fun formatActionPanelForCountdown(readingTime: Date, earlierTime: Date, countdownText: String, progressText: String)
+    {
+        runOnUiThread {
+            btnAction.visibility = View.GONE
+            linPressurising.visibility = View.GONE
+            linWaitingForReading.visibility = View.VISIBLE
+            tvWaiting.setText(progressText)
+            linCountdown.visibility = View.VISIBLE
+            tvCountdown.text = countdownText
+
+            val totalTimeDiff = readingTime.time - earlierTime.time
+            val currentTimeDiff = readingTime.time - Date().time
+            val timeLeft = totalTimeDiff - currentTimeDiff
+            val progValue = (timeLeft.toDouble() / totalTimeDiff.toDouble()) * 100.0
+            progCountdown.progress = progValue.toInt() + 1
+        }
+    }
+
+    fun hideActionPanelTopContent()
+    {
+        //TODO: Needs implmenting
+    }
+    // MARK: Starting the Test - see TestingActivity+Actions
+
+
+    // MARK: Timer Loop
+
+    class PETimerTask(val a: TestingActivity, val r1Time: Date, val r2Time: Date, val r3Time: Date): TimerTask()
+    {
+        override fun run() {
+            val now = Date()
+
+
+            // Reading 1
+            if (a.testingSession.timerStage == 0)
+            {
+                if (now.time < r1Time.time)
+                {
+                    waitingForReading1()
+                }
+                else
+                {
+                    hitReading1()
+                }
+            }
+
+            if (a.testingSession.timerStage == 1)
+            {
+                if (now.time < r2Time.time)
+                {
+                    waitingForReading2()
+                }
+                else
+                {
+                    hitReading2()
+                }
+            }
+
+            if (a.testingSession.timerStage == 2)
+            {
+                if (now.time < r3Time.time)
+                {
+                    waitingForReading3()
+                }
+                else
+                {
+                    hitReading3()
+                }
+            }
+
+            if (a.testingSession.timerStage == 3)
+            {
+                a.testingSession.timerStage = 4
+                a.cancelPETimer()
+            }
+        }
+
+        fun waitingForReading1()
+        {
+            val millisDiff = r1Time.time - Date().time
+            val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
+            a.formatActionPanelForCountdown(r1Time, DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_pressurising_finish, Date()), countdownString, "Waiting for Reading 1")
+        }
+
+        fun waitingForReading2()
+        {
+            val millisDiff = r2Time.time - Date().time
+            val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
+            a.formatActionPanelForCountdown(r2Time, r1Time, countdownString, "Waiting for Reading 2")
+        }
+
+        fun waitingForReading3()
+        {
+            val millisDiff = r3Time.time - Date().time
+            val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
+            a.formatActionPanelForCountdown(r3Time, r2Time, countdownString, "Waiting for Reading 3")
+        }
+
+        fun hitReading1()
+        {
+            if (a.testingSession.isLoggingWithTibiis)
+            {
+                //TODO: Tibiis Stuff
+            }
+
+            a.testingSession.timerStage = 1
+            a.loadData()
+        }
+
+        fun hitReading2()
+        {
+            if (a.testingSession.isLoggingWithTibiis)
+            {
+                //TODO: Tibiis Stuff
+            }
+
+            a.testingSession.timerStage = 2
+            a.loadData()
+        }
+
+        fun hitReading3()
+        {
+            if (a.testingSession.isLoggingWithTibiis)
+            {
+                //TODO: Tibiis Stuff
+            }
+
+            a.testingSession.timerStage = 3
+            a.loadData()
+        }
+    }
+
 }

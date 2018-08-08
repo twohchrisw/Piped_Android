@@ -154,7 +154,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                 }
                 PERows.volume.value -> {
                     title?.text = "Volume Added (ltrs)"
-                    //TODO: Water volume calculation
+                    value?.text = p.waterVolumePressurisedString(testingContext)
                 }
                 PERows.loggerDetails.value -> {
                     title?.text = "Logger Details"

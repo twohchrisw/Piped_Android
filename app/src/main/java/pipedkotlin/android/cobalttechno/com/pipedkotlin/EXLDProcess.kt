@@ -2,6 +2,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
 import android.provider.SyncStateContract.Helpers.insert
+import android.util.Log
 import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -721,5 +722,76 @@ data class EXLDProcess(val columnId: Long = -1,
         return "n2 / n1 = " + n2 + " / " + n1 + " = " + result
     }
 
+    fun waterVolumePressurisedString(testingContext: TestingSessionData.TestingContext): String
+    {
+        val litresPerSecond = pumpLitersPerSecond(testingContext)
+        val pressureTime = pumpVolumeTimeSeconds(testingContext)
+
+        if (litresPerSecond > 0 && pressureTime > 0)
+        {
+            val volume = litresPerSecond * pressureTime
+            return volume.formatForDecPlaces(2)
+        }
+        else
+        {
+            return "N/A"
+        }
+    }
+
+    fun pumpLitersPerSecond(testingContext: TestingSessionData.TestingContext): Double
+    {
+        var pumpSizeString = pt_pe_pump_size
+        if (testingContext == TestingSessionData.TestingContext.di)
+        {
+            pumpSizeString = pt_di_pump_size
+        }
+
+        if (pumpSizeString.length < 4)
+        {
+            return 0.0
+        }
+
+        if (pumpSizeString.equals("Hand Pump"))
+        {
+            return 4.0 / 60.0
+        }
+
+        var pumpSizeNumerals = pumpSizeString.substring(0, 3)
+        pumpSizeNumerals = pumpSizeNumerals.replace(" ", "")
+        val pumpPerMinute = pumpSizeNumerals.toDoubleOrNull()
+
+        if (pumpPerMinute != null)
+        {
+            return pumpPerMinute / 60.0
+        }
+        else
+        {
+            return 0.0
+        }
+
+    }
+
+    fun pumpVolumeTimeSeconds(testingContext: TestingSessionData.TestingContext): Double
+    {
+        if (testingContext == TestingSessionData.TestingContext.di)
+        {
+            return 360.0
+        }
+        else
+        {
+            if (DateHelper.dateIsValid(pt_pressurising_start) && DateHelper.dateIsValid(pt_pressurising_finish))
+            {
+                val start = DateHelper.dbStringToDate(pt_pressurising_start, Date())
+                val finish = DateHelper.dbStringToDate(pt_pressurising_finish, Date())
+                val diff = finish.time - start.time
+                val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+                return seconds.toDouble()
+            }
+            else
+            {
+                return 0.0
+            }
+        }
+    }
 
 }

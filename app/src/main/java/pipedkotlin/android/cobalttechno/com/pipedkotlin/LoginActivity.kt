@@ -1,8 +1,11 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.Manifest
 import android.app.ProgressDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -25,6 +28,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        checkPermissions()
         progressBar = findViewById(R.id.progressBar) as ProgressBar
         progressBar.visibility = View.GONE
         val existingCompanyId = EXLDSettings.getExistingCompanyId(this)
@@ -45,6 +49,15 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         }
     }
 
+    fun checkPermissions()
+    {
+        val permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
+        if (permission != PackageManager.PERMISSION_GRANTED)
+        {
+            val perms = arrayOf(android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.INTERNET, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE)
+            ActivityCompat.requestPermissions(this, perms, TestingActivity.ActivityRequestCodes.permissions.value)
+        }
+    }
 
     // Get the company id from the user
     fun getCompanyId()

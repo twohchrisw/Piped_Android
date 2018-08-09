@@ -1,9 +1,12 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -20,7 +23,7 @@ import org.jetbrains.anko.startActivityForResult
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerClickListener {
+class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerClickListener, TibiisController.TibiisControllerDelegate {
 
     // Outlets
     lateinit var recyclerView: RecyclerView
@@ -51,7 +54,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     val BUTTON_TEXT_START_TEST = "Start Test"
 
     enum class ActivityRequestCodes(val value: Int) {
-        peNotes(1), diNotes(2), listSelection(3)
+        peNotes(1), diNotes(2), listSelection(3), permissions(4), enableBluetooth(5)
     }
 
     companion object {
@@ -86,12 +89,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         loadData()
         getCurrentLocation(::locationReceived)
         formatForViewWillAppear()
+        setupTibiis()
 
-        //TODO: setupTestingActionPanel
-        //TODO: setupTibiis
         //TODO: Request DI Loss value if not set
         //TODO: Check Test Status (formatForViewWillAppear - to load current states)
     }
+
+
+
 
     fun assignOutlets()
     {
@@ -126,7 +131,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
     }
 
-    // MARK: Passed functions to dialogs for row selections
+    // MARK: ROW SELECTIONS
 
     fun setSectionName(value: String)
     {
@@ -586,6 +591,22 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             a.testingSession.timerStage = 3
             a.loadData()
         }
+    }
+
+    // MARK: Tibiis Controller Delegate
+
+    override fun tibiisConnected() {
+        formatTibiisForConnected()
+    }
+
+    override fun tibiisDisconnected() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun tibiisFailedToConnect() {
+        val alert = AlertHelper(this)
+        alert.dialogForOKAlertNoAction("Tibiis Not Found", "The Tibiis device could not be found.")
+        formatTibiisForNotConnected()
     }
 
 }

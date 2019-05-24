@@ -66,44 +66,35 @@ class TibiisController() {
 
     init {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
     }
-
-
-    private val bleStopScannerCallback = object: ScanCallback()
-    {
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            super.onScanResult(callbackType, result)
-        }
-    }
-
 
     private val bleScannerCallback = object: ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
 
+            Log.d("cobalt", "Scanner callback type ${callbackType}")
             val tibiisUUID = ParcelUuid.fromString(MICROCHIP_SERVICE_ID)
             if (result?.scanRecord?.serviceUuids != null)
             {
                 if (result!!.scanRecord!!.serviceUuids!!.contains(tibiisUUID))
                 {
                     // Stop the scan
+                    Log.d("cobalt", "Stopping Scanner")
+                    mBluetoothAdapter!!.bluetoothLeScanner.stopScan(this)
+                    mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(this)
 
-                    // Connect to Tibiis
-                    mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleStopScannerCallback)
                     mDeviceFound = true
                     val device = result.device
 
-                    //TODO: Bug - asks for pairing code - just press cancel
-                    //TODO: Then closes the activity, after cancel still closes the activity after some seconds
                     if (mBluetoothGatt != null)
                     {
                         mBluetoothGatt!!.close()
                         mBluetoothGatt = null
                     }
 
-                    mBluetoothGatt = device.connectGatt(appContext!!, true, mGattCallback)
+                    Log.d("cobalt", "Connecting via onScanResult")
+                    mBluetoothGatt = device.connectGatt(appContext!!, false, mGattCallback)
                 }
             }
         }
@@ -115,11 +106,17 @@ class TibiisController() {
             {
                 Log.d("cobalt", "GATT Connected")
                 mBluetoothGatt!!.discoverServices()
+                delegate.tibiisConnected()
+
+
+
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
                 Log.d("cobalt", "GATT DISConnected")
-                // delegate.tibiisDisconnected() //TODO: We need this line but it causes the app to crash
+                mBluetoothGatt!!.close()
+                mBluetoothGatt = null
+                delegate.tibiisDisconnected()
                 mDeviceFound = false
                 connectStatus = ConnectionStatus.notConnected
             }
@@ -173,7 +170,6 @@ class TibiisController() {
                         mDataMDLP = gc
                         delegate.tibiisConnected()
                         connectStatus = TibiisController.ConnectionStatus.connected
-
                     }
                     else
                     {
@@ -226,9 +222,11 @@ class TibiisController() {
     {
         if (mBluetoothAdapter == null)
         {
+            Log.d("cobalt", "TibiisController.connectToTibiis() Bluetooth Adapter is null")
             return
         }
 
+        Log.d("cobalt", "TibiisController.connectToTibiis() Beginning bluetooth scan")
         mBluetoothAdapter!!.bluetoothLeScanner.startScan(bleScannerCallback)
 
         // Cancel the scanning after a timeout - using bleScanner
@@ -237,6 +235,7 @@ class TibiisController() {
 
             if (!mDeviceFound) {
                 mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
+                Log.d("cobalt", "TibiisController.connectToTibiis() Tibiis failed to connect")
                 delegate.tibiisFailedToConnect()
             }
         }, 10000)
@@ -251,7 +250,13 @@ class TibiisController() {
 
     fun disconnectTibiis()
     {
-
+        // Stop the scan
+        Log.d("cobalt", "Stopping Scanner")
+        mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
+        mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
+        mBluetoothGatt!!.disconnect()
+        //mBluetoothGatt!!.close()
+        //mBluetoothGatt = null
     }
 
     fun commandSendAck()

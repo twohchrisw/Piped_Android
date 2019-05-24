@@ -7,6 +7,7 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import org.jetbrains.anko.db.classParser
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -26,10 +27,11 @@ interface CommsManagerDelegate {
 class CommsManager(delegate: CommsManagerDelegate) {
 
     val delegate = delegate
-    public final val WEBSERVER_VALIDATE_COMPANY_ID = "http://www.cobalttechno.co.uk/irateservice.asmx/GetCompanyIDCount?company_id="
-    public final val WEBSERVER_GET_LIST_ITEMS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetAllListItems"
-    public final val WEBSERVER_GET_CLIENTS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetAllClients"
-    public final val WEBSERVER_GET_MODULE_PREFS = "http://www.cobalttechno.co.uk/irateservice.asmx/GetExcelModulePreferences?company_id="
+    val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+    public final val WEBSERVER_VALIDATE_COMPANY_ID = "${SERVICE_DOMAIN}irateservice.asmx/GetCompanyIDCount2?company_id="
+    public final val WEBSERVER_GET_LIST_ITEMS = "${SERVICE_DOMAIN}irateservice.asmx/GetAllListItems"
+    public final val WEBSERVER_GET_CLIENTS = "${SERVICE_DOMAIN}irateservice.asmx/GetAllClients"
+    public final val WEBSERVER_GET_MODULE_PREFS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelModulePreferences?company_id="
 
     // Retrieves an XML file from the server
     public fun getXMLDocument(urlString: String, context: Context)

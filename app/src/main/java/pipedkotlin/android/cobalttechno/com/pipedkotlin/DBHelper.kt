@@ -37,7 +37,9 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDSettings.COLUMN_ALLOW_SAMPLING to TEXT,
                 EXLDSettings.COLUMN_ALLOW_SWABBING to TEXT,
                 EXLDSettings.COLUMN_ALLOW_SURVEYING to TEXT,
-                EXLDSettings.COLUMN_COMPANY_ID to TEXT)
+                EXLDSettings.COLUMN_COMPANY_ID to TEXT,
+                EXLDSettings.COLUMN_USER_ID to TEXT,
+                EXLDSettings.COLUMN_USER_ID_STRING to TEXT)
 
         // List Items
         db!!.createTable(EXLDListItems.TABLE_NAME, true,

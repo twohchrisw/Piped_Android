@@ -30,7 +30,7 @@ fun TestingActivity.connectButtonTapped()
     if (t.connectStatus == TibiisController.ConnectionStatus.connected || t.connectStatus == TibiisController.ConnectionStatus.connecting)
     {
         t.disconnectTibiis()
-        formatTibiisForNotConnected()
+        //formatTibiisForNotConnected()
         return
     }
 

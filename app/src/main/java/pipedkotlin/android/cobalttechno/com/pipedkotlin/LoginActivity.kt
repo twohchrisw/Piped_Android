@@ -46,6 +46,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
             btnEnterCompanyId.visibility = View.VISIBLE
             btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
+            supportActionBar?.hide()
         }
     }
 
@@ -149,6 +150,9 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         val xmlList = CommsManager.convertXmlData(rawXML)
         var companyIdIsValid = false
         var companyIsOverlimit = false
+        var noResultReturn = true
+        var ownerCompanyId = ""
+        var userIdString = ""
 
         // Check for valid, overlimit and invalid
         if (xmlList.size > 0)
@@ -156,44 +160,56 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             // Only one row returned for this request
             val dataRow: CobaltXmlRow = xmlList.get(0)
 
-            val resultCountField = dataRow.getFieldForKey("resultCount")
-            val resultCount: String = resultCountField?.value ?: "0"
+            val resultCountField = dataRow.getFieldForKey("resultCount")?.value ?: "0"
+            userIdString = dataRow.getFieldForKey("userId")?.value ?: ""
+            ownerCompanyId = dataRow.getFieldForKey("companyId")?.value ?: ""
+            Log.d("cobalt", "company id is $ownerCompanyId")
+            val resultAsInt = resultCountField.toInt()
+            noResultReturn = false
 
-
-            if (resultCount == "0")
+            if (resultAsInt == -1)
             {
-                Log.d("cobalt", "Invalid CompanyId")
-            }
-            else if (resultCount == "-1")
-            {
-                Log.d("cobalt", "Company overlimit")
+                // Overlimit
                 companyIsOverlimit = true
+                companyIdIsValid = false
             }
-            else if (resultCount == "1")
+
+            if (resultAsInt == 1)
             {
-                Log.d("cobalt", "Valid CompanyId")
                 companyIdIsValid = true
+            }
+
+            if (resultAsInt == 0)
+            {
+                companyIdIsValid = false
             }
         }
 
         if (companyIdIsValid)
         {
-            AppGlobals.instance.companyId = attemptedCompanyId
-            EXLDSettings.writeCompanyIdToDatabase(this, attemptedCompanyId)
+            AppGlobals.instance.companyId = ownerCompanyId
+            AppGlobals.instance.userId = userIdString
+
+            EXLDSettings.writeCompanyIdToDatabase(this, ownerCompanyId, userIdString, attemptedCompanyId)
             loadListItems()
         }
         else
         {
             progressBar.visibility = View.GONE
-            if (companyIsOverlimit)
+
+            if (noResultReturn)
             {
                 val alertHelper = AlertHelper(this)
-                alertHelper.dialogForOKAlertNoAction("Company Registrations Overlimit", "Your company has used its full complement of registrations for this app.  Please contact you administrator")
+                alertHelper.dialogForOKAlertNoAction("No Network", "An network error occurred whilst attempting to validate your company id.  Please ensure you have an internet connection and try again.")
             }
-            else
-            {
-                val alertHelper = AlertHelper(this)
-                alertHelper.dialogForOKAlert("Invalid Company ID", "The company id you have entered was not found in our database.", ::getCompanyId)
+            else {
+                if (companyIsOverlimit) {
+                    val alertHelper = AlertHelper(this)
+                    alertHelper.dialogForOKAlertNoAction("Account Suspended", "This account has been suspended.  Please contact your account administrator for advice.")
+                } else {
+                    val alertHelper = AlertHelper(this)
+                    alertHelper.dialogForOKAlert("Invalid Company ID", "The company id you have entered was not found in our database.", ::getCompanyId)
+                }
             }
         }
     }

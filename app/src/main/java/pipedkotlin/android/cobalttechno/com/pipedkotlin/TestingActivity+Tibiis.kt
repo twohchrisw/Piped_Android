@@ -20,8 +20,10 @@ fun TestingActivity.setupTibiis()
 
 fun TestingActivity.formatTibiisForConnected()
 {
-    tvConnectStatus.text = "Tibiis Connected"
-    btnConnect.setText("Disconnect")
+    runOnUiThread {
+        tvConnectStatus.text = "Tibiis Connected"
+        btnConnect.setText("Disconnect")
+    }
 }
 
 fun TestingActivity.reconnectTibiis()

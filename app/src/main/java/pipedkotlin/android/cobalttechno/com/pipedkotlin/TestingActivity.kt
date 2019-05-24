@@ -96,8 +96,6 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     }
 
 
-
-
     fun assignOutlets()
     {
         recyclerView = findViewById(R.id.testingRecycler) as RecyclerView
@@ -596,11 +594,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     // MARK: Tibiis Controller Delegate
 
     override fun tibiisConnected() {
+        Log.d("cobalt", "TestingActivity.tibiisConnected()")
         formatTibiisForConnected()
     }
 
     override fun tibiisDisconnected() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.d("cobalt", "TestingActivity.tibiisNotConnected()")
+        formatTibiisForNotConnected()
     }
 
     override fun tibiisFailedToConnect() {

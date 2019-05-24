@@ -19,7 +19,9 @@ data class EXLDSettings(val settingsID: Int,
                         val allowSampling: String?,
                         val allowSwabbing: String?,
                         val allowSurveying: String?,
-                        val companyID: String?)
+                        val companyID: String?,
+                        val userID: String?,
+                        val userIDString: String?)
 {
     companion object {
         val COLUMN_ID = "settingsID"
@@ -38,6 +40,8 @@ data class EXLDSettings(val settingsID: Int,
         val COLUMN_ALLOW_SAMPLING = "allowSampling"
         val COLUMN_ALLOW_SWABBING = "allowSwabbing"
         val COLUMN_COMPANY_ID = "companyId"
+        val COLUMN_USER_ID = "userID"
+        val COLUMN_USER_ID_STRING = "userIDString"
 
         fun getExistingCompanyId(context: Context): String {
 
@@ -58,7 +62,7 @@ data class EXLDSettings(val settingsID: Int,
             }
         }
 
-        fun writeCompanyIdToDatabase(context: Context, companyId: String)
+        fun writeCompanyIdToDatabase(context: Context, companyId: String, userId: String, userIdBeingChecked: String)
         {
             val settings = context.database.use {
                 select(EXLDSettings.TABLE_NAME).whereArgs("settingsID == 1").exec {
@@ -71,7 +75,9 @@ data class EXLDSettings(val settingsID: Int,
                 // Insert
                 context.database.use {
                     insert(EXLDSettings.TABLE_NAME, EXLDSettings.COLUMN_ID to 1,
-                            EXLDSettings.COLUMN_COMPANY_ID to companyId
+                            EXLDSettings.COLUMN_COMPANY_ID to companyId,
+                            EXLDSettings.COLUMN_USER_ID to userId,
+                            EXLDSettings.COLUMN_USER_ID_STRING to userIdBeingChecked
                     )
                 }
             }
@@ -79,7 +85,11 @@ data class EXLDSettings(val settingsID: Int,
             {
                 // Update
                 context.database.use {
-                    update(EXLDSettings.TABLE_NAME, EXLDSettings.COLUMN_COMPANY_ID to companyId).whereArgs(EXLDSettings.COLUMN_ID + " = 1").exec()
+                    update(EXLDSettings.TABLE_NAME,
+                            EXLDSettings.COLUMN_COMPANY_ID to companyId,
+                            EXLDSettings.COLUMN_USER_ID to userId,
+                            EXLDSettings.COLUMN_USER_ID_STRING to userIdBeingChecked)
+                            .whereArgs(EXLDSettings.COLUMN_ID + " = 1").exec()
                 }
             }
         }

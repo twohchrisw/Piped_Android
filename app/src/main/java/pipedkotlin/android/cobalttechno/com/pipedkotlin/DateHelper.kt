@@ -39,8 +39,6 @@ class DateHelper {
             return format.format(date)
         }
 
-
-
         fun millisToDBString(millis: Long): String
         {
             val theDate = Date(millis)

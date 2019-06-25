@@ -1,6 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,19 +12,20 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 
 import kotlinx.android.synthetic.main.activity_testing_acitivty.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.startActivityForResult
+import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.schedule
 
-class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerClickListener, TibiisController.TibiisControllerDelegate {
+class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerClickListener, TibiisController.TibiisControllerDelegate, TBXDataController.TBXDataControllerDelegate {
 
     // Outlets
     lateinit var recyclerView: RecyclerView
@@ -31,20 +33,45 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     lateinit var btnAction: Button
     lateinit var tvConnectStatus: TextView
     lateinit var btnConnect: Button
-    lateinit var linPressurising: LinearLayout // The section of the action panel that displays the pressurising spinner
+    lateinit var linPressurising: RelativeLayout // The section of the action panel that displays the pressurising spinner
     lateinit var tvPressurisingLabel: TextView
     lateinit var linWaitingForReading: LinearLayout // The sectkon of the action panel that shows 'Waiting for Reading 1'
     lateinit var tvWaiting: TextView
     lateinit var linCountdown: LinearLayout
     lateinit var tvCountdown: TextView
     lateinit var progCountdown: ProgressBar
+    lateinit var tvPressureValueLabel: TextView
+    lateinit var pvActivity: ProgressBar
+    lateinit var ivBattery: ImageView
+    lateinit var tvBattery: TextView
 
     // Vars
     var tibiisSession = TibiisSessionData()
     var testingSession = TestingSessionData()
     lateinit var calcManager: TestingCalcs
     var timer = Timer()
+    var liveLogTimer = Timer()
     var readingsHaveCompleted = false
+    var lastLogReading: LogReading? = null
+    var testWillFailAlertIgnored = false
+    var testWillFailN1Ignored = false
+    val numberOfSecondsEitherSideOfReadingForScreenOn = 15
+    var shouldTurnScreenOnWithNextLog = false
+    var shouldTurnScreenOffWithNextLog = false
+    var isScreenOn = false
+    val WATER_LITRES_PER_PULSE = 0.25
+    val MAX_PREVIOUS_LOGS = 30
+    var lastPreviousLogRequired = -1
+    var lastMaxLogNumber = 0
+    var isDownloadingPreviousData = false
+    var isCheckingIntegrity = false
+    var hasCheckedIntegrity = false
+    var preventDIAskingForLossValue = false
+
+    // From TestingActionPanel
+    var lastPreviousReading = Date()
+    var isPressurisingDI = false
+    var previousReadingTimer: Timer? = null
 
     // Constants
     val BUTTON_TEXT_START_PRESS = "Start Pressurising"
@@ -91,8 +118,94 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         formatForViewWillAppear()
         setupTibiis()
 
-        //TODO: Request DI Loss value if not set
-        //TODO: Check Test Status (formatForViewWillAppear - to load current states)
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            //TODO: createDiBackButton - to prevent the user exiting a test
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.testing_menu, menu)
+        return true
+    }
+
+    fun formatForViewWillAppear()
+    {
+        formatActionPanelForDefault()
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+        {
+            loadCheckPE()
+
+            if (arePEReadingsComplete())
+            {
+                formatActionPanelForCalculate()
+            }
+        }
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            loadCheckDI()
+
+            if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_di_r60_time))
+            {
+                formatActionPanelForCalculate()
+            }
+        }
+
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di && AppGlobals.instance.activeProcess.di_is_zero_loss == -1)
+        {
+            if (!preventDIAskingForLossValue)
+            {
+                requestDILossValue()
+            }
+        }
+
+        preventDIAskingForLossValue = false
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        if (AppGlobals.instance.tibiisController != null)
+        {
+            if (item?.itemId == R.id.mnuTestCommand)
+            {
+                //AppGlobals.instance.tibiisController.sendTestCommand()
+                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandProtocolVersion()
+                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandInactivityTimeout(60)
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandTimeSync()
+            }
+
+            if (item?.itemId == R.id.mnuTestCommandFetchLiveLog)
+            {
+                //AppGlobals.instance.tibiisController.sendTestCommandFetchLiveLog()
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
+            }
+
+            if (item?.itemId == R.id.mnuTestCommandBacklight)
+            {
+                AppGlobals.instance.tibiisController.sendTestBacklightOn()
+            }
+
+            if (item?.itemId == R.id.mnuTestCommandStartTest)
+            {
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandStartTest()
+            }
+
+            if (item?.itemId == R.id.mnuTestCommandStopTest)
+            {
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandStopTest()
+            }
+
+            if (item?.itemId == R.id.mnuTestCommandFetchOldLogs)
+            {
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(2, 12)
+            }
+        }
+
+
+        return super.onOptionsItemSelected(item)
     }
 
 
@@ -104,13 +217,17 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         btnAction = findViewById(R.id.btnAction) as Button
         tvConnectStatus = findViewById(R.id.tvConnectStatus) as TextView
         btnConnect = findViewById(R.id.btnConnect) as Button
-        linPressurising = findViewById(R.id.linPressurising) as LinearLayout
+        linPressurising = findViewById(R.id.linPressurising) as RelativeLayout
         tvPressurisingLabel = findViewById(R.id.tvPressurisingLabel) as TextView
         linWaitingForReading = findViewById(R.id.linWaitingForReading) as LinearLayout
         tvWaiting = findViewById(R.id.tvWaitingLabel) as TextView
         linCountdown = findViewById(R.id.linCountdown) as LinearLayout
         tvCountdown = findViewById(R.id.tvCountdown) as TextView
         progCountdown = findViewById(R.id.progCountdown) as ProgressBar
+        tvPressureValueLabel = findViewById(R.id.tvPressureValueLabel) as TextView
+        pvActivity = findViewById(R.id.pvActivity) as ProgressBar
+        ivBattery = findViewById(R.id.ivBattery) as ImageView
+        tvBattery = findViewById(R.id.tvBatteryText) as TextView
     }
 
     fun addListeners()
@@ -348,6 +465,31 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         loadData()
     }
 
+    fun requestDILossValue()
+    {
+        val choiceDialog = AlertDialog.Builder(this)
+        choiceDialog.setTitle("Metallic Test Loss")
+        choiceDialog.setMessage("Please select the allowed pressure loss value for this test")
+        val choiceDialogItems = arrayOf("0.2 bar", "Zero Loss")
+        choiceDialog.setItems(choiceDialogItems) { dialog, which ->
+            when (which) {
+                0 -> {
+                    runOnUiThread {
+                        AppGlobals.instance.activeProcess.di_is_zero_loss = 0
+                    }
+                }
+                1 -> {
+                    runOnUiThread {
+                        AppGlobals.instance.activeProcess.di_is_zero_loss = 1
+                    }
+                }
+            }
+        }
+        choiceDialog.setNegativeButton("Cancel") { dialog, which ->
+        }
+        choiceDialog.show()
+    }
+
 
     // MARK: TestingRecyclerClickListener
 
@@ -391,100 +533,38 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
     }
 
-    fun formatForViewWillAppear()
+
+    // MARK: Timer Loops
+
+    class LiveLogTimerTask(val a: TestingActivity): TimerTask()
     {
-        formatActionPanelForDefault()
+        override fun run() {
+            val now = Date()
 
-        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
-        {
-            loadCheckPE()
-
-            if (arePEReadingsComplete())
+            if (!a.isDownloadingPreviousData)
             {
-                formatActionPanelForCalculate()
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
+
+                if (a.shouldTurnScreenOnWithNextLog)
+                {
+                    Timer("screenOn", false).schedule(100) {
+                        a.shouldTurnScreenOnWithNextLog = false
+                        Log.d("Cobalt", "Turning Screen On")
+                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(true)
+                    }
+                }
+
+                if (a.shouldTurnScreenOffWithNextLog)
+                {
+                    Timer("screenOff", false).schedule(100) {
+                        a.shouldTurnScreenOffWithNextLog = false
+                        Log.d("Cobalt", "Turning Screen Off")
+                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(false)
+                    }
+                }
             }
         }
-
-        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
-        {
-            loadCheckDI()
-
-            if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_di_r60_time))
-            {
-                formatActionPanelForCalculate()
-            }
-        }
     }
-
-
-
-
-
-    fun formatActionPanelForDefault()
-    {
-        linPressurising.visibility = View.GONE
-        linWaitingForReading.visibility = View.GONE
-        linCountdown.visibility = View.GONE
-        btnAction.visibility = View.VISIBLE
-
-        if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
-        {
-            btnAction.setText(BUTTON_TEXT_START_PRESS)
-        }
-
-        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
-        {
-            btnAction.setText(BUTTON_TEXT_START_TEST)
-        }
-    }
-
-    fun formatActionPanelForCalculate()
-    {
-        runOnUiThread {
-            btnAction.visibility = View.VISIBLE
-            btnAction.setText(BUTTON_TEXT_CALCULATE)
-            linPressurising.visibility = View.GONE
-            linWaitingForReading.visibility = View.GONE
-            linCountdown.visibility = View.GONE
-        }
-    }
-
-    fun formatActionPanelForPressurising()
-    {
-        hideActionPanelTopContent()
-        btnAction.visibility = View.VISIBLE
-        btnAction.setText(BUTTON_TEXT_STOP_PRESS)
-        linPressurising.visibility = View.VISIBLE
-        linWaitingForReading.visibility = View.GONE
-        linCountdown.visibility = View.GONE
-    }
-
-    fun formatActionPanelForCountdown(readingTime: Date, earlierTime: Date, countdownText: String, progressText: String)
-    {
-        runOnUiThread {
-            btnAction.visibility = View.GONE
-            linPressurising.visibility = View.GONE
-            linWaitingForReading.visibility = View.VISIBLE
-            tvWaiting.setText(progressText)
-            linCountdown.visibility = View.VISIBLE
-            tvCountdown.text = countdownText
-
-            val totalTimeDiff = readingTime.time - earlierTime.time
-            val currentTimeDiff = readingTime.time - Date().time
-            val timeLeft = totalTimeDiff - currentTimeDiff
-            val progValue = (timeLeft.toDouble() / totalTimeDiff.toDouble()) * 100.0
-            progCountdown.progress = progValue.toInt() + 1
-        }
-    }
-
-    fun hideActionPanelTopContent()
-    {
-        //TODO: Needs implmenting
-    }
-    // MARK: Starting the Test - see TestingActivity+Actions
-
-
-    // MARK: Timer Loop
 
     class PETimerTask(val a: TestingActivity, val r1Time: Date, val r2Time: Date, val r3Time: Date): TimerTask()
     {
@@ -608,5 +688,54 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         alert.dialogForOKAlertNoAction("Tibiis Not Found", "The Tibiis device could not be found.")
         formatTibiisForNotConnected()
     }
+
+    // MARK: TBX Controller Delegate
+    // This is TasksTesting+TBX in iOS
+
+    override fun TbxDataControllerNoResponseToCommand() {
+        Log.d("Cobalt", "TBXDataController - no response")
+    }
+
+    override fun TbxDataControllerPacketReceived(packet: TBXDataController.IncomingPacket) {
+        Log.d("Cobalt", "Received Packet")
+
+        if (packet.command == null)
+        {
+            Log.d("Cobalt", "NULL Command in incoming packet")
+            return
+        }
+
+        when (packet.command!!)
+        {
+            TBXDataController.Command.ProtocolVersion -> {
+                Log.d("Cobalt", "Protocol Version: ${packet.parseDataAsProtocolVersion()})")
+            }
+
+            TBXDataController.Command.FetchLiveLog -> {
+                if (packet.parseAsLogReading() != null)
+                {
+                    val logReading = packet.parseAsLogReading()!!
+                    Log.d("Cobalt", logReading.description())
+                    if (AppGlobals.instance.tibiisController.shouldCheckForMissingLogs)
+                    {
+                        AppGlobals.instance.tibiisController.shouldCheckForMissingLogs = false
+                        this.isDownloadingPreviousData= true
+                        Log.d("Cobalt", "Downloading previous logs for lognumber: ${logReading.logNumber}")
+                        downloadPreviousReadings(logReading.logNumber)
+                    }
+
+                    saveLiveLog(logReading)
+                }
+            }
+
+            TBXDataController.Command.FetchOldLogs -> {
+
+            }
+
+            //TODO: NEEDS COMPLETING
+        }
+    }
+
+
 
 }

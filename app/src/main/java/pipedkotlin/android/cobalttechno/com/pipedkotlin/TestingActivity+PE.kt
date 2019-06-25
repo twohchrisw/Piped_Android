@@ -248,5 +248,11 @@ fun TestingActivity.loadCheckPE()
 
 }
 
+fun TestingActivity.saveCalibrationDetails()
+{
+    //TODO: Not Implemented
+    Log.d("Cobalt", "saveCalibrationDetails not implemented")
+}
+
 
 

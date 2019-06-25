@@ -6,6 +6,18 @@ import android.util.Log
 import org.jetbrains.anko.startActivityForResult
 import java.util.*
 
+fun TestingActivity.reloadTable()
+{
+    recyclerView.adapter.notifyDataSetChanged()
+}
+
+fun TestingActivity.stopExistingTest()
+{
+    runOnUiThread {
+        tibiisStopPressurising()
+    }
+}
+
 fun TestingActivity.connectButtonTapped()
 {
     // Can we use bluetooth

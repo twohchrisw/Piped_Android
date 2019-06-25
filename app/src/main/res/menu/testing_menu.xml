@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mnuTestCommand"
+        android:title="Test Command" />
+    <item
+        android:id="@+id/mnuTestCommandFetchLiveLog"
+        android:title="Fetch Live Log" />
+    <item
+        android:id="@+id/mnuTestCommandBacklight"
+        android:title="Backlight" />
+    <item
+        android:id="@+id/mnuTestCommandStartTest"
+        android:title="Start Test" />
+    <item
+        android:id="@+id/mnuTestCommandStopTest"
+        android:title="Stop Test" />
+    <item
+        android:id="@+id/mnuTestCommandFetchOldLogs"
+        android:title="Fetch Old Logs" />
+</menu>

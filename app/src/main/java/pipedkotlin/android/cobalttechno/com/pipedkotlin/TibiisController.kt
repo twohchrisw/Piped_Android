@@ -40,6 +40,16 @@ class TibiisController() {
     val MICROCHIP_SERVICE_ID = "00035b03-58e6-07dd-021a-08123a000300"
     val MLDP_CHAR_ID = "00035B03-58E6-07DD-021A-08123A000301"
     val DEVICE_INFO_SERVICE = "180A"
+    val CHARACTERISTIC_NOTIFICATION_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
+
+    //TBX
+    var tbxDataController = TBXDataController(this)
+    var shouldCheckForMissingLogs = false
+    var testingContext = TestingSessionData.TestingContext.pe
+    var hasSendDateSync = false
+    var autoPumpEnableHasBeenSet = false
+    var tibiisHasBeenConnected = false
+
 
     enum class CurrentCommand {
         none,
@@ -60,8 +70,7 @@ class TibiisController() {
     }
     var currentCommand = CurrentCommand.none
     var previousCommand = CurrentCommand.none
-    var testingContext = TestingSessionData.TestingContext.pe
-    var hasSendDateSync = false
+
 
 
     init {
@@ -131,22 +140,27 @@ class TibiisController() {
         }
 
         override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
-            Log.d("cobalt", "Gatt onCharacteristicRead")
+            //Log.d("cobalt", "Gatt onCharacteristicRead")
             //TODO: This is where the data comes in
 
             if (characteristic != null)
             {
-                val dataValue = characteristic!!.getStringValue(0)
-                processIncomingData(dataValue)
+                tbxDataController.processIncomingData(characteristic!!)
             }
         }
 
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
-            Log.d("cobalt", "Gatt onCharacteristicWrite")
+            //Log.d("cobalt", "Gatt onCharacteristicWrite")
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-            Log.d("cobalt", "Gatt onCharacteristicChanged")
+            //TODO: Or it may come in here
+            //Log.d("cobalt", "Gatt onCharacteristicChanged")
+
+            if (characteristic != null)
+            {
+                tbxDataController.processIncomingData(characteristic!!)
+            }
         }
     }
 
@@ -159,17 +173,49 @@ class TibiisController() {
             myUUID = gattService.uuid.toString()
             if (myUUID.equals(MICROCHIP_SERVICE_ID))
             {
-                Log.d("cobalt", "got microochip service")
+                Log.d("cobalt", "got microchip service")
                 val gattCharacteristics = gattService.characteristics
                 for (gc in gattCharacteristics)
                 {
+
                     val gcUUID = gc.uuid.toString().toUpperCase()
                     if (gcUUID.equals(MLDP_CHAR_ID))
                     {
                         Log.d("cobalt", "Found MLDP characteristic")
                         mDataMDLP = gc
+
+                        val charProperties = gc.properties
+                        if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_NOTIFY)) > 0)
+                        {
+                            Log.d("cobalt", "Set NOTIFY value")
+                            mBluetoothGatt!!.setCharacteristicNotification(gc, true)
+                            val descriptor = gc.getDescriptor(UUID.fromString(CHARACTERISTIC_NOTIFICATION_CONFIG))
+                            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                            mBluetoothGatt!!.writeDescriptor(descriptor)
+                        }
+
+                        if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_INDICATE)) > 0)
+                        {
+                            Log.d("cobalt", "Set INDICATE value")
+                            mBluetoothGatt!!.setCharacteristicNotification(gc, true)
+                            val descriptor = gc.getDescriptor(UUID.fromString(CHARACTERISTIC_NOTIFICATION_CONFIG))
+                            descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+                            mBluetoothGatt!!.writeDescriptor(descriptor)
+                        }
+                        if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_WRITE)) > 0)
+                        {
+                            Log.d("cobalt", "Set WRITE TYPE value")
+                            gc.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                        }
+                        if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) > 0)
+                        {
+                            Log.d("cobalt", "Set WRITE NO RESPONSE value")
+                            gc.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                        }
+
                         delegate.tibiisConnected()
                         connectStatus = TibiisController.ConnectionStatus.connected
+
                     }
                     else
                     {
@@ -189,12 +235,6 @@ class TibiisController() {
             connectStatus = TibiisController.ConnectionStatus.notConnected
         }
     }
-
-    fun processIncomingData(data: String)
-    {
-        print("Incoming data: " + data)
-    }
-
 
 
     fun supportsBluetooth(): Boolean
@@ -252,9 +292,11 @@ class TibiisController() {
     {
         // Stop the scan
         Log.d("cobalt", "Stopping Scanner")
-        mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
-        mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
-        mBluetoothGatt!!.disconnect()
+        if (mBluetoothAdapter != null) {
+            mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
+            mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
+            mBluetoothGatt!!.disconnect()
+        }
         //mBluetoothGatt!!.close()
         //mBluetoothGatt = null
     }
@@ -264,5 +306,104 @@ class TibiisController() {
         //TODO: Not implemented
     }
 
+
+    //TODO: This will need refactoring into TBXDataController - I just want to see if we can actually send a command and get gata
+    fun sendTestCommand()
+    {
+        tbxDataController.resetIncomingData()
+
+        val command = 0x00  // Protocol Version
+
+        val length = 1
+        val dataPayload = 1
+
+        // Trying this with UInts
+        val bsn = 6   // Unsigned Int
+        var checksum = command    // Command
+        checksum += bsn.toInt()
+        checksum += length.toInt()
+        checksum += dataPayload.toInt()
+
+        // No data at this point
+
+        val lowerChecksum = checksum and 0xff
+        val upperChecksim = checksum shr 8
+
+        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), dataPayload.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
+        Log.d("cobalt", "Byte array is ${data}")
+        mDataMDLP!!.setValue(data)
+
+
+        writeCharacteristic(mDataMDLP!!)
+        // iOS has perip.writeValue( for characteristic) -- is this how we do this here?  We need an example
+    }
+
+    // There is no payload on this command
+    fun sendTestCommandFetchLiveLog()
+    {
+        tbxDataController.resetIncomingData()
+
+        val command = 0x01  // Fetch Live Log
+        val length = 0
+
+        // Trying this with UInts
+        val bsn = 34   // Unsigned Int
+        var checksum = command.toInt()    // Command
+        checksum += bsn
+        checksum += length
+
+        // No data at this point
+
+        val lowerChecksum = checksum and 0xff
+        val upperChecksim = checksum shr 8
+
+        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
+        mDataMDLP!!.setValue(data)
+        writeCharacteristic(mDataMDLP!!)
+    }
+
+    fun sendTestBacklightOn()
+    {
+        tbxDataController.resetIncomingData()
+
+        val command = 0x0D  // Protocol Version
+
+        val length = 2
+        val dataPayload1 = 0
+        val dataPayload2 = 1
+
+        // Trying this with UInts
+        val bsn = 3   // Unsigned Int
+        var checksum = command    // Command
+        checksum += bsn.toInt()
+        checksum += length.toInt()
+        checksum += dataPayload1.toInt()
+        checksum += dataPayload2.toInt()
+
+        // No data at this point
+
+        val lowerChecksum = checksum and 0xff
+        val upperChecksim = checksum shr 8
+
+        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), dataPayload1.toByte(), dataPayload2.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
+        mDataMDLP!!.setValue(data)
+        writeCharacteristic(mDataMDLP!!)
+    }
+
+    fun sendCommandBacklightOnTest()
+    {
+
+    }
+
+    fun writeCharacteristic(characteristic: BluetoothGattCharacteristic)
+    {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null)
+        {
+            Log.d("cobalt", "Can't write characteristic, adapter or GATT is null")
+            return
+        }
+
+        mBluetoothGatt!!.writeCharacteristic(characteristic)
+    }
 
 }

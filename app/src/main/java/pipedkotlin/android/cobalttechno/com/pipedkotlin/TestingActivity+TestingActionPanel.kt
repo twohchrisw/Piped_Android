@@ -187,7 +187,7 @@ fun TestingActivity.formatActionPanelForDefault()
 
 fun TestingActivity.updatePressureGauge(value: Int, pressurising: Boolean, batteryReading: Int)
 {
-    Log.d("Cobalt", "Update Pressure Gauge")
+    //Log.d("Cobalt", "Update Pressure Gauge")
 
     val pressureInBar = value.toDouble() / 1000
     val formatter = DecimalFormat("0.000")

@@ -22,6 +22,9 @@ class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.Proc
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_list)
 
+        // Set the context for the tbxDataController so we can run commands on the main thread
+        AppGlobals.instance.tibiisController.tbxDataController.context = this
+
         // Get the processes
         processes = EXLDProcess.allProcesses(this)
 

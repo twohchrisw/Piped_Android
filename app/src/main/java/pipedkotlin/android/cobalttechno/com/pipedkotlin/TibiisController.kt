@@ -116,9 +116,6 @@ class TibiisController() {
                 Log.d("cobalt", "GATT Connected")
                 mBluetoothGatt!!.discoverServices()
                 delegate.tibiisConnected()
-
-
-
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
@@ -255,7 +252,7 @@ class TibiisController() {
 
     fun resetController()
     {
-        //TODO: Needs implementing
+
     }
 
     fun connectToTibiis()
@@ -306,94 +303,6 @@ class TibiisController() {
         //TODO: Not implemented
     }
 
-
-    //TODO: This will need refactoring into TBXDataController - I just want to see if we can actually send a command and get gata
-    fun sendTestCommand()
-    {
-        tbxDataController.resetIncomingData()
-
-        val command = 0x00  // Protocol Version
-
-        val length = 1
-        val dataPayload = 1
-
-        // Trying this with UInts
-        val bsn = 6   // Unsigned Int
-        var checksum = command    // Command
-        checksum += bsn.toInt()
-        checksum += length.toInt()
-        checksum += dataPayload.toInt()
-
-        // No data at this point
-
-        val lowerChecksum = checksum and 0xff
-        val upperChecksim = checksum shr 8
-
-        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), dataPayload.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
-        Log.d("cobalt", "Byte array is ${data}")
-        mDataMDLP!!.setValue(data)
-
-
-        writeCharacteristic(mDataMDLP!!)
-        // iOS has perip.writeValue( for characteristic) -- is this how we do this here?  We need an example
-    }
-
-    // There is no payload on this command
-    fun sendTestCommandFetchLiveLog()
-    {
-        tbxDataController.resetIncomingData()
-
-        val command = 0x01  // Fetch Live Log
-        val length = 0
-
-        // Trying this with UInts
-        val bsn = 34   // Unsigned Int
-        var checksum = command.toInt()    // Command
-        checksum += bsn
-        checksum += length
-
-        // No data at this point
-
-        val lowerChecksum = checksum and 0xff
-        val upperChecksim = checksum shr 8
-
-        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
-        mDataMDLP!!.setValue(data)
-        writeCharacteristic(mDataMDLP!!)
-    }
-
-    fun sendTestBacklightOn()
-    {
-        tbxDataController.resetIncomingData()
-
-        val command = 0x0D  // Protocol Version
-
-        val length = 2
-        val dataPayload1 = 0
-        val dataPayload2 = 1
-
-        // Trying this with UInts
-        val bsn = 3   // Unsigned Int
-        var checksum = command    // Command
-        checksum += bsn.toInt()
-        checksum += length.toInt()
-        checksum += dataPayload1.toInt()
-        checksum += dataPayload2.toInt()
-
-        // No data at this point
-
-        val lowerChecksum = checksum and 0xff
-        val upperChecksim = checksum shr 8
-
-        var data = arrayOf( 0x02, command.toByte(), bsn.toByte(), length.toByte(), dataPayload1.toByte(), dataPayload2.toByte(), lowerChecksum.toByte(), upperChecksim.toByte() ).toByteArray()
-        mDataMDLP!!.setValue(data)
-        writeCharacteristic(mDataMDLP!!)
-    }
-
-    fun sendCommandBacklightOnTest()
-    {
-
-    }
 
     fun writeCharacteristic(characteristic: BluetoothGattCharacteristic)
     {

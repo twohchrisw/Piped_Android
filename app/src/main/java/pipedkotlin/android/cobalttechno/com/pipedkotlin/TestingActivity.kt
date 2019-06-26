@@ -93,6 +93,9 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_testing_acitivty)
 
+        // Set the context for the tbxDataController so we can run commands on the main thread
+        AppGlobals.instance.tibiisController.tbxDataController.context = this
+
         // Assign the correct testing context
         val testingContext = intent.getStringExtra(TESTING_CONTEXT_EXTRA)
         if (testingContext == "PE")
@@ -171,36 +174,91 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             if (item?.itemId == R.id.mnuTestCommand)
             {
-                //AppGlobals.instance.tibiisController.sendTestCommand()
-                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandProtocolVersion()
-                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandInactivityTimeout(60)
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandTimeSync()
+                    runOnUiThread {
+                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+                    }
+
+                    Timer("c1", false).schedule(100) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
+                        }
+                    }
+                    Timer("c2", false).schedule(200) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
+                        }
+                    }
+                    Timer("c3", false).schedule(300) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
+                        }
+                    }
+                    Timer("c4", false).schedule(400) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
+                        }
+
+                    }
+                    Timer("c5", false).schedule(500) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
+                        }
+
+                    }
+                    Timer("c6", false).schedule(600) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
+                        }
+
+                    }
+                    Timer("c7", false).schedule(700) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                        }
+
+                    }
+                    Timer("c9", false).schedule(900) {
+                        runOnUiThread {
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
+                        }
+
+                    }
             }
 
             if (item?.itemId == R.id.mnuTestCommandFetchLiveLog)
             {
                 //AppGlobals.instance.tibiisController.sendTestCommandFetchLiveLog()
+
                 AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
             }
 
             if (item?.itemId == R.id.mnuTestCommandBacklight)
             {
-                AppGlobals.instance.tibiisController.sendTestBacklightOn()
+                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandOutputControl(false)
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandTimeSync()
             }
 
             if (item?.itemId == R.id.mnuTestCommandStartTest)
             {
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandStartTest()
+                runOnUiThread {
+                    AppGlobals.instance.tibiisController.commandStartLogger(true)
+                }
             }
 
             if (item?.itemId == R.id.mnuTestCommandStopTest)
             {
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandStopTest()
+                runOnUiThread {
+                    AppGlobals.instance.tibiisController.commandStopLogger()
+                }
             }
 
             if (item?.itemId == R.id.mnuTestCommandFetchOldLogs)
             {
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(2, 12)
+                Log.d("Cobalt", "*** FETCH OLD LOGS TAPPED")
+                runOnUiThread {
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(2, 12)
+                }
+
             }
         }
 
@@ -697,7 +755,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     }
 
     override fun TbxDataControllerPacketReceived(packet: TBXDataController.IncomingPacket) {
-        Log.d("Cobalt", "Received Packet")
+        //Log.d("Cobalt", "Received Packet")
 
         if (packet.command == null)
         {
@@ -730,7 +788,40 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
             TBXDataController.Command.FetchOldLogs -> {
 
+                //TODO: Needs completing properly
+                val previousLogData = packet.parseDataAsPreviousLogReadings()
+                if (previousLogData != null)
+                {
+                    val message = "Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
+                    Log.d("Cobalt", message)
+                    val alert = AlertHelper(this)
+                    runOnUiThread {
+                        alert.dialogForOKAlertNoAction("Old Logs", message)
+                    }
+                }
             }
+
+            TBXDataController.Command.TimeSync -> {
+                Log.d("Cobalt", "TIME SYNC RECEIVED")
+            }
+
+            TBXDataController.Command.GetCalibrationData -> {
+                val calibResult = packet.parseAsCalibrationData()
+                //TODO: Needs completing properly
+                when (calibResult.calibrationByte)
+                {
+                    TBXDataController.CalibrationData.Name -> { Log.d("Cobalt", "Name: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure1 -> { Log.d("Cobalt", "P1: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure2 -> { Log.d("Cobalt", "P2: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure3 -> { Log.d("Cobalt", "P3: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure4 -> { Log.d("Cobalt", "P4: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure5 -> { Log.d("Cobalt", "P5: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Pressure6 -> { Log.d("Cobalt", "P6: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Date -> { Log.d("Cobalt", "Date: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Time -> { Log.d("Cobalt", "Time: ${calibResult.dataString}") }
+                }
+            }
+
 
             //TODO: NEEDS COMPLETING
         }

@@ -39,6 +39,7 @@ fun TestingActivity.formatForBatteryReading(reading: Int)
 {
     runOnUiThread {
         ivBattery.visibility = View.VISIBLE
+        ivBattery.alpha = 1.0f
         tvBattery.visibility = View.VISIBLE
         tvBattery.text = "$reading%"
     }
@@ -144,7 +145,7 @@ fun TestingActivity.displayPreviousReadingData(message: String)
 fun TestingActivity.turnOffPreviousReadings()
 {
     runOnUiThread {
-        tvPressurisingLabel.text = "Pressurising . . ."
+        tvPressurisingLabel.text = "Pressurising"
         tvPressurisingLabel.visibility = View.VISIBLE
         linPressurising.visibility = View.VISIBLE
         pvActivity.visibility = View.VISIBLE
@@ -165,13 +166,16 @@ fun TestingActivity.formatForStartTest()
 fun TestingActivity.formatActionPanelForDefault()
 {
     runOnUiThread {
-        linPressurising.visibility = View.GONE
+        linPressurising.visibility = View.VISIBLE
         linWaitingForReading.visibility = View.GONE
         linCountdown.visibility = View.GONE
         btnAction.visibility = View.VISIBLE
-        tvPressureValueLabel.visibility = View.GONE
+        tvPressureValueLabel.visibility = View.VISIBLE
+        tvPressureValueLabel.text = ""
+        tvPressurisingLabel.text = ""
+        pvActivity.visibility = View.GONE
         tvBattery.text = "" // Don't mark this view as gone, it messes the layout up
-        ivBattery.visibility = View.GONE
+        ivBattery.alpha = 0.0f
 
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
         {
@@ -197,6 +201,7 @@ fun TestingActivity.updatePressureGauge(value: Int, pressurising: Boolean, batte
         linPressurising.visibility = View.VISIBLE
         tvPressureValueLabel.text = "${pressureFormatted} bar"
         tvPressureValueLabel.visibility = View.VISIBLE
+        tvPressureValueLabel.alpha = 1.0f
 
         if (pressurising)
         {
@@ -216,9 +221,10 @@ fun TestingActivity.updatePressureGauge(value: Int, pressurising: Boolean, batte
 fun TestingActivity.updatePressureGuageForZero()
 {
     runOnUiThread {
-        tvPressureValueLabel.visibility = View.GONE
-        tvBattery.visibility = View.GONE
-        ivBattery.visibility = View.GONE
+        tvPressureValueLabel.text = ""
+        tvPressureValueLabel.alpha = 0.0f
+        tvBattery.text = ""
+        ivBattery.alpha = 0.0f
     }
 }
 

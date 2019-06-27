@@ -5,6 +5,7 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.ParcelUuid
 import android.util.Log
 import org.jetbrains.anko.runOnUiThread
@@ -29,6 +30,7 @@ class TibiisController() {
     var mBluetoothGatt: BluetoothGatt? = null
     var mDataMDLP: BluetoothGattCharacteristic? = null
     var mDeviceFound = false
+    var mDevice: BluetoothDevice? = null
 
     lateinit var delegate: TibiisControllerDelegate
     var connectStatus = ConnectionStatus.notConnected
@@ -49,6 +51,7 @@ class TibiisController() {
     var hasSendDateSync = false
     var autoPumpEnableHasBeenSet = false
     var tibiisHasBeenConnected = false
+    var deviceSerialNumber = ""
 
 
     enum class CurrentCommand {
@@ -82,19 +85,20 @@ class TibiisController() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
 
-            Log.d("cobalt", "Scanner callback type ${callbackType}")
+            //Log.d("cobalt", "Scanner callback type ${callbackType}")
             val tibiisUUID = ParcelUuid.fromString(MICROCHIP_SERVICE_ID)
             if (result?.scanRecord?.serviceUuids != null)
             {
                 if (result!!.scanRecord!!.serviceUuids!!.contains(tibiisUUID))
                 {
                     // Stop the scan
-                    Log.d("cobalt", "Stopping Scanner")
+                    //Log.d("cobalt", "Stopping Scanner")
                     mBluetoothAdapter!!.bluetoothLeScanner.stopScan(this)
                     mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(this)
 
                     mDeviceFound = true
                     val device = result.device
+                    mDevice = device
 
                     if (mBluetoothGatt != null)
                     {
@@ -102,7 +106,7 @@ class TibiisController() {
                         mBluetoothGatt = null
                     }
 
-                    Log.d("cobalt", "Connecting via onScanResult")
+                    //Log.d("cobalt", "Connecting via onScanResult")
                     mBluetoothGatt = device.connectGatt(appContext!!, false, mGattCallback)
                 }
             }
@@ -113,13 +117,14 @@ class TibiisController() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
-                Log.d("cobalt", "GATT Connected")
+                //Log.d("cobalt", "GATT Connected")
                 mBluetoothGatt!!.discoverServices()
+
                 delegate.tibiisConnected()
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
-                Log.d("cobalt", "GATT DISConnected")
+                //Log.d("cobalt", "GATT DISConnected")
                 mBluetoothGatt!!.close()
                 mBluetoothGatt = null
                 delegate.tibiisDisconnected()
@@ -129,7 +134,7 @@ class TibiisController() {
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-            Log.d("cobalt", "Gatt onServicesDiscovered")
+            //Log.d("cobalt", "Gatt onServicesDiscovered")
             if (status == BluetoothGatt.GATT_SUCCESS && mBluetoothGatt != null)
             {
                 findMDLPGattService(mBluetoothGatt!!.services)
@@ -170,7 +175,7 @@ class TibiisController() {
             myUUID = gattService.uuid.toString()
             if (myUUID.equals(MICROCHIP_SERVICE_ID))
             {
-                Log.d("cobalt", "got microchip service")
+                //Log.d("cobalt", "got microchip service")
                 val gattCharacteristics = gattService.characteristics
                 for (gc in gattCharacteristics)
                 {
@@ -178,13 +183,13 @@ class TibiisController() {
                     val gcUUID = gc.uuid.toString().toUpperCase()
                     if (gcUUID.equals(MLDP_CHAR_ID))
                     {
-                        Log.d("cobalt", "Found MLDP characteristic")
+                        //Log.d("cobalt", "Found MLDP characteristic")
                         mDataMDLP = gc
 
                         val charProperties = gc.properties
                         if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_NOTIFY)) > 0)
                         {
-                            Log.d("cobalt", "Set NOTIFY value")
+                            //Log.d("cobalt", "Set NOTIFY value")
                             mBluetoothGatt!!.setCharacteristicNotification(gc, true)
                             val descriptor = gc.getDescriptor(UUID.fromString(CHARACTERISTIC_NOTIFICATION_CONFIG))
                             descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
@@ -193,7 +198,7 @@ class TibiisController() {
 
                         if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_INDICATE)) > 0)
                         {
-                            Log.d("cobalt", "Set INDICATE value")
+                            //Log.d("cobalt", "Set INDICATE value")
                             mBluetoothGatt!!.setCharacteristicNotification(gc, true)
                             val descriptor = gc.getDescriptor(UUID.fromString(CHARACTERISTIC_NOTIFICATION_CONFIG))
                             descriptor.value = BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -201,12 +206,12 @@ class TibiisController() {
                         }
                         if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_WRITE)) > 0)
                         {
-                            Log.d("cobalt", "Set WRITE TYPE value")
+                            //Log.d("cobalt", "Set WRITE TYPE value")
                             gc.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                         }
                         if ((charProperties and (BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)) > 0)
                         {
-                            Log.d("cobalt", "Set WRITE NO RESPONSE value")
+                            L//og.d("cobalt", "Set WRITE NO RESPONSE value")
                             gc.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                         }
 
@@ -216,7 +221,7 @@ class TibiisController() {
                     }
                     else
                     {
-                        Log.d("cobalt", "Other char: " + gcUUID)
+                        //Log.d("cobalt", "Other char: " + gcUUID)
                     }
 
                     //TODO: Do we need to set all of the characteristic properties??
@@ -252,7 +257,10 @@ class TibiisController() {
 
     fun resetController()
     {
-
+        AppGlobals.instance.tibiisController.appContext!!.runOnUiThread {
+            tbxDataController.sendCommandOutputControl(false)
+            currentCommand = CurrentCommand.none
+        }
     }
 
     fun connectToTibiis()
@@ -290,9 +298,15 @@ class TibiisController() {
         // Stop the scan
         Log.d("cobalt", "Stopping Scanner")
         if (mBluetoothAdapter != null) {
+
+
             mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
             mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
-            mBluetoothGatt!!.disconnect()
+
+            if (mBluetoothGatt != null)
+            {
+                mBluetoothGatt!!.disconnect()
+            }
         }
         //mBluetoothGatt!!.close()
         //mBluetoothGatt = null

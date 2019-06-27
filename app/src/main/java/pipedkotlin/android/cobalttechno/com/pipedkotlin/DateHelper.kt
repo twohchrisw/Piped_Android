@@ -33,6 +33,11 @@ class DateHelper {
             return date
         }
 
+        fun date1970(): Date
+        {
+            return dateFromValues(1970, 1, 1, 0, 0)
+        }
+
         fun dateToDBString(date: Date): String
         {
             val format = SimpleDateFormat(DB_DATE_FORMAT)

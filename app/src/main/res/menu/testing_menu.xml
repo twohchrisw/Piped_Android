@@ -3,21 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/mnuTestCommand"
-        android:title="Test Command" />
+        android:id="@+id/mnuAddNote"
+        android:title="Add Note" />
     <item
-        android:id="@+id/mnuTestCommandFetchLiveLog"
-        android:title="Fetch Live Log" />
+        android:id="@+id/mnuNewTest"
+        android:title="New Test" />
     <item
-        android:id="@+id/mnuTestCommandBacklight"
-        android:title="Backlight" />
+        android:id="@+id/mnuAbortTest"
+        android:title="Abort Test" />
     <item
-        android:id="@+id/mnuTestCommandStartTest"
-        android:title="Start Test" />
+        android:id="@+id/mnuZeroTibiisSensors"
+        android:title="Zero Tibiis Sensors" />
     <item
-        android:id="@+id/mnuTestCommandStopTest"
-        android:title="Stop Test" />
+        android:id="@+id/mnuEnableAutoPump"
+        android:title="Enable Auto Pump" />
     <item
-        android:id="@+id/mnuTestCommandFetchOldLogs"
-        android:title="Fetch Old Logs" />
+        android:id="@+id/mnuEnableAutoPumpConditioning"
+        android:title="Enable Auto Pump Conditioning" />
+    <item
+        android:id="@+id/mnuDisableAutoPump"
+        android:title="Disable Auto Pump" />
 </menu>

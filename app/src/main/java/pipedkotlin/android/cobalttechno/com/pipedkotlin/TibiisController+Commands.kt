@@ -16,11 +16,29 @@ fun TibiisController.commandStartLogger(pumpEnabled: Boolean = true)
 
         Timer("startTest", false).schedule(100) {
             appContext!!.runOnUiThread {
+                tbxDataController.sendCommandTimeSync()
+            }
+        }
+
+        Timer("startTest", false).schedule(200) {
+            appContext!!.runOnUiThread {
                 tbxDataController.sendCommandStartTest()
             }
         }
 
-        Timer("outputControlOn", false).schedule(200) {
+        Timer("startTest", false).schedule(300) {
+            appContext!!.runOnUiThread {
+                tbxDataController.sendCommandStartTest()
+            }
+        }
+
+        Timer("outputControlOn", false).schedule(400) {
+            appContext!!.runOnUiThread {
+                tbxDataController.sendCommandOutputControl(pumpEnabled)
+            }
+        }
+
+        Timer("outputControlOn", false).schedule(500) {
             appContext!!.runOnUiThread {
                 tbxDataController.sendCommandOutputControl(pumpEnabled)
             }
@@ -49,4 +67,38 @@ fun TibiisController.commandStopLogger()
         }
     }
 }
+
+fun TibiisController.commandTurnScreenOn()
+{
+    if (connectStatus == TibiisController.ConnectionStatus.connected) {
+        appContext!!.runOnUiThread {
+            tbxDataController.sendCommandScreenControl(true)
+        }
+    }
+}
+
+fun TibiisController.commandTurnScreenOff()
+{
+    if (connectStatus == TibiisController.ConnectionStatus.connected) {
+        appContext!!.runOnUiThread {
+            tbxDataController.sendCommandScreenControl(false)
+        }
+    }
+}
+
+fun TibiisController.commandZeroPressureSensors()
+{
+    if (connectStatus == TibiisController.ConnectionStatus.connected) {
+        appContext!!.runOnUiThread {
+            tbxDataController.sendCommandZeroSensor()
+        }
+    }
+}
+
+fun TibiisController.startPressureSession()
+{
+    // Does nothing but here for completness with iOS
+}
+
+
 

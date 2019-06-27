@@ -190,7 +190,9 @@ data class EXLDProcess(val columnId: Long = -1,
                        var tibsessLogR15: Int = 0,
                        var tibsessLogR60: Int = 0,
                        var vehicle_id: Int = 0,
-                       var vehicle_name: String = ""
+                       var vehicle_name: String = "",
+                       var peNeedsUploading: Int = 0,
+                       var diNeedsUploading: Int = 0
                        )
 {
     var processSyncInProgress = false
@@ -380,6 +382,8 @@ data class EXLDProcess(val columnId: Long = -1,
         val c_tibsessLogR60 = "tibsessLogR60"
         val c_vehicle_id = "vehicle_id"
         val c_vehicle_name  = "vehicle_name"
+        val c_pe_needs_uploading = "peNeedsUploading"
+        val c_di_needs_uploading = "diNeedsUploading"
 
         fun allProcesses(context: Context):List<EXLDProcess>
         {
@@ -627,7 +631,9 @@ data class EXLDProcess(val columnId: Long = -1,
                         EXLDProcess.c_tibsessLogR15 to tibsessLogR15,
                         EXLDProcess.c_tibsessLogR60 to tibsessLogR60,
                         EXLDProcess.c_vehicle_id to vehicle_id,
-                        EXLDProcess.c_vehicle_name to vehicle_name
+                        EXLDProcess.c_vehicle_name to vehicle_name,
+                        c_pe_needs_uploading to peNeedsUploading,
+                        c_di_needs_uploading to diNeedsUploading
                         ).whereArgs(EXLDProcess.COLUMN_ID + " = " + columnId.toString()).exec()
             }
         }
@@ -670,6 +676,8 @@ data class EXLDProcess(val columnId: Long = -1,
         pt_pressurising_start = ""
         pt_pressurising_finish = ""
         pt_pe_readings_count = 3
+        peNeedsUploading = 1
+        diNeedsUploading = 1
 
         save(context)
     }
@@ -793,5 +801,26 @@ data class EXLDProcess(val columnId: Long = -1,
             }
         }
     }
+
+    fun clearPEData(context: Context)
+    {
+        val whereString = "${EXLDTibiisReading.COLUMN_TEST_TYPE} = '${TestingSessionData.TestingContext.pe.value}' AND ${EXLDTibiisReading.COLUMN_PROCESS_ID} = $columnId"
+        var rowsDeleted = 0
+        context.database.use {
+            rowsDeleted = delete(EXLDTibiisReading.TABLE_NAME, whereString)
+        }
+        Log.d("Cobalt", "Deleted $rowsDeleted PE Rows")
+    }
+
+    fun clearDIData(context: Context)
+    {
+        val whereString = "${EXLDTibiisReading.COLUMN_TEST_TYPE} = '${TestingSessionData.TestingContext.di.value}' AND ${EXLDTibiisReading.COLUMN_PROCESS_ID} = $columnId"
+        var rowsDeleted = 0
+        context.database.use {
+            rowsDeleted = delete(EXLDTibiisReading.TABLE_NAME, whereString)
+        }
+        Log.d("Cobalt", "Deleted $rowsDeleted DI Rows")
+    }
+
 
 }

@@ -254,5 +254,35 @@ fun TestingActivity.saveCalibrationDetails()
     Log.d("Cobalt", "saveCalibrationDetails not implemented")
 }
 
+fun TestingActivity.resetPETest()
+{
+    tibiisStopPressurising()
+    testingSession.timerStage = 0
+    archivePETest()
+    clearPEData()  // Wire this i
+    reloadTable()
+    formatForViewWillAppear()
+    AppGlobals.instance.activeProcess.initialiseForPETest(this)
+    AppGlobals.instance.tibiisController.resetController()
+    testingSession.resetTestingSession()
+    tibiisSession.resetTibiisSesssionData()
+    calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
+    formatForReadyToPressurise()
+
+    // Resetting the timers
+    liveLogTimer = Timer()
+}
+
+fun TestingActivity.clearPEData()
+{
+    AppGlobals.instance.activeProcess.clearPEData(this)
+    formatForReadyToPressurise()
+}
+
+fun TestingActivity.archivePETest()
+{
+    //TODO: Needs completing
+}
+
 
 

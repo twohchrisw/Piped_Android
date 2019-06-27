@@ -20,6 +20,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_testing_acitivty.*
 import org.jetbrains.anko.find
 import org.jetbrains.anko.startActivityForResult
+import java.lang.Exception
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -80,6 +81,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     val BUTTON_TEXT_VIEW_CHART = "View Results"
     val BUTTON_TEXT_START_TEST = "Start Test"
 
+    val REQUEST_ADD_NOTES = 1
+
+    // Menu Items
+    lateinit var menuZeroTibiis: MenuItem
+    lateinit var menuEnableAutoPump: MenuItem
+    lateinit var menuEnableConditioning: MenuItem
+    lateinit var menuDisableAutoPump: MenuItem
+
     enum class ActivityRequestCodes(val value: Int) {
         peNotes(1), diNotes(2), listSelection(3), permissions(4), enableBluetooth(5)
     }
@@ -130,6 +139,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.testing_menu, menu)
+
+        menuZeroTibiis = menu!!.findItem(R.id.mnuZeroTibiisSensors)
+        menuEnableAutoPump = menu!!.findItem(R.id.mnuEnableAutoPump)
+        menuDisableAutoPump = menu!!.findItem(R.id.mnuDisableAutoPump)
+        menuEnableConditioning = menu!!.findItem(R.id.mnuEnableAutoPumpConditioning)
+
+        formatOptionsMenuForContext(false)
+
         return true
     }
 
@@ -170,102 +187,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
-        if (AppGlobals.instance.tibiisController != null)
+        if (item != null)
         {
-            if (item?.itemId == R.id.mnuTestCommand)
-            {
-                    runOnUiThread {
-                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
-                    }
-
-                    Timer("c1", false).schedule(100) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
-                        }
-                    }
-                    Timer("c2", false).schedule(200) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
-                        }
-                    }
-                    Timer("c3", false).schedule(300) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
-                        }
-                    }
-                    Timer("c4", false).schedule(400) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
-                        }
-
-                    }
-                    Timer("c5", false).schedule(500) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
-                        }
-
-                    }
-                    Timer("c6", false).schedule(600) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
-                        }
-
-                    }
-                    Timer("c7", false).schedule(700) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
-                        }
-
-                    }
-                    Timer("c9", false).schedule(900) {
-                        runOnUiThread {
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
-                        }
-
-                    }
-            }
-
-            if (item?.itemId == R.id.mnuTestCommandFetchLiveLog)
-            {
-                //AppGlobals.instance.tibiisController.sendTestCommandFetchLiveLog()
-
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
-            }
-
-            if (item?.itemId == R.id.mnuTestCommandBacklight)
-            {
-                //AppGlobals.instance.tibiisController.tbxDataController.sendCommandOutputControl(false)
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandTimeSync()
-            }
-
-            if (item?.itemId == R.id.mnuTestCommandStartTest)
-            {
-                runOnUiThread {
-                    AppGlobals.instance.tibiisController.commandStartLogger(true)
-                }
-            }
-
-            if (item?.itemId == R.id.mnuTestCommandStopTest)
-            {
-                runOnUiThread {
-                    AppGlobals.instance.tibiisController.commandStopLogger()
-                }
-            }
-
-            if (item?.itemId == R.id.mnuTestCommandFetchOldLogs)
-            {
-                Log.d("Cobalt", "*** FETCH OLD LOGS TAPPED")
-                runOnUiThread {
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(2, 12)
-                }
-
-            }
+            didPressActionButton(item!!.itemId)
         }
-
 
         return super.onOptionsItemSelected(item)
     }
-
 
     fun assignOutlets()
     {
@@ -475,7 +403,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
         else
         {
-
+            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.pt_di_notes)
+            startActivityForResult(notesIntent, ActivityRequestCodes.diNotes.value)
         }
     }
 
@@ -596,31 +525,47 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     class LiveLogTimerTask(val a: TestingActivity): TimerTask()
     {
+        var hasStarted = false
+
         override fun run() {
-            val now = Date()
 
-            if (!a.isDownloadingPreviousData)
+            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
+                return
+            }
 
-                if (a.shouldTurnScreenOnWithNextLog)
+            try {
+                val now = Date()
+
+                if (!a.isDownloadingPreviousData)
                 {
-                    Timer("screenOn", false).schedule(100) {
-                        a.shouldTurnScreenOnWithNextLog = false
-                        Log.d("Cobalt", "Turning Screen On")
-                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(true)
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
+
+                    if (a.shouldTurnScreenOnWithNextLog)
+                    {
+                        Timer("screenOn", false).schedule(100) {
+                            a.shouldTurnScreenOnWithNextLog = false
+                            Log.d("Cobalt", "Turning Screen On")
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(true)
+                        }
                     }
-                }
 
-                if (a.shouldTurnScreenOffWithNextLog)
-                {
-                    Timer("screenOff", false).schedule(100) {
-                        a.shouldTurnScreenOffWithNextLog = false
-                        Log.d("Cobalt", "Turning Screen Off")
-                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(false)
+                    if (a.shouldTurnScreenOffWithNextLog)
+                    {
+                        Timer("screenOff", false).schedule(100) {
+                            a.shouldTurnScreenOffWithNextLog = false
+                            Log.d("Cobalt", "Turning Screen Off")
+                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(false)
+                        }
                     }
                 }
             }
+            catch (e: Exception)
+            {
+
+            }
+            hasStarted = true
+
         }
     }
 
@@ -699,7 +644,16 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             if (a.testingSession.isLoggingWithTibiis)
             {
-                //TODO: Tibiis Stuff
+                if (a.tibiisSession.lastReading != null)
+                {
+                    a.saveReading1(a.tibiisSession.lastReading!!)
+                }
+                else
+                {
+                    Log.d("Cobalt", "Reading 1 Missed by Logger")
+                }
+
+                a.tibiisSession.numberOfReading = 1
             }
 
             a.testingSession.timerStage = 1
@@ -710,7 +664,19 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             if (a.testingSession.isLoggingWithTibiis)
             {
-                //TODO: Tibiis Stuff
+                if (a.testingSession.isLoggingWithTibiis)
+                {
+                    if (a.tibiisSession.lastReading != null)
+                    {
+                        a.saveReading2(a.tibiisSession.lastReading!!)
+                    }
+                    else
+                    {
+                        Log.d("Cobalt", "Reading 2 Missed by Logger")
+                    }
+
+                    a.tibiisSession.numberOfReading = 2
+                }
             }
 
             a.testingSession.timerStage = 2
@@ -721,7 +687,19 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             if (a.testingSession.isLoggingWithTibiis)
             {
-                //TODO: Tibiis Stuff
+                if (a.testingSession.isLoggingWithTibiis)
+                {
+                    if (a.tibiisSession.lastReading != null)
+                    {
+                        a.saveReading3(a.tibiisSession.lastReading!!)
+                    }
+                    else
+                    {
+                        Log.d("Cobalt", "Reading 3 Missed by Logger")
+                    }
+
+                    a.tibiisSession.numberOfReading = 3
+                }
             }
 
             a.testingSession.timerStage = 3
@@ -732,13 +710,91 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     // MARK: Tibiis Controller Delegate
 
     override fun tibiisConnected() {
-        Log.d("cobalt", "TestingActivity.tibiisConnected()")
+        val tc = AppGlobals.instance.tibiisController
+        val p = AppGlobals.instance.activeProcess
+        formatOptionsMenuForContext(true)
+
+        /* DI */
+
+        if (tc.testingContext == TestingSessionData.TestingContext.di)
+        {
+            if (tibiisSession.getLogNumberForR15() > 0 || tc.tibiisHasBeenConnected)
+            {
+                Log.d("Cobalt", "DI Reconnection")
+                tc.shouldCheckForMissingLogs = true
+                tc.previousCommand = tc.currentCommand
+
+                if (tc.currentCommand == TibiisController.CurrentCommand.none)
+                {
+                    tc.currentCommand = TibiisController.CurrentCommand.logger
+                }
+
+                formatTibiisForConnected()
+            }
+            else
+            {
+                tc.tibiisHasBeenConnected = true
+                Log.d("Cobalt", "Start connection for DI")
+                testingSession.loggingMode = TestingSessionData.LoggingMode.waiting
+                testingSession.isPressurisingWithTibiis = false
+                testingSession.isLoggingWithTibiis = false
+                testingSession.isAmbientLoggingWithTibiis = false
+                tc.startPressureSession()
+                formatTibiisForConnected()
+            }
+
+            return
+        }
+
+        /* PE */
+
+        // Is this a reconnection whilst logging
+        if (tibiisSession.getLogNumberForReading1() > 0 || tc.tibiisHasBeenConnected)
+        {
+            tc.shouldCheckForMissingLogs = true
+            tc.previousCommand = tc.currentCommand
+
+            if (tc.currentCommand == TibiisController.CurrentCommand.none)
+            {
+                tc.currentCommand = TibiisController.CurrentCommand.logger
+            }
+        }
+        else
+        {
+            if (!testingSession.isPressurisingWithTibiis)
+            {
+                testingSession.loggingMode = TestingSessionData.LoggingMode.waiting
+                testingSession.isPressurisingWithTibiis = false
+                testingSession.isLoggingWithTibiis = false
+                testingSession.isAmbientLoggingWithTibiis = false
+                tc.tibiisHasBeenConnected = true
+                tc.startPressureSession()
+            }
+            else
+            {
+                Log.d("Cobalt", "Reconnection whilst pressurising")
+            }
+        }
+
         formatTibiisForConnected()
     }
 
     override fun tibiisDisconnected() {
-        Log.d("cobalt", "TestingActivity.tibiisNotConnected()")
+        val abortPressurising = testingSession.isPressurisingWithTibiis
         formatTibiisForNotConnected()
+        formatOptionsMenuForContext(false)
+
+        if (abortPressurising)
+        {
+            if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+            {
+                abortPETest()
+                runOnUiThread {
+                    val alertHelper = AlertHelper(this)
+                    alertHelper.dialogForOKAlertNoAction("Test Aborted!", "The Bluetooth Connection was lost.  Current test has been aborted.  Please remember to reset your Tibiis device.")
+                }
+            }
+        }
     }
 
     override fun tibiisFailedToConnect() {
@@ -794,10 +850,21 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 {
                     val message = "Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
                     Log.d("Cobalt", message)
-                    val alert = AlertHelper(this)
-                    runOnUiThread {
-                        alert.dialogForOKAlertNoAction("Old Logs", message)
+                    for (log in previousLogData.logs)
+                    {
+                        print("Previous log: ${log.description()}")
+                        saveLiveLog(log, true)
                     }
+
+                    saveLiveLog(previousLogData!!.liveLog)
+                    lastMaxLogNumber = previousLogData!!.maxLogNumber
+
+                    if (lastMaxLogNumber == -1)
+                    {
+                        Log.d("Cobalt", "Negative Max Log")
+                        lastMaxLogNumber = 1
+                    }
+
                 }
             }
 
@@ -825,6 +892,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
             //TODO: NEEDS COMPLETING
         }
+
+        continueProcessingPreviousLogs()
     }
 
 

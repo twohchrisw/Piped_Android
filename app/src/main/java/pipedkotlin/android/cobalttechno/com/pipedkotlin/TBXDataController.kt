@@ -18,7 +18,7 @@ import kotlin.math.log
 class TBXCommand(val sendCommand: Int, val sendLength: Int, val receivedCommand: Int, val description: String)
 class OptionByteData(val bsn: Int, val optionByte: TBXDataController.OptionBytes)
 class CalibrationByteData(val bsn: Int, val calibrationByte: TBXDataController.CalibrationData)
-class PreviousLogs(val startLogNumber: Int,val numberOfLogs: Int,val maxLogNumber: Int, val logs: ArrayList<LogReading>, liveLog: LogReading)
+class PreviousLogs(val startLogNumber: Int,val numberOfLogs: Int,val maxLogNumber: Int, val logs: ArrayList<LogReading>, val liveLog: LogReading)
 class CalibrationDataResult(val calibrationByte: TBXDataController.CalibrationData, val dataString: String)
 
 class TBXDataController(val tibiisController: TibiisController) {
@@ -205,7 +205,7 @@ class TBXDataController(val tibiisController: TibiisController) {
         {
             incomingPacket.upperChecksum = bytesData[0].toInt().absoluteValue
             commandWaiting = false
-            Log.d("Cobalt", "Command Receive Complete: ${incomingPacket.description()}")
+            //Log.d("Cobalt", "Command Receive Complete: ${incomingPacket.description()}")
             delegate?.TbxDataControllerPacketReceived(incomingPacket)
             incomingPacket = IncomingPacket()
         }
@@ -514,7 +514,7 @@ class TBXDataController(val tibiisController: TibiisController) {
             }
             else
             {
-                Log.d("Cobalt", "Command set as ${command!!.value.description}")
+                //Log.d("Cobalt", "Command set as ${command!!.value.description}")
             }
         }
 
@@ -627,6 +627,14 @@ class LogReading(val data: ArrayList<Int>) {
     constructor(data: ArrayList<Int>, previousLogNumber: Int): this(data)
     {
         logNumber = previousLogNumber
+    }
+
+    constructor(data: ArrayList<Int>, tibiisReading: EXLDTibiisReading): this(data)
+    {
+        logNumber = tibiisReading.logNumber
+        pressure = tibiisReading.pressure
+        flowRate = tibiisReading.flowRate
+        battery = tibiisReading.battery
     }
 
     init {

@@ -2,9 +2,10 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import org.jetbrains.anko.db.*
 
-class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", null, 1)
+class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", null, 2)
 {
     companion object {
         private var instance: DBHelper? = null
@@ -238,7 +239,23 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDProcess.c_tibsessLogR15 to INTEGER + DEFAULT("0"),
                 EXLDProcess.c_tibsessLogR60 to INTEGER + DEFAULT("0"),
                 EXLDProcess.c_vehicle_id to INTEGER + DEFAULT("0"),
-                EXLDProcess.c_vehicle_name to TEXT + DEFAULT("''"))
+                EXLDProcess.c_vehicle_name to TEXT + DEFAULT("''"),
+                EXLDProcess.c_pe_needs_uploading to INTEGER + DEFAULT("0"),
+                EXLDProcess.c_di_needs_uploading to INTEGER + DEFAULT("0"))
+
+        // Tibiis Readings
+        db!!.createTable(EXLDTibiisReading.TABLE_NAME, true,
+                EXLDTibiisReading.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDTibiisReading.COLUMN_BATTERY to INTEGER,
+                EXLDTibiisReading.COLUMN_CREATED_ON to TEXT,
+                EXLDTibiisReading.COLUMN_FLOW_RATE to INTEGER,
+                EXLDTibiisReading.COLUMN_LOG_NUMBER to INTEGER,
+                EXLDTibiisReading.COLUMN_PRESSURE to INTEGER,
+                EXLDTibiisReading.COLUMN_PROCESS_ID to INTEGER,
+                EXLDTibiisReading.COLUMN_READING_TYPE to TEXT,
+                EXLDTibiisReading.COLUMN_TEST_TYPE to TEXT,
+                EXLDTibiisReading.COLUMN_UPLOADED to INTEGER
+        )
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

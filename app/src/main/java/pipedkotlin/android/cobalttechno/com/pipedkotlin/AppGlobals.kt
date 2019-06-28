@@ -1,5 +1,16 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.util.Log
+import java.util.logging.Logger
+
+inline fun catchAll(message: String, action: () -> Unit) {
+    try {
+        action()
+    } catch (t: Throwable) {
+        Log.d("Cobalt","Failed to $message. ${t.message}", t)
+    }
+}
+
 public class AppGlobals private constructor() {
 
     // Singleton setup

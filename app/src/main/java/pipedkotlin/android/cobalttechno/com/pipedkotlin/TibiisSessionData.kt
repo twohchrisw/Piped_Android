@@ -421,6 +421,21 @@ class TibiisSessionData {
         return maxlogNumber
     }
 
+    fun getMaxPressurisingValue(processId: Long): Double
+    {
+        val db = AppGlobals.instance.tibiisController.appContext!!.database
+        val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_READING_TYPE} = 'Pressurising'"
+        var maxPressure = 0
+        db.use {
+            select(EXLDTibiisReading.TABLE_NAME, "MAX(${EXLDTibiisReading.COLUMN_PRESSURE}) as max").whereArgs(where).exec {
+                moveToNext()
+                maxPressure = getInt(getColumnIndex("max"))
+            }
+        }
+
+        return  maxPressure.toDouble() / 1000.0
+    }
+
     fun maxLogLessThanSuppliedLogNumner(processId: Long, currentLogNumber: Int): Int
     {
         val db = AppGlobals.instance.tibiisController.appContext!!.database

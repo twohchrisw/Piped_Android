@@ -257,9 +257,14 @@ class TibiisController() {
 
     fun resetController()
     {
-        AppGlobals.instance.tibiisController.appContext!!.runOnUiThread {
-            tbxDataController.sendCommandOutputControl(false)
-            currentCommand = CurrentCommand.none
+        currentCommand = CurrentCommand.none
+
+        if (connectStatus == ConnectionStatus.connected) {
+            if (appContext != null) {
+                appContext!!.runOnUiThread {
+                    tbxDataController.sendCommandOutputControl(false)
+                }
+            }
         }
     }
 

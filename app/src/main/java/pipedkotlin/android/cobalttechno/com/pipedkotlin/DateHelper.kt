@@ -25,6 +25,18 @@ class DateHelper {
             }
         }
 
+        fun dbStringToDateOrNull(value: String): Date?
+        {
+            try {
+                val date = SimpleDateFormat(DB_DATE_FORMAT).parse(value)
+                return date
+            }
+            catch (e: Exception)
+            {
+                return null
+            }
+        }
+
         fun dateFromValues(year: Int, month: Int, day: Int, hour: Int, minute: Int): Date
         {
             val c = Calendar.getInstance()

@@ -138,14 +138,17 @@ fun TestingActivity.tibiisStartPressurising()
             }
         }
 
-        if (tc.mDevice != null)
-        {
-            AppGlobals.instance.activeProcess.pt_pe_logger_details = tc.mDevice!!.name
-            Log.d("Cobalt", "Device name is ${tc.mDevice!!.name}")
-        }
-        else
-        {
-            Log.d("Cobalt", "Device is null - no serial number")
+        //TODO: We can't get the tibiis serial number
+        catchAll("Get mDevice name") {
+            if (tc.mDevice != null)
+            {
+                AppGlobals.instance.activeProcess.pt_pe_logger_details = tc.mDevice!!.name
+                Log.d("Cobalt", "Device name is ${tc.mDevice!!.name}")
+            }
+            else
+            {
+                Log.d("Cobalt", "Device is null - no serial number")
+            }
         }
 
         AppGlobals.instance.activeProcess.save(this)
@@ -155,7 +158,13 @@ fun TestingActivity.tibiisStartPressurising()
 
 fun TestingActivity.tibiisStopPressurising()
 {
-    AppGlobals.instance.tibiisController.commandStopLogger()
+    try {
+        AppGlobals.instance.tibiisController.commandStopLogger()
+    }
+    catch (e: Exception)
+    {
+
+    }
 }
 
 fun TestingActivity.tibiisStartLogging()

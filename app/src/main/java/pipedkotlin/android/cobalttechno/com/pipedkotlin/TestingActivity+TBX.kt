@@ -70,8 +70,11 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
     Log.d("Cobalt", "DB TEST: Max Log but this = $maxLogButThis")
 */
 
-    val maxLog = tibiisSession.maxLogNumberReceived(AppGlobals.instance.activeProcess.columnId)
-    Log.d("Cobalt", "DB TEST: Max Log = $maxLog")
+    //val maxLog = tibiisSession.maxLogNumberReceived(AppGlobals.instance.activeProcess.columnId)
+    //Log.d("Cobalt", "DB TEST: Max Log = $maxLog")
+
+    //val maxPressure = tibiisSession.getMaxPressurisingValue(AppGlobals.instance.activeProcess.columnId)
+    //Log.d("Cobalt", "Max Pressurising valye = $maxPressure  THIS SHOULD BE > 0")
 
     /* END OF TEST STUFF */
 
@@ -140,7 +143,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
 
     if (!isPrevious)
     {
-        Log.d("Cobalt", "Save Live Log: ${logReading.description()}")
+        Log.d("Cobalt", "Save Live Log: ${logReading.description()} Context: ${testingSession.testingContext.value}")
         tibiisSession.lastReading = logReading
     }
 

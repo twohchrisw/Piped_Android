@@ -176,7 +176,10 @@ fun TestingActivity.abortPETest()
     tibiisStopPressurising()
     resetPETest()
 
-    AppGlobals.instance.tibiisController.disconnectTibiis()
+    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+        AppGlobals.instance.tibiisController.disconnectTibiis()
+    }
+
     AppGlobals.instance.activeProcess.needs_server_sync = 1
     AppGlobals.instance.activeProcess.save(this)
 }

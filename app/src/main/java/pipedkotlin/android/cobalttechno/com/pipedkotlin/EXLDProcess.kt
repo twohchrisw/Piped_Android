@@ -804,6 +804,39 @@ data class EXLDProcess(val columnId: Long = -1,
 
     fun clearPEData(context: Context)
     {
+        pe_test_aborted = 0
+        pt_start_pressure = 0.0
+        pt_system_test_pressure = 0.0
+        pt_reading_1 = 0.0
+        pt_reading_2 = 0.0
+        pt_reading_3 = 0.0
+        pt_pressurising_start = ""
+        pt_pressurising_finish = ""
+        pt_reading1_time = ""
+        pt_reading2_time = ""
+        pt_reading3_time = ""
+        pt_pe_notes = ""
+        pe_pdf_log_pa_t1 = 0.0
+        pe_pdf_log_pa_t2 = 0.0
+        pe_pdf_log_pa_t3 = 0.0
+        pe_pdf_log_t1 = 0.0
+        pe_pdf_log_t2 = 0.0
+        pe_pdf_log_t3 = 0.0
+        pe_pdf_pass = 0
+        pe_pdf_calc_result = 0.0
+        pe_test_has_calculated = 0
+        pe_pdf_n1 = 0.0
+        pe_pdf_n2 = 0.0
+        pt_pe_pipe_length = ""
+        pt_pe_pipe_diameter = 0
+        pt_pe_logger_details = ""
+        pt_pe_it = ""
+        pt_pe_pump_size = ""
+        pt_pe_readings_count = 3
+        tibsessLogNumberForReading1 = 0
+        tibsessLogNumberForReading2 = 0
+        tibsessLogNumberForReading3 = 0
+
         val whereString = "${EXLDTibiisReading.COLUMN_TEST_TYPE} = '${TestingSessionData.TestingContext.pe.value}' AND ${EXLDTibiisReading.COLUMN_PROCESS_ID} = $columnId"
         var rowsDeleted = 0
         context.database.use {

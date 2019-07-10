@@ -29,6 +29,7 @@ fun TestingActivity.setupTibiis()
 
 fun TestingActivity.formatTibiisForConnected()
 {
+    Log.d("Cobalt", "formatTibiisForConnected()")
     runOnUiThread {
         tvConnectStatus.text = "Tibiis Connected"
         btnConnect.setText("Disconnect")
@@ -60,6 +61,7 @@ fun TestingActivity.reconnectTibiis()
 
 fun TestingActivity.formatTibiisForNotConnected()
 {
+    Log.d("Cobalt", "formatTibiisForNotConnected")
     tvConnectStatus.text = "Tibiis Not Connected"
     btnConnect.setText("Connect")
     tibiisSession.lastReading = null
@@ -85,60 +87,72 @@ fun TestingActivity.startTibiisLiveLogRequestLoop()
 
 fun TestingActivity.tibiisStartPressurising()
 {
+
     val tc = AppGlobals.instance.tibiisController
     if (tc.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         Log.d("Cobalt", "[Start Pressurising]")
+
         tibiisSession.resetMissedReadingFlags()
         testingSession.loggingMode = TestingSessionData.LoggingMode.pressurising
 
-        tc.appContext!!.runOnUiThread {
+
+        runOnUiThread {
             tc.tbxDataController.sendCommandTimeSync()
+
         }
 
         Timer("startTest1", false).schedule(100) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandTimeSync()
+
             }
         }
 
         Timer("startTest2", false).schedule(200) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandStartTest()
+
             }
         }
 
         Timer("startTest3", false).schedule(300) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandStartTest()
+
             }
         }
 
         Timer("outputControlOn4", false).schedule(400) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandOutputControl(true)
+
             }
         }
 
         Timer("outputControlOn5", false).schedule(500) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandOutputControl(true)
+
             }
         }
 
         Timer("screenOn", false).schedule(600) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandSetLCDOnTime(20)
+
             }
         }
 
         Timer("screenOn", false).schedule(700) {
-            tc.appContext!!.runOnUiThread {
+            runOnUiThread {
                 tc.tbxDataController.sendCommandSetLCDOnTime(20)
+
             }
         }
 
         //TODO: We can't get the tibiis serial number
+        /*
         catchAll("Get mDevice name") {
             if (tc.mDevice != null)
             {
@@ -150,8 +164,14 @@ fun TestingActivity.tibiisStartPressurising()
                 Log.d("Cobalt", "Device is null - no serial number")
             }
         }
+        */
 
-        AppGlobals.instance.activeProcess.save(this)
+        /*
+        runOnUiThread {
+            AppGlobals.instance.activeProcess.save(this)
+            loadData()
+        }
+*/
         loadData()
     }
 }

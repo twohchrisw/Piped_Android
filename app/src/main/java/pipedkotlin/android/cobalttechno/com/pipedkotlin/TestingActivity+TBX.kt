@@ -48,6 +48,7 @@ fun TestingActivity.continueProcessingPreviousLogs()
 
 fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = false)
 {
+
     /* TEST STUFF */
 /*
 
@@ -117,12 +118,10 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
     val process = AppGlobals.instance.activeProcess
 
     // Set the pressurising start date
-    if (process.pt_pressurising_start == null)
+    if (process.pt_pressurising_start == "")
     {
         process.pt_pressurising_start = DateHelper.dateToDBString(logReceivedDate)
-        runOnUiThread {
-            loadData()
-        }
+        loadData()
     }
 
     // Set the highest log reading
@@ -314,6 +313,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
 
 fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
 {
+
     val lastLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(AppGlobals.instance.activeProcess.columnId, currentLogNumber)
     var startLogNumber = lastLogButThis + 1
     if (startLogNumber < 1)

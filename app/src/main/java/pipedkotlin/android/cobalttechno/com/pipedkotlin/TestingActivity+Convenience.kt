@@ -43,8 +43,12 @@ fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
 
     if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
-        //TODO: tibiisStartLogging
+        runOnUiThread {
+            AppGlobals.instance.tibiisController.tbxDataController.sendCommandOutputControl(false)
+        }
     }
+
+    tibiisStartLogging()
 
     // Assign the timer function
     timer.cancel()

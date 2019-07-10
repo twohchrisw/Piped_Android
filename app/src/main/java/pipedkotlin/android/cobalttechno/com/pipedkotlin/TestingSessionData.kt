@@ -19,7 +19,7 @@ class TestingSessionData {
     fun setStartLoggingTime(value: Date)
     {
         startLoggingTime = value
-        AppGlobals.instance.activeProcess.testSessDILastLoggingTime = DateHelper.millisToDBString(value.time)
+        AppGlobals.instance.activeProcess.testsessStartLoggingTime = DateHelper.millisToDBString(value.time)
     }
     fun setStartLoggingTimeNull()
     {

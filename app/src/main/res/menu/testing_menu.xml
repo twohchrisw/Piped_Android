@@ -23,4 +23,7 @@
     <item
         android:id="@+id/mnuDisableAutoPump"
         android:title="Disable Auto Pump" />
+    <item
+        android:id="@+id/mnuLoadData"
+        android:title="Load Data" />
 </menu>

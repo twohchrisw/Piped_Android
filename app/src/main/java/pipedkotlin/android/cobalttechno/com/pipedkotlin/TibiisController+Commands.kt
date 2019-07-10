@@ -60,7 +60,13 @@ fun TibiisController.commandStopLogger()
             }
         }
 
-        Timer("stopTest", false).schedule(200) {
+        Timer("stopTest2", false).schedule(200) {
+            appContext!!.runOnUiThread {
+                tbxDataController.sendCommandStopTest()
+            }
+        }
+
+        Timer("stopTest3", false).schedule(300) {
             appContext!!.runOnUiThread {
                 tbxDataController.sendCommandStopTest()
             }

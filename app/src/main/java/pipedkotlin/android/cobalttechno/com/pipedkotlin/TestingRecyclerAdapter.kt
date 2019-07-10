@@ -1,11 +1,14 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import java.util.*
 
-class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingContext, val arePEReadingsComplete: Boolean, val clickListener: TestingRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
+class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingContext, val testingSession: TestingSessionData, val clickListener: TestingRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
+
     interface TestingRecyclerClickListener {
         fun didSelectPERow(row: Int)
         fun didSelectDIRow(row: Int)
@@ -30,8 +33,10 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
     }
 
     override fun getItemCount(): Int {
+
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
+            Log.d("cob2", "Recycler got item count ${PERows.count.value}")
             return PERows.count.value
         }
         else
@@ -172,12 +177,16 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                     val reading1Date = p.pt_reading1_time
                     val r1Time = DateHelper.dbDateStringFormattedWithSeconds(reading1Date)
                     title?.text = "Reading 1: " + r1Time.valueOrNone()
+                    val reading1 = p.pt_reading_1
+                    Log.d("cob2", "REFRESH TABLE: READING 1 IS $reading1")
                     value?.text = p.pt_reading_1.formatForDecPlaces(3)
                 }
                 PERows.reading2.value -> {
                     val readingDate = p.pt_reading2_time
                     val rTime = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 2: " + rTime.valueOrNone()
+                    val reading2 = p.pt_reading_2
+                    Log.d("cob2", "REFRESH TABLE: READING 2 IS $reading2")
                     value?.text = p.pt_reading_2.formatForDecPlaces(3)
                 }
                 PERows.reading3.value -> {
@@ -304,7 +313,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
             viewHolder.pressureReaced?.text = "Pressure Reached: " + DateHelper.dbDateStringFormattedWithSeconds(p.pt_pressurising_finish)
         }
 
-        if (arePEReadingsComplete)
+        if (arePEReadingsComplete())
         {
             if (p.isWaitingForPEData()) {
                 viewHolder.testStatus?.text = "Waiting for data"
@@ -318,7 +327,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         // Calculation results
         if (DateHelper.dateIsValid(p.pt_pressurising_finish))
         {
-            if (arePEReadingsComplete && !p.isWaitingForPEData() && p.havePECalculationResult())
+            if (arePEReadingsComplete() && !p.isWaitingForPEData() && p.havePECalculationResult())
             {
                 if (p.pe_pdf_pass == 0)
                 {
@@ -334,6 +343,34 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                 viewHolder.calcResult?.text = p.peCalcResultDescription()
             }
         }
+    }
+
+    fun arePEReadingsComplete(): Boolean
+    {
+        val p = AppGlobals.instance.activeProcess
+
+        if (testingSession.timerStage > 6)
+        {
+            return true
+        }
+
+        if (p.pt_pe_readings_count == 3 && testingSession.timerStage > 3)
+        {
+            return true
+        }
+
+        if (p.pt_pe_readings_count == 4 && testingSession.timerStage > 4)
+        {
+            return true
+        }
+
+        val r3Time = DateHelper.dbStringToDate(p.pt_reading3_time, Date())
+        if (p.pt_reading_1 > 0 && p.pt_reading_2 > 0 && p.pt_reading_3 > 0 && r3Time.time < Date().time)
+        {
+            return true
+        }
+
+        return false
     }
 
     // Readings footer for DI

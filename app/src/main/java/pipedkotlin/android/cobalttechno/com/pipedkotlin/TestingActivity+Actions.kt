@@ -17,22 +17,25 @@ fun TestingActivity.reloadTable()
 
 fun TestingActivity.formatOptionsMenuForContext(connected: Boolean)
 {
+    // Enablig this routine causes the recycler view to disappear on refresh???
+    return
+
     // Hide/Show menu options depending if we're connected
     if (connected)
     {
         Log.d("Cobalt", "Enabling Tibiis Menu Commands")
-        menuDisableAutoPump.isVisible = true
-        menuEnableAutoPump.isVisible = true
-        menuZeroTibiis.isVisible = true
-        menuEnableConditioning.isVisible = testingSession.testingContext == TestingSessionData.TestingContext.di
+        menuDisableAutoPump.isEnabled = true
+        menuEnableAutoPump.isEnabled = true
+        menuZeroTibiis.isEnabled = true
+        menuEnableConditioning.isEnabled = testingSession.testingContext == TestingSessionData.TestingContext.di
     }
     else
     {
         Log.d("Cobalt", "Disabling Tibiis Menu Commands")
-        menuDisableAutoPump.isVisible = false
-        menuEnableAutoPump.isVisible = false
-        menuZeroTibiis.isVisible = false
-        menuEnableConditioning.isVisible = false
+        menuDisableAutoPump.isEnabled = false
+        menuEnableAutoPump.isEnabled = false
+        menuZeroTibiis.isEnabled = false
+        menuEnableConditioning.isEnabled = false
     }
 }
 
@@ -100,6 +103,10 @@ fun TestingActivity.didPressActionButton(menuId: Int)
             //TODO: Needs completing
         }
 
+        R.id.mnuLoadData -> {
+            loadData()
+        }
+
     }
 }
 
@@ -112,6 +119,7 @@ fun TestingActivity.stopExistingTest()
 
 fun TestingActivity.connectButtonTapped()
 {
+
     // Can we use bluetooth
     if (!AppGlobals.instance.tibiisController.supportsBluetooth())
     {
@@ -130,6 +138,7 @@ fun TestingActivity.connectButtonTapped()
 
     val t = AppGlobals.instance.tibiisController
 
+
     // Disconnect
     if (t.connectStatus == TibiisController.ConnectionStatus.connected || t.connectStatus == TibiisController.ConnectionStatus.connecting)
     {
@@ -142,6 +151,7 @@ fun TestingActivity.connectButtonTapped()
     if (t.connectStatus == TibiisController.ConnectionStatus.notConnected)
     {
         formatTibiisForConnecting()
+
         t.connectToTibiis()
         return
     }
@@ -176,8 +186,10 @@ fun TestingActivity.abortPETest()
     tibiisStopPressurising()
     resetPETest()
 
-    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        AppGlobals.instance.tibiisController.disconnectTibiis()
+    Timer("stopTest", false).schedule(1000) {
+        if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+            AppGlobals.instance.tibiisController.disconnectTibiis()
+        }
     }
 
     AppGlobals.instance.activeProcess.needs_server_sync = 1

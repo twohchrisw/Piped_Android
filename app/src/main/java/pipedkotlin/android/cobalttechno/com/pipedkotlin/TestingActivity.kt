@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.*
 
 import kotlinx.android.synthetic.main.activity_testing_acitivty.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.find
 import org.jetbrains.anko.startActivityForResult
 import java.lang.Exception
@@ -47,11 +48,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     lateinit var tvBattery: TextView
 
     // Vars
+    var recyclerLayout = LinearLayoutManager(this)
     var tibiisSession = TibiisSessionData()
     var testingSession = TestingSessionData()
     lateinit var calcManager: TestingCalcs
     var timer = Timer()
     var liveLogTimer = Timer()
+    var countUpTimer = Timer()  // Counting the pressurising seconds
     var readingsHaveCompleted = false
     var lastLogReading: LogReading? = null
     var testWillFailAlertIgnored = false
@@ -68,6 +71,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var isCheckingIntegrity = false
     var hasCheckedIntegrity = false
     var preventDIAskingForLossValue = false
+    var recyclerViewHasBeenSetup = false
+    var adapter: TestingRecyclerAdapter? = null
 
     // From TestingActionPanel
     var lastPreviousReading = Date()
@@ -104,6 +109,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         // Set the context for the tbxDataController so we can run commands on the main thread
         AppGlobals.instance.tibiisController.tbxDataController.context = this
+        AppGlobals.instance.tibiisController.appContext = this
 
         // Assign the correct testing context
         val testingContext = intent.getStringExtra(TESTING_CONTEXT_EXTRA)
@@ -122,6 +128,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
 
         // Outlets and data
+
         setupLocationClient()
         assignOutlets()
         addListeners()
@@ -133,6 +140,35 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         if (testingSession.testingContext == TestingSessionData.TestingContext.di)
         {
             //TODO: createDiBackButton - to prevent the user exiting a test
+        }
+
+    }
+
+    fun loadData(scrollToReading: Int = 0)
+    {
+        runOnUiThread {
+            if (!recyclerViewHasBeenSetup) {
+                Log.d("cob2", "loadData()")
+                recyclerLayout = recyclerView.layoutManager as LinearLayoutManager
+                //val firstVisible = recyclerLayout.findFirstCompletelyVisibleItemPosition()
+
+                adapter = TestingRecyclerAdapter(testingSession.testingContext, testingSession, this)
+                recyclerView.adapter = adapter
+                //recyclerLayout.scrollToPosition(firstVisible)
+                recyclerViewHasBeenSetup = true
+            }
+            else
+            {
+                // Why does this work fine when not connected but not when connected to Tibiis
+                // What is different??
+                AppGlobals.instance.activeProcess.save(this)
+
+                //recyclerView.adapter = null
+                //recyclerView.layoutManager = null
+                //recyclerView.adapter = adapter
+                //recyclerView.layoutManager = recyclerLayout
+                adapter!!.notifyDataSetChanged()
+            }
         }
     }
 
@@ -222,15 +258,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         btnConnect.setOnClickListener { view -> connectButtonTapped() }
     }
 
-    fun loadData(scrollToReading: Int = 0)
-    {
-        runOnUiThread {
-            val recyclerLayout = recyclerView.layoutManager as LinearLayoutManager
-            val firstVisible = recyclerLayout.findFirstCompletelyVisibleItemPosition()
-            recyclerView.adapter = TestingRecyclerAdapter(testingSession.testingContext, arePEReadingsComplete(), this)
-            recyclerLayout.scrollToPosition(firstVisible)
-        }
-    }
+
+
 
     // MARK: ROW SELECTIONS
 
@@ -569,11 +598,36 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
     }
 
-    class PETimerTask(val a: TestingActivity, val r1Time: Date, val r2Time: Date, val r3Time: Date): TimerTask()
+    class PressurisingCountupTimer(val a: TestingActivity): TimerTask()
     {
         override fun run() {
             val now = Date()
 
+            val defaultDate = DateHelper.date1970()
+            val pressurisingStarted = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_pressurising_start, defaultDate)
+
+            // Don't update the timer if we haven't got a valid pressurising start date
+            val cal = Calendar.getInstance()
+            cal.time = pressurisingStarted
+            if (cal.get(Calendar.YEAR) < 2000)
+            {
+                return
+            }
+
+            a.runOnUiThread {
+                val diff = now.time - pressurisingStarted.time
+                val countUpText = DateHelper.timeDifferenceFormattedForCountdown(diff)
+                a.setPressurisingButtonText(countUpText)
+            }
+
+        }
+    }
+
+
+    class PETimerTask(val a: TestingActivity, val r1Time: Date, val r2Time: Date, val r3Time: Date): TimerTask()
+    {
+        override fun run() {
+            val now = Date()
 
             // Reading 1
             if (a.testingSession.timerStage == 0)
@@ -646,6 +700,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             {
                 if (a.tibiisSession.lastReading != null)
                 {
+                    Log.d("cob2", "Hit Reading 1 - saving reading")
                     a.saveReading1(a.tibiisSession.lastReading!!)
                 }
                 else
@@ -710,9 +765,16 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     // MARK: Tibiis Controller Delegate
 
     override fun tibiisConnected() {
+
+
+
         val tc = AppGlobals.instance.tibiisController
         val p = AppGlobals.instance.activeProcess
+
+
         formatOptionsMenuForContext(true)
+
+
 
         /* DI */
 
@@ -783,6 +845,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         val abortPressurising = testingSession.isPressurisingWithTibiis
         formatTibiisForNotConnected()
         formatOptionsMenuForContext(false)
+        updatePressureGuageForZero()
 
         if (abortPressurising)
         {
@@ -790,8 +853,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             {
                 abortPETest()
                 runOnUiThread {
-                    val alertHelper = AlertHelper(this)
-                    alertHelper.dialogForOKAlertNoAction("Test Aborted!", "The Bluetooth Connection was lost.  Current test has been aborted.  Please remember to reset your Tibiis device.")
+                    //val alertHelper = AlertHelper(this)
+                    //alertHelper.dialogForOKAlertNoAction("Test Aborted!", "The Bluetooth Connection was lost.  Current test has been aborted.  Please remember to reset your Tibiis device.")
                 }
             }
         }

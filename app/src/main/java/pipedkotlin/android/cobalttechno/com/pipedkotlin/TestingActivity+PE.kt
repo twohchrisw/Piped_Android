@@ -70,6 +70,8 @@ fun TestingActivity.loadCheckPE()
     testingSession.isLoggingWithTibiis = true
     testingSession.isPressurisingWithTibiis = true
     testingSession.isAmbientLoggingWithTibiis = false
+
+
     addMissedReadings()
 
     if (p.pe_test_has_calculated == 1)
@@ -204,6 +206,7 @@ fun TestingActivity.archivePETest()
 fun TestingActivity.clearPEData()
 {
     AppGlobals.instance.activeProcess.clearPEData(this)
+    AppGlobals.instance.activeProcess.save(this)
     formatForReadyToPressurise()
 }
 
@@ -247,8 +250,26 @@ fun TestingActivity.startPressurisingButtonPressed()
         beginPressurisation()
     }
 
+    beginCountupTimer()
+
     //TODO: Air Pressurisation Fail Timer
 }
+
+fun TestingActivity.beginCountupTimer()
+{
+    countUpTimer.cancel()
+    countUpTimer = Timer()
+    runOnUiThread {
+        countUpTimer.scheduleAtFixedRate(TestingActivity.PressurisingCountupTimer(this), 0, 1000)
+    }
+}
+
+fun TestingActivity.cancelCountupTimer()
+{
+    countUpTimer.cancel()
+    countUpTimer = Timer()
+}
+
 
 // Begin Manual PE Pressurisation
 fun TestingActivity.beginPressurisation()
@@ -267,6 +288,8 @@ fun TestingActivity.stopPressurisingButtonPressed()
 {
     if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
     {
+        cancelCountupTimer()
+
         if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_pressurising_start))
         {
             AppGlobals.instance.activeProcess.pt_pressurising_finish = DateHelper.dateToDBString(Date())
@@ -364,6 +387,13 @@ fun TestingActivity.loadTestResultsView()
 
 fun TestingActivity.resetPETest()
 {
+    // Resetting the timers
+
+    timer.cancel()
+    timer = Timer()
+    liveLogTimer = Timer()
+    AppGlobals.instance.activeProcess.pt_reading3_time = ""     // This stops the pe timer from resuming
+
     tibiisStopPressurising()
     testingSession.timerStage = 0
     archivePETest()
@@ -376,10 +406,13 @@ fun TestingActivity.resetPETest()
     testingSession.resetTestingSession()
     tibiisSession.resetTibiisSesssionData()
     calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
-    formatForReadyToPressurise()
+    //formatForReadyToPressurise()
+    formatActionPanelForDefault()
 
-    // Resetting the timers
+    timer.cancel()
+    timer = Timer()
     liveLogTimer = Timer()
+
 }
 
 fun TestingActivity.resumePETimer()

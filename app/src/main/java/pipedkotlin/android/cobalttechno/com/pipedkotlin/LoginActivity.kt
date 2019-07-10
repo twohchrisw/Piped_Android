@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import com.android.volley.VolleyError
 import org.jetbrains.anko.UI
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
 
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
@@ -82,9 +83,13 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     fun loadListItems()
     {
         parsingContext = ParsingContext.LoadListItems
-        val comms = CommsManager(this)
-        var urlString = comms.WEBSERVER_GET_LIST_ITEMS
-        comms.getXMLDocument(urlString, this)
+        val a = this
+
+        doAsync {
+            val comms = CommsManager(a)
+            var urlString = comms.WEBSERVER_GET_LIST_ITEMS
+            comms.getXMLDocument(urlString, a)
+        }
     }
 
     // Load the list of clients from webservice

@@ -46,6 +46,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     lateinit var pvActivity: ProgressBar
     lateinit var ivBattery: ImageView
     lateinit var tvBattery: TextView
+    lateinit var pvDownloading: ProgressBar
+    lateinit var tvDownloading: TextView
 
     // Vars
     var recyclerLayout = LinearLayoutManager(this)
@@ -250,6 +252,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         pvActivity = findViewById(R.id.pvActivity) as ProgressBar
         ivBattery = findViewById(R.id.ivBattery) as ImageView
         tvBattery = findViewById(R.id.tvBatteryText) as TextView
+        pvDownloading = findViewById(R.id.pvDownloading) as ProgressBar
+        tvDownloading = findViewById(R.id.tvDownloading) as TextView
     }
 
     fun addListeners()

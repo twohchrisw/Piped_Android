@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_testing_acitivty.*
+import kotlinx.android.synthetic.main.view_holder_process_list.*
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.concurrent.schedule
@@ -184,29 +185,24 @@ fun TestingActivity.displayPreviousReadingData(message: String)
 {
     Log.d("cobpr", "displayPreviousReadingData: $message")
     Timer("previousReadings", false).schedule(2000) {
-        //turnOffPreviousReadings()
+        turnOffPreviousReadings()
     }
 
     runOnUiThread {
-        lastPreviousReading = Date()
-        tvPressurisingLabel.text = message
-        tvPressurisingLabel.alpha = 1.0f
-        linPressurising.alpha = 1.0f
-        pvActivity.alpha = 1.0f
-        linWaitingForReading.alpha = 0.0f
+        tvWaiting.alpha = 0.0f
+        pvDownloading.visibility = View.VISIBLE
+        tvDownloading.visibility = View.VISIBLE
+        tvDownloading.text = message
     }
 }
 
 fun TestingActivity.turnOffPreviousReadings()
 {
-    return
     Log.d("cobpr", "turnOffPreviousReadings()")
     runOnUiThread {
-        tvPressurisingLabel.text = ""
-        tvPressurisingLabel.alpha = 0.0f
-        //linPressurising.alpha = 0.0f
-        pvActivity.alpha = 0.0f
-        linWaitingForReading.alpha = 1.0f
+        tvWaiting.alpha = 1.0f
+        pvDownloading.visibility = View.GONE
+        tvDownloading.visibility = View.GONE
     }
 }
 
@@ -236,6 +232,8 @@ fun TestingActivity.formatActionPanelForDefault()
         pvActivity.alpha = 0.0f
         tvBattery.text = "" // Don't mark this view as gone, it messes the layout up
         ivBattery.alpha = 0.0f
+        pvDownloading.visibility = View.GONE
+        tvDownloading.visibility = View.GONE
 
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
         {

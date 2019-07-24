@@ -159,7 +159,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
 
             if (!isCheckingIntegrity)
             {
-                turnOffPreviousReadings()
+                //turnOffPreviousReadings()
             }
         }
         else
@@ -325,7 +325,7 @@ fun TestingActivity.continueProcessingPreviousLogs()
     {
         if (isDownloadingPreviousData)
         {
-            turnOffPreviousReadings()
+            //turnOffPreviousReadings()
         }
         isDownloadingPreviousData = false
         return
@@ -361,7 +361,7 @@ fun TestingActivity.continueProcessingPreviousLogs()
     {
         lastPreviousLogRequired = -1
         isDownloadingPreviousData = false
-        turnOffPreviousReadings()
+        //turnOffPreviousReadings()
     }
 }
 

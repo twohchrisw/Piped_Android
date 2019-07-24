@@ -548,12 +548,13 @@ class TBXDataController(val tibiisController: TibiisController) {
         {
             if (data.size < 4)
             {
-                Log.d("Cobalt", "Invalid data from previous logs")
+                Log.d("cobpr", "Invalid data from previous logs")
                 return null
             }
 
             val startLogNumber = data[0] shl 16 or data[1] shl 8 or data[2]
             val numberOfLogs = data[3]
+            Log.d("cobpr", "Number of returned previous logs = $numberOfLogs size of data = ${data.size}")
 
             // Remove the header data
             var dataWithoutHeader = data
@@ -568,7 +569,7 @@ class TBXDataController(val tibiisController: TibiisController) {
 
             if (previousLogData.size %7 != 0)
             {
-                Log.d("Cobalt", "Invalid sized data back from previous logs request ${previousLogData.size}")
+                Log.d("cobpr", "Invalid sized data back from previous logs request ${previousLogData.size}")
                 return null
             }
 

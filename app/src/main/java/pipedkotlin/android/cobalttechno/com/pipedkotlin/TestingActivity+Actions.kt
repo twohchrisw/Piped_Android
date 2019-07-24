@@ -45,7 +45,14 @@ fun TestingActivity.didPressActionButton(menuId: Int)
     when(menuId)
     {
         R.id.mnuAddNote -> {
+
             setNotes()
+
+            /*
+            runOnUiThread {
+                AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(1, 20)
+            }
+            */
         }
 
         R.id.mnuZeroTibiisSensors -> {

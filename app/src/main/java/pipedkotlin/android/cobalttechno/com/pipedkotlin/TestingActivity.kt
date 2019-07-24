@@ -37,7 +37,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     lateinit var btnConnect: Button
     lateinit var linPressurising: RelativeLayout // The section of the action panel that displays the pressurising spinner
     lateinit var tvPressurisingLabel: TextView
-    lateinit var linWaitingForReading: LinearLayout // The sectkon of the action panel that shows 'Waiting for Reading 1'
+    lateinit var linWaitingForReading: LinearLayout // The section of the action panel that shows 'Waiting for Reading 1'
     lateinit var tvWaiting: TextView
     lateinit var linCountdown: LinearLayout
     lateinit var tvCountdown: TextView
@@ -64,7 +64,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var shouldTurnScreenOffWithNextLog = false
     var isScreenOn = false
     val WATER_LITRES_PER_PULSE = 0.25
-    val MAX_PREVIOUS_LOGS = 30
+    val MAX_PREVIOUS_LOGS: Int = 10
     var lastPreviousLogRequired = -1
     var lastMaxLogNumber = 0
     var isDownloadingPreviousData = false
@@ -766,15 +766,10 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun tibiisConnected() {
 
-
-
         val tc = AppGlobals.instance.tibiisController
         val p = AppGlobals.instance.activeProcess
 
-
         formatOptionsMenuForContext(true)
-
-
 
         /* DI */
 
@@ -813,6 +808,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         // Is this a reconnection whilst logging
         if (tibiisSession.getLogNumberForReading1() > 0 || tc.tibiisHasBeenConnected)
         {
+            Log.d("cobpr", "PE Reconnect shouldCheckForMissingLogs = true")
             tc.shouldCheckForMissingLogs = true
             tc.previousCommand = tc.currentCommand
 
@@ -823,6 +819,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
         else
         {
+            Log.d("cobpr", "PE Reconnect did not set shouldCheckForMissingLogs")
             if (!testingSession.isPressurisingWithTibiis)
             {
                 testingSession.loggingMode = TestingSessionData.LoggingMode.waiting
@@ -895,6 +892,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                     Log.d("Cobalt", logReading.description())
                     if (AppGlobals.instance.tibiisController.shouldCheckForMissingLogs)
                     {
+                        Log.d("cobpr", "shouldCheckForMissingLogs is true")
                         AppGlobals.instance.tibiisController.shouldCheckForMissingLogs = false
                         this.isDownloadingPreviousData= true
                         Log.d("Cobalt", "Downloading previous logs for lognumber: ${logReading.logNumber}")
@@ -907,15 +905,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
             TBXDataController.Command.FetchOldLogs -> {
 
-                //TODO: Needs completing properly
                 val previousLogData = packet.parseDataAsPreviousLogReadings()
                 if (previousLogData != null)
                 {
                     val message = "Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
-                    Log.d("Cobalt", message)
+                    Log.d("cobpr", message)
                     for (log in previousLogData.logs)
                     {
-                        print("Previous log: ${log.description()}")
+                        Log.d("cobpr","Previous log: ${log.description()}")
                         saveLiveLog(log, true)
                     }
 
@@ -928,6 +925,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                         lastMaxLogNumber = 1
                     }
 
+                    continueProcessingPreviousLogs()
+
+                }
+                else
+                {
+                    Log.d("cobpr", "Previous log data is NULL")
                 }
             }
 
@@ -956,7 +959,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             //TODO: NEEDS COMPLETING
         }
 
-        continueProcessingPreviousLogs()
+
     }
 
 

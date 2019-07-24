@@ -182,9 +182,9 @@ fun TestingActivity.formatForCheckingIntegrity()
 
 fun TestingActivity.displayPreviousReadingData(message: String)
 {
-    Log.d("Cobalt", "displayPreviousReadingData")
+    Log.d("cobpr", "displayPreviousReadingData: $message")
     Timer("previousReadings", false).schedule(2000) {
-        turnOffPreviousReadings()
+        //turnOffPreviousReadings()
     }
 
     runOnUiThread {
@@ -199,7 +199,8 @@ fun TestingActivity.displayPreviousReadingData(message: String)
 
 fun TestingActivity.turnOffPreviousReadings()
 {
-    Log.d("Cobalt", "turnOffPreviousReadings()")
+    return
+    Log.d("cobpr", "turnOffPreviousReadings()")
     runOnUiThread {
         tvPressurisingLabel.text = ""
         tvPressurisingLabel.alpha = 0.0f
@@ -250,7 +251,7 @@ fun TestingActivity.formatActionPanelForDefault()
 
 fun TestingActivity.updatePressureGauge(value: Int, pressurising: Boolean, batteryReading: Int)
 {
-    //Log.d("Cobalt", "Update Pressure Gauge")
+    Log.d("Cobalt", "Update Pressure Gauge with ${value.toDouble()}")
     val pressureInBar = value.toDouble() / 1000
     val formatter = DecimalFormat("0.000")
     val pressureFormatted = formatter.format(pressureInBar)

@@ -5,46 +5,7 @@ import java.text.NumberFormat
 import java.util.*
 import kotlin.concurrent.schedule
 
-fun TestingActivity.continueProcessingPreviousLogs()
-{
-    if (lastPreviousLogRequired < 0)
-    {
-        if (isDownloadingPreviousData)
-        {
-            turnOffPreviousReadings()
-        }
-        isDownloadingPreviousData = false
-        return
-    }
 
-    if (lastMaxLogNumber < lastPreviousLogRequired)
-    {
-        val numberOfLogsRemaining = lastPreviousLogRequired - lastMaxLogNumber + 1
-        if (numberOfLogsRemaining > MAX_PREVIOUS_LOGS)
-        {
-            Timer("prevLog1", false).schedule(300) {
-                runOnUiThread {
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
-                }
-            }
-        }
-        else
-        {
-            Timer("prevLog2", false).schedule(300) {
-                runOnUiThread {
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, numberOfLogsRemaining)
-                }
-            }
-            lastPreviousLogRequired = -1
-        }
-    }
-    else
-    {
-        lastPreviousLogRequired = -1
-        isDownloadingPreviousData = false
-        turnOffPreviousReadings()
-    }
-}
 
 fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = false)
 {
@@ -78,7 +39,6 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
     //Log.d("Cobalt", "Max Pressurising valye = $maxPressure  THIS SHOULD BE > 0")
 
     /* END OF TEST STUFF */
-
 
     if (logReading.logNumber < 1)
     {
@@ -207,6 +167,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
             if (!tibiisSession.hasCalculated)
             {
                 Log.d("Cobalt", "[Previous Log: ${logReading.description()}")
+                Log.d("cobpr", "[Previous Log: ${logReading.description()}")
 
                 // Calculate the rough percentage
                 var downloadMessage = "Downloading . . ."
@@ -316,6 +277,8 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
 
     val lastLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(AppGlobals.instance.activeProcess.columnId, currentLogNumber)
     var startLogNumber = lastLogButThis + 1
+
+    Log.d("cobpr", "downloadPreviousReadings(currentLog: $currentLogNumber startLog: $startLogNumber)")
     if (startLogNumber < 1)
     {
         startLogNumber = 1
@@ -324,11 +287,13 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
     if (currentLogNumber > startLogNumber)
     {
         val numberOfLogs = currentLogNumber - startLogNumber
-        Log.d("Cobalt", "[Previous Download Start Log: $startLogNumber Current Log: $currentLogNumber Count: $numberOfLogs")
+
+        Log.d("cobpr", "[Previous Download Start Log: $startLogNumber Current Log: $currentLogNumber Count: $numberOfLogs")
         if (numberOfLogs > MAX_PREVIOUS_LOGS)
         {
             lastPreviousLogRequired = currentLogNumber - 1
             runOnUiThread {
+                Log.d("cobpr", "About to send first command for logs [multiple commands necessary]")
                 AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
             }
         }
@@ -337,6 +302,7 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
             if (numberOfLogs > 0)
             {
                 runOnUiThread {
+                    Log.d("cobpr", "About to send first command for logs single request only")
                     AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, numberOfLogs)
                 }
             }
@@ -349,6 +315,53 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
     else
     {
         isDownloadingPreviousData = false
+    }
+}
+
+fun TestingActivity.continueProcessingPreviousLogs()
+{
+
+    if (lastPreviousLogRequired < 0)
+    {
+        if (isDownloadingPreviousData)
+        {
+            turnOffPreviousReadings()
+        }
+        isDownloadingPreviousData = false
+        return
+    }
+
+    Log.d("cobpr", "continueProcessingPreviousLogs() Logs Required")
+
+    if (lastMaxLogNumber < lastPreviousLogRequired)
+    {
+        Log.d("cobpr", "Last max: $lastMaxLogNumber Last Previous Log: $lastPreviousLogRequired")
+        val numberOfLogsRemaining = lastPreviousLogRequired - lastMaxLogNumber + 1
+        if (numberOfLogsRemaining > MAX_PREVIOUS_LOGS)
+        {
+            Log.d("cobpr", "Requesting previous logs from $lastMaxLogNumber Number: $MAX_PREVIOUS_LOGS")
+            Timer("prevLog1", false).schedule(300) {
+                runOnUiThread {
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
+                }
+            }
+        }
+        else
+        {
+            Log.d("cobpr", "Requesting previous logs from $lastMaxLogNumber Number: $numberOfLogsRemaining is last")
+            Timer("prevLog2", false).schedule(300) {
+                runOnUiThread {
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, numberOfLogsRemaining)
+                }
+            }
+            lastPreviousLogRequired = -1
+        }
+    }
+    else
+    {
+        lastPreviousLogRequired = -1
+        isDownloadingPreviousData = false
+        turnOffPreviousReadings()
     }
 }
 

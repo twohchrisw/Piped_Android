@@ -36,7 +36,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
-            Log.d("cob2", "Recycler got item count ${PERows.count.value}")
+            //Log.d("cob2", "Recycler got item count ${PERows.count.value}")
             return PERows.count.value
         }
         else

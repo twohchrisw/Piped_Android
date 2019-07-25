@@ -76,6 +76,25 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
         process.pt_calc_result = calcResult
         process.pe_test_has_calculated = 1
 
+        val LOWER_N = 0.04
+        val UPPER_N = 0.13
+
+        // Now test the individual n1 values
+        var hasNValueFailed = false
+        AppGlobals.instance.peFailMessage = ""
+
+        if (n1 < LOWER_N || n2 < LOWER_N)
+        {
+            hasNValueFailed = true
+            AppGlobals.instance.peFailMessage = "Pipe is likely to have air in it."
+        }
+
+        if (n1 > UPPER_N || n2 > UPPER_N)
+        {
+            hasNValueFailed = true
+            AppGlobals.instance.peFailMessage = "Pipe is likely to be leaking."
+        }
+
         if (calcResult >= TestingSessionData.PE_TESTING_LOWER_LIMIT && calcResult <= TestingSessionData.PE_TESTING_UPPER_LIMIT)
         {
             process.pe_pdf_pass = 1
@@ -83,12 +102,27 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
         }
         else
         {
+            peTestPassed = false
             process.pe_pdf_pass = 0
-            //TODO: Fail message after sync
+            AppGlobals.instance.peFailMessageAfterSync = true
         }
 
         process.pe_pdf_n1 = n1
         process.pe_pdf_n2 = n2
-        //TODO: Save the readings to PEReadings class for the graph
+
+        // Save the reading values to a class for use when drawing the graph
+
+        AppGlobals.instance.excelPEReadings = PEReadings()
+        AppGlobals.instance.excelPEReadings.log_pa_t1 = log_pa_t1
+        AppGlobals.instance.excelPEReadings.log_pa_t2 = log_pa_t2
+        AppGlobals.instance.excelPEReadings.log_pa_t3 = log_pa_t3
+        AppGlobals.instance.excelPEReadings.log_t1 = log_t1
+        AppGlobals.instance.excelPEReadings.log_t2 = log_t2
+        AppGlobals.instance.excelPEReadings.log_t3 = log_t3
+        AppGlobals.instance.excelPEReadings.n1 = n1
+        AppGlobals.instance.excelPEReadings.n2 = n2
+        AppGlobals.instance.excelPEReadings.calcResult = calcResult
+        AppGlobals.instance.excelPEReadings.calcPass = peTestPassed
+
     }
 }

@@ -1,5 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.content.Intent
 import android.util.Log
 import java.util.*
 
@@ -328,6 +329,7 @@ fun TestingActivity.calculatePEButtonPressed()
         runOnUiThread {
             alert.dialogForOKAlertNoAction("Downloading Data", "Please wait until all previous logs have been downloaded before using Calculate")
         }
+        return
     }
 
     if (!hasCheckedIntegrity)
@@ -344,6 +346,7 @@ fun TestingActivity.calculatePEButtonPressed()
         runOnUiThread {
             alert.dialogForOKAlertNoAction("Checking Log Integrity", "Please wait until all previous logs have been downloaded before using Calculate")
         }
+        return
     }
 
     val p = AppGlobals.instance.activeProcess
@@ -355,11 +358,13 @@ fun TestingActivity.calculatePEButtonPressed()
         calculatePETestResults()
         saveCalibrationDetails()
         loadData()
-        //TODO: Load Test results view
+        loadPEGraph()
+        /*
         runOnUiThread {
             val alert = AlertHelper(this)
             alert.dialogForOKAlertNoAction("Test Results", "In development")
         }
+        */
     }
     else
     {
@@ -372,6 +377,13 @@ fun TestingActivity.calculatePEButtonPressed()
     }
 
     p.save(this)
+}
+
+fun TestingActivity.loadPEGraph()
+{
+    val peGraphIntent = Intent(this, PEGraphActivity::class.java)
+    //peGraphIntent.putExtra(ProcessMenuActivity.MENU_MODE_KEY, ProcessMenuActivity.MENU_MODE_TASKS)
+    startActivity(peGraphIntent)
 }
 
 fun TestingActivity.saveCalibrationDetails()

@@ -115,16 +115,17 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         // Assign the correct testing context
         val testingContext = intent.getStringExtra(TESTING_CONTEXT_EXTRA)
-        if (testingContext == "PE")
-        {
-            testingSession.testingContext = TestingSessionData.TestingContext.pe
-            supportActionBar?.title = "PE Testing"
-        }
-        else
+        if (testingContext == "DI")
         {
             testingSession.testingContext = TestingSessionData.TestingContext.di
             supportActionBar?.title = "DI Testing"
         }
+        else
+        {
+            testingSession.testingContext = TestingSessionData.TestingContext.pe
+            supportActionBar?.title = "PE Testing"
+        }
+
 
         // Setup the calculation manager
         calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)

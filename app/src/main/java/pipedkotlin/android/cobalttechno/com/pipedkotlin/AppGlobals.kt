@@ -24,5 +24,10 @@ public class AppGlobals private constructor() {
     var userId = ""
     var activeProcess = EXLDProcess()
     var tibiisController = TibiisController()
+    var peFailMessage = ""
+    var peFailMessageAfterSync = false
+    var sampleFailMessageAfterSync = ""
+    var diFailMessageAfterSync = ""
+    var excelPEReadings = PEReadings()
 
 }

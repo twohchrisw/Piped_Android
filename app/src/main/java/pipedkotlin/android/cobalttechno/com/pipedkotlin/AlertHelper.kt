@@ -44,6 +44,10 @@ open class AlertHelper(context: Context) {
             dialog.dismiss()
         })
 
+        builder.setNegativeButton("Cancel", { dialog, i ->
+
+        })
+
         builder.create().show()
     }
 

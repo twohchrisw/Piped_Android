@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_process_list.*
 import org.jetbrains.anko.startActivityForResult
 
@@ -33,6 +35,44 @@ class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.Proc
         addListeners()
         supportActionBar?.setTitle("Process List")
         //TODO: Ensure processes refresh after adding new and returning to this view
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_process_list, menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        when (item?.itemId)
+        {
+            R.id.mnuSyncWithServer -> {
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Sync With Server", "In development")
+            }
+
+            R.id.mnuSignout -> {
+                //TODO: Ensure all processes have synced before allowing this, see ProcessListViewController.signOutOfCompany #549
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Signout", "In development")
+            }
+
+            R.id.mnuAbout -> {
+                val version = BuildConfig.VERSION_NAME
+                val companyId = AppGlobals.instance.companyId
+
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("About Piped", "Version: ${version}\r\nSigned in as '$companyId'")
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        return
     }
 
     fun assignOutlets()

@@ -45,11 +45,45 @@ class ProcessMenuRecyclerAdapter(val menuMode: Int, val clickListener: ProcessMe
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
         {
+            val hasEnteredInfo = AppGlobals.instance.activeProcess.hasEnteredProcessDetails()
+
             when (position) {
+
                 MainMenuItems.processDetails.value -> mainText?.text = "Process Details"
-                MainMenuItems.tasks.value -> mainText?.text = "Tasks"
-                MainMenuItems.equipment.value -> mainText?.text = "Equipment"
-                MainMenuItems.consumables.value -> mainText?.text = "Consumables / Hire"
+                MainMenuItems.tasks.value -> {
+                    mainText?.text = "Tasks"
+                    if (!hasEnteredInfo)
+                    {
+                        mainText?.alpha = 0.5f
+                    }
+                    else
+                    {
+                        mainText?.alpha = 1.0f
+                    }
+                }
+                MainMenuItems.equipment.value -> {
+                    mainText?.text = "Equipment"
+                    if (!hasEnteredInfo)
+                    {
+                        mainText?.alpha = 0.5f
+                    }
+                    else
+                    {
+                        mainText?.alpha = 1.0f
+                    }
+                }
+                MainMenuItems.consumables.value ->  {
+                    mainText?.text = "Consumables / Hire"
+                    if (!hasEnteredInfo)
+                    {
+                        mainText?.alpha = 0.5f
+                    }
+                    else
+                    {
+                        mainText?.alpha = 1.0f
+                    }
+                }
+
             }
         }
 

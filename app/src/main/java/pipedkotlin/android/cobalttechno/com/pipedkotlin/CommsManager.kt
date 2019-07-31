@@ -29,8 +29,8 @@ class CommsManager(delegate: CommsManagerDelegate) {
     val delegate = delegate
     val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
     public final val WEBSERVER_VALIDATE_COMPANY_ID = "${SERVICE_DOMAIN}irateservice.asmx/GetCompanyIDCount2?company_id="
-    public final val WEBSERVER_GET_LIST_ITEMS = "${SERVICE_DOMAIN}irateservice.asmx/GetAllListItems"
-    public final val WEBSERVER_GET_CLIENTS = "${SERVICE_DOMAIN}irateservice.asmx/GetAllClients"
+    public final val WEBSERVER_GET_LIST_ITEMS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelListItems?company_id="
+    public final val WEBSERVER_GET_CLIENTS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelClients?company_id="
     public final val WEBSERVER_GET_MODULE_PREFS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelModulePreferences?company_id="
 
     // Retrieves an XML file from the server

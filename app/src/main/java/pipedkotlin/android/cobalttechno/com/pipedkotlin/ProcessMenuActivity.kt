@@ -67,6 +67,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(detailsIntent)
     }
 
+    fun loadSwabbing()
+    {
+        val swabbingIntent = Intent(this, SwabbingActivity::class.java)
+        startActivity(swabbingIntent)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         Log.d("cobalt", "Finished")
@@ -85,12 +91,28 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
         {
+            val hasEnteredDetails = AppGlobals.instance.activeProcess.hasEnteredProcessDetails()
+
             when (menuItem)
             {
                 ProcessMenuRecyclerAdapter.MainMenuItems.processDetails.value -> { loadProcessDetails() }
-                ProcessMenuRecyclerAdapter.MainMenuItems.tasks.value -> { loadTasksMenu() }
-                ProcessMenuRecyclerAdapter.MainMenuItems.consumables.value -> { }
-                ProcessMenuRecyclerAdapter.MainMenuItems.equipment.value -> { }
+                ProcessMenuRecyclerAdapter.MainMenuItems.tasks.value -> {
+                    if (hasEnteredDetails) {
+                        loadTasksMenu()
+                    }
+                }
+                ProcessMenuRecyclerAdapter.MainMenuItems.consumables.value -> {
+                    if (hasEnteredDetails)
+                    {
+
+                    }
+                }
+                ProcessMenuRecyclerAdapter.MainMenuItems.equipment.value -> {
+                    if (hasEnteredDetails)
+                    {
+
+                    }
+                }
             }
         }
 
@@ -107,6 +129,9 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                     val testingIntent = Intent(this, TestingActivity::class.java)
                     testingIntent.putExtra(TestingActivity.TESTING_CONTEXT_EXTRA, "DI")
                     startActivity(testingIntent)
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.swabbing.value -> {
+                    loadSwabbing()
                 }
             }
         }

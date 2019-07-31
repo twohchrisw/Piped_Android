@@ -855,5 +855,18 @@ data class EXLDProcess(val columnId: Long = -1,
         Log.d("Cobalt", "Deleted $rowsDeleted DI Rows")
     }
 
+    fun hasEnteredProcessDetails(): Boolean
+    {
+        if (technician_name.length > 0 || vehicle_name.length > 0 || pt_installation_tech.length > 0 || client.length > 0 || scheme_name.length > 0
+                || address.length > 0 || pipe_description.length > 0 || pipe_length > 0 || pipe_diameter > 0 || general_other.length > 0
+                || start_time.length > 0 || finish_time.length > 0)
+        {
+            return true
+        }
+        else
+        {
+            return false
+        }
+    }
 
 }

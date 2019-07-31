@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mnuSyncWithServer"
+        android:title="Sync with Server" />
+    <item
+        android:id="@+id/mnuSignout"
+        android:title="Signout" />
+    <item
+        android:id="@+id/mnuAbout"
+        android:title="About" />
+</menu>

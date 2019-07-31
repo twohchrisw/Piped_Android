@@ -14,6 +14,8 @@ import com.android.volley.VolleyError
 import org.jetbrains.anko.UI
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
+import java.util.*
+import kotlin.concurrent.schedule
 
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
@@ -24,6 +26,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     enum class ParsingContext { CountOfCompanyIds, LoadListItems, LoadClients, ModulePrefs }
     var parsingContext = ParsingContext.CountOfCompanyIds
+    var shouldLoadProcessListAfterParsing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +43,22 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             AppGlobals.instance.companyId = existingCompanyId
             Log.d("cobalt", "List sets company id as " + AppGlobals.instance.companyId)
             progressBar.visibility = View.VISIBLE
+
+            shouldLoadProcessListAfterParsing = true
             loadListItems()
+/*
+            Timer("loadlistTimer", false).schedule(1000) {
+                runOnUiThread {
+                    loadMainProcessList()
+                }
+            }
+
+            Timer("loadClients", false).schedule(2000) {
+                doAsync {
+                    loadListItems()
+                }
+            }
+            */
         }
         else {
             // Wait for the user to provide a company id
@@ -48,6 +66,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             btnEnterCompanyId.visibility = View.VISIBLE
             btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
             supportActionBar?.hide()
+            shouldLoadProcessListAfterParsing = true
         }
     }
 
@@ -85,11 +104,10 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         parsingContext = ParsingContext.LoadListItems
         val a = this
 
-        doAsync {
-            val comms = CommsManager(a)
-            var urlString = comms.WEBSERVER_GET_LIST_ITEMS
-            comms.getXMLDocument(urlString, a)
-        }
+        val comms = CommsManager(a)
+        var urlString = comms.WEBSERVER_GET_LIST_ITEMS + AppGlobals.instance.companyId
+
+        comms.getXMLDocument(urlString, a)
     }
 
     // Load the list of clients from webservice
@@ -97,7 +115,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         parsingContext = ParsingContext.LoadClients
         val comms = CommsManager(this)
-        var urlString = comms.WEBSERVER_GET_CLIENTS
+        var urlString = comms.WEBSERVER_GET_CLIENTS + AppGlobals.instance.companyId
         comms.getXMLDocument(urlString, this)
     }
 
@@ -195,7 +213,10 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             AppGlobals.instance.companyId = ownerCompanyId
             AppGlobals.instance.userId = userIdString
 
-            EXLDSettings.writeCompanyIdToDatabase(this, ownerCompanyId, userIdString, attemptedCompanyId)
+            runOnUiThread {
+                EXLDSettings.writeCompanyIdToDatabase(this, ownerCompanyId, userIdString, attemptedCompanyId)
+            }
+
             loadListItems()
         }
         else
@@ -232,7 +253,11 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             val listValue = nz(row.getFieldForKey("ListValue")?.value)
             val companyId = nz(row.getFieldForKey("CompanyId")?.value)
 
-            EXLDListItems.addNew(this, companyId, listValue, listName)
+            //runOnUiThread {
+                Log.d("Cobalt", "Write List Items")
+                EXLDListItems.addNew(this, companyId, listValue, listName)
+            //}
+
         }
 
         loadClients()
@@ -248,9 +273,13 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         {
             val clientId = nz(row.getFieldForKey("client_id")?.value)
             val clientName = nz(row.getFieldForKey("client_name")?.value)
-            val companyId = nz(row.getFieldForKey("company_id")?.value)
+            val companyId = AppGlobals.instance.companyId
 
-            EXLDClients.addNew(this, clientId, clientName, companyId)
+            //runOnUiThread {
+                Log.d("Cobalt", "Write Clients: $clientName")
+                EXLDClients.addNew(this, clientId, clientName, companyId)
+            //}
+
         }
 
         loadModulePreferences()
@@ -275,10 +304,15 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             val allowSwabbing = nz(row.getFieldForKey("allow_swabbing")?.value)
             val allowAuditing = nz(row.getFieldForKey("allow_auditing")?.value)
 
-            EXLDSettings.writePermissions(this, allowSurveying, allowFilling, allowPE, allowDI, allowChlor, allowDechlor, allowFlush, allowFlush2, allowSamping, allowSwabbing, allowAuditing)
+            //runOnUiThread {
+                Log.d("Cobalt", "Write Permissions")
+                EXLDSettings.writePermissions(this, allowSurveying, allowFilling, allowPE, allowDI, allowChlor, allowDechlor, allowFlush, allowFlush2, allowSamping, allowSwabbing, allowAuditing)
+            //}
         }
 
-        loadMainProcessList()
+        if (shouldLoadProcessListAfterParsing) {
+            loadMainProcessList()
+        }
     }
 
 }

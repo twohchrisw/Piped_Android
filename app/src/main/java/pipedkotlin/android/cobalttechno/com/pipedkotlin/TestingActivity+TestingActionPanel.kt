@@ -17,10 +17,10 @@ fun TestingActivity.setPressurisingButtonText(timerText: String)
             //var buttonString = "$BUTTON_TEXT_STOP_PRESS $timerText"
             //btnAction.text = buttonString
             tvPressurisingLabel.text = "Pressurising [$timerText]"
+            tvPressurisingLabel.alpha = 1.0f
         }
         else
         {
-
             var buttonString = "Pressurising: $timerText"
             btnAction.text = buttonString
         }

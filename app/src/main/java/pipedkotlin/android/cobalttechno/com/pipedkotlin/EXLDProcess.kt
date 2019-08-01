@@ -192,7 +192,8 @@ data class EXLDProcess(val columnId: Long = -1,
                        var vehicle_id: Int = 0,
                        var vehicle_name: String = "",
                        var peNeedsUploading: Int = 0,
-                       var diNeedsUploading: Int = 0
+                       var diNeedsUploading: Int = 0,
+                       var pt_reading_5: Double = 0.0
                        )
 {
     var processSyncInProgress = false
@@ -384,6 +385,7 @@ data class EXLDProcess(val columnId: Long = -1,
         val c_vehicle_name  = "vehicle_name"
         val c_pe_needs_uploading = "peNeedsUploading"
         val c_di_needs_uploading = "diNeedsUploading"
+        val c_pt_reading_5 = "pt_reading_5"
 
         fun allProcesses(context: Context):List<EXLDProcess>
         {
@@ -633,7 +635,8 @@ data class EXLDProcess(val columnId: Long = -1,
                         EXLDProcess.c_vehicle_id to vehicle_id,
                         EXLDProcess.c_vehicle_name to vehicle_name,
                         c_pe_needs_uploading to peNeedsUploading,
-                        c_di_needs_uploading to diNeedsUploading
+                        c_di_needs_uploading to diNeedsUploading,
+                        c_pt_reading_5 to pt_reading_5
                         ).whereArgs(EXLDProcess.COLUMN_ID + " = " + columnId.toString()).exec()
             }
         }
@@ -662,6 +665,7 @@ data class EXLDProcess(val columnId: Long = -1,
         pt_reading_1 = 0.0
         pt_reading_2 = 0.0
         pt_reading_3 = 0.0
+        pt_reading_5 = 0.0
         pe_pdf_calc_result = 0.0
         pe_test_has_calculated = 0
         pe_pdf_log_pa_t1 = 0.0
@@ -766,7 +770,12 @@ data class EXLDProcess(val columnId: Long = -1,
 
         var pumpSizeNumerals = pumpSizeString.substring(0, 3)
         pumpSizeNumerals = pumpSizeNumerals.replace(" ", "")
-        val pumpPerMinute = pumpSizeNumerals.toDoubleOrNull()
+        var pumpPerMinute = pumpSizeNumerals.toDoubleOrNull()
+
+        if (pumpSizeString.contains("6 ltr"))
+        {
+            pumpPerMinute = 6.0
+        }
 
         if (pumpPerMinute != null)
         {
@@ -778,6 +787,7 @@ data class EXLDProcess(val columnId: Long = -1,
         }
 
     }
+
 
     fun pumpVolumeTimeSeconds(testingContext: TestingSessionData.TestingContext): Double
     {
@@ -810,6 +820,7 @@ data class EXLDProcess(val columnId: Long = -1,
         pt_reading_1 = 0.0
         pt_reading_2 = 0.0
         pt_reading_3 = 0.0
+        pt_reading_5 = 0.0
         pt_pressurising_start = ""
         pt_pressurising_finish = ""
         pt_reading1_time = ""
@@ -867,6 +878,22 @@ data class EXLDProcess(val columnId: Long = -1,
         {
             return false
         }
+    }
+
+    fun isPEPressurising(): Boolean
+    {
+        val press_start = pt_pressurising_start
+        val press_end = pt_pressurising_finish
+
+        val start = DateHelper.dbStringToDateOrNull(pt_pressurising_start)
+        val end = DateHelper.dbStringToDateOrNull(pt_pressurising_finish)
+
+        if (press_start != "" && press_end == "")
+        {
+            return true
+        }
+
+        return false
     }
 
 }

@@ -57,6 +57,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var timer = Timer()
     var liveLogTimer = Timer()
     var countUpTimer = Timer()  // Counting the pressurising seconds
+    var airPrecentageTimer = Timer()
     var readingsHaveCompleted = false
     var lastLogReading: LogReading? = null
     var testWillFailAlertIgnored = false
@@ -171,6 +172,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 //recyclerView.adapter = adapter
                 //recyclerView.layoutManager = recyclerLayout
                 adapter!!.notifyDataSetChanged()
+                //Log.d("petest", "Adapter requested update")
             }
         }
     }
@@ -557,6 +559,72 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     // MARK: Timer Loops
 
+    fun cancelAirPercentageTimer()
+    {
+        airPrecentageTimer.cancel()
+        airPrecentageTimer = Timer()
+    }
+
+    fun airPercentageAlert()
+    {
+        runOnUiThread {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Test Will Fail")
+            builder.setMessage("This test will fail, do you want to continue?")
+
+            builder.setPositiveButton("Continue", { dialog, i ->
+                testWillFailAlertIgnored = true
+                dialog.dismiss()
+            })
+
+            builder.setNegativeButton("Abort", { dialog, i ->
+                abortPETest()
+                dialog.dismiss()
+            })
+
+            builder.create().show()
+        }
+    }
+
+    class AirPrecentageTimerTask(val a: TestingActivity): TimerTask()
+    {
+        override fun run() {
+            Log.d("petest", "Air Percentage Timer")
+            val p = AppGlobals.instance.activeProcess
+            a.loadData()
+
+            if (a.testingSession.testingContext == TestingSessionData.TestingContext.pe && p.isPEPressurising() && a.testWillFailAlertIgnored == false)
+            {
+                var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
+                val airCalc = AirPressureCalc(p, TestingSessionData.TestingContext.pe)
+                if (airCalc.isValid().first)
+                {
+                    val airPressureSeconds = airCalc.performCalc()
+                    if (airPressureSeconds != null)
+                    {
+                        val calendar = Calendar.getInstance()
+                        calendar.time = pstart
+                        calendar.add(Calendar.SECOND, airPressureSeconds.fourPercent)
+                        val cutOff4PercentSeconds = calendar.time
+
+                        if (cutOff4PercentSeconds.time < Date().time)
+                        {
+                            Log.d("petest", "Over 4% Cut off")
+                            a.airPercentageAlert()
+                            a.cancelAirPercentageTimer()
+                        }
+                    }
+                }
+
+                // Failsafe to turn timer off
+                if (p.pt_pressurising_finish.length > 1 && a.testingSession.testingContext == TestingSessionData.TestingContext.pe)
+                {
+                    a.cancelAirPercentageTimer()
+                }
+            }
+        }
+    }
+
     class LiveLogTimerTask(val a: TestingActivity): TimerTask()
     {
         var hasStarted = false
@@ -643,6 +711,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 }
                 else
                 {
+                    Log.d("petest", "Reading 1 now.time ${now.time} r1Time.time ${r1Time.time}")
                     hitReading1()
                 }
             }
@@ -705,7 +774,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             {
                 if (a.tibiisSession.lastReading != null)
                 {
-                    Log.d("cob2", "Hit Reading 1 - saving reading")
+                    Log.d("petest", "Hit Reading 1 - saving reading")
                     a.saveReading1(a.tibiisSession.lastReading!!)
                 }
                 else
@@ -811,9 +880,9 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         /* PE */
 
         // Is this a reconnection whilst logging
-        if (tibiisSession.getLogNumberForReading1() > 0 || tc.tibiisHasBeenConnected)
+        if (tibiisSession.getLogNumberForReading1() > 0)
         {
-            Log.d("cobpr", "PE Reconnect shouldCheckForMissingLogs = true")
+            Log.d("petest", "PE Reconnect shouldCheckForMissingLogs = true")
             tc.shouldCheckForMissingLogs = true
             tc.previousCommand = tc.currentCommand
 
@@ -824,7 +893,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
         else
         {
-            Log.d("cobpr", "PE Reconnect did not set shouldCheckForMissingLogs")
+            Log.d("petest", "PE Reconnect did not set shouldCheckForMissingLogs")
             if (!testingSession.isPressurisingWithTibiis)
             {
                 testingSession.loggingMode = TestingSessionData.LoggingMode.waiting

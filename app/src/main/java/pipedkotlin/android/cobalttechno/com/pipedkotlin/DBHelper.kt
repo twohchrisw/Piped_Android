@@ -241,7 +241,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDProcess.c_vehicle_id to INTEGER + DEFAULT("0"),
                 EXLDProcess.c_vehicle_name to TEXT + DEFAULT("''"),
                 EXLDProcess.c_pe_needs_uploading to INTEGER + DEFAULT("0"),
-                EXLDProcess.c_di_needs_uploading to INTEGER + DEFAULT("0"))
+                EXLDProcess.c_di_needs_uploading to INTEGER + DEFAULT("0"),
+                EXLDProcess.c_pt_reading_5 to REAL + DEFAULT("0"))
 
         // Tibiis Readings
         db!!.createTable(EXLDTibiisReading.TABLE_NAME, true,

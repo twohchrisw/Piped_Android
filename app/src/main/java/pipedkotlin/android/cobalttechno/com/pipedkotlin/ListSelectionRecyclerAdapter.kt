@@ -13,7 +13,7 @@ class ListSelectionRecyclerAdapter(val listContext: Int, val listItems: List<EXL
     }
 
     val PIPE_TYPES = arrayListOf("(none)", "PE", "DI", "ST", "PVC", "PE SDR 11", "PE SDR 17", "PE SDR 26")
-    val PUMP_TYPES = arrayListOf("(none)", "Hand Pump", "12 ltr/min Pressure Test Pump", "30 ltr/min Pressure Test Pump", "50 ltr/min Pressure Test Pump", "120 ltr/min Pressure Test Pump",
+    val PUMP_TYPES = arrayListOf("(none)", "Hand Pump", "6 ltr/min Pressure Test Pump", "12 ltr/min Pressure Test Pump", "30 ltr/min Pressure Test Pump", "50 ltr/min Pressure Test Pump", "120 ltr/min Pressure Test Pump",
             "150 ltr/min Pressure Test Pump", "250 ltr/min Pressure Test Pump", "400 ltr/min Pressure Test Pump", "500 ltr/min Pressure Test Pump")
 
     override fun getItemCount(): Int {

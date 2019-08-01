@@ -217,7 +217,7 @@ fun TestingActivity.startPressurisingButtonPressed()
 
     if (p.tibsessLogNumberForReading1 > 0)
     {
-        Log.d("Cobalt", "CANNOT START PRESSURISIING WHILST WE HAVE A VALID LOG NUMBER FOR READING 1")
+        Log.d("petest", "CANNOT START PRESSURISIING WHILST WE HAVE A VALID LOG NUMBER FOR READING 1")
         return
     }
 
@@ -248,16 +248,18 @@ fun TestingActivity.startPressurisingButtonPressed()
     }
     else
     {
+        testingSession.isPressurisingWithTibiis = false
         beginPressurisation()
     }
 
     beginCountupTimer()
 
-    //TODO: Air Pressurisation Fail Timer
+    airPrecentageTimer.scheduleAtFixedRate(TestingActivity.AirPrecentageTimerTask(this), 0, 2000)
 }
 
 fun TestingActivity.beginCountupTimer()
 {
+    Log.d("petest", "Begin count up timer")
     countUpTimer.cancel()
     countUpTimer = Timer()
     runOnUiThread {
@@ -287,6 +289,7 @@ fun TestingActivity.beginPressurisation()
 
 fun TestingActivity.stopPressurisingButtonPressed()
 {
+    Log.d("petest", "stopPressurisingButtonPressed")
     if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
     {
         cancelCountupTimer()
@@ -301,8 +304,41 @@ fun TestingActivity.stopPressurisingButtonPressed()
                 updatePressurisingDataFromTibiisSession()
             }
 
-            //TODO: Air percentage stuff here
+            var airPercentage = 0
+            var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
+            var pend = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_finish)
+            if (pstart != null && pend != null)
+            {
+                val pressurisingSeconds = (pend.time - pstart.time) / 1000
+                Log.d("petest", "Pressurising seconds: $pressurisingSeconds")
+                val airCalc = AirPressureCalc(AppGlobals.instance.activeProcess, TestingSessionData.TestingContext.pe)
+                if (airCalc.isValid().first)
+                {
+                    val airPressureSeconds = airCalc.performCalc()
+                    if (airPressureSeconds != null)
+                    {
+                        if (pressurisingSeconds >= airPressureSeconds!!.onePercent && pressurisingSeconds < airPressureSeconds!!.twoPrecent)
+                        {
+                            airPercentage = 1
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds!!.twoPrecent && pressurisingSeconds < airPressureSeconds!!.threePercent)
+                        {
+                            airPercentage = 2
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds!!.threePercent && pressurisingSeconds < airPressureSeconds!!.fourPercent)
+                        {
+                            airPercentage = 3
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds.fourPercent)
+                        {
+                            airPercentage = 4
+                        }
+                    }
+                }
+            }
 
+            AppGlobals.instance.activeProcess.pt_reading_5 = airPercentage.toDouble()
+            AppGlobals.instance.activeProcess.save(this)
             setPETestFinishedPressurisingAndBeginLogging()
         }
         else
@@ -404,6 +440,7 @@ fun TestingActivity.resetPETest()
     timer.cancel()
     timer = Timer()
     liveLogTimer = Timer()
+    cancelAirPercentageTimer()
     AppGlobals.instance.activeProcess.pt_reading3_time = ""     // This stops the pe timer from resuming
 
     tibiisStopPressurising()

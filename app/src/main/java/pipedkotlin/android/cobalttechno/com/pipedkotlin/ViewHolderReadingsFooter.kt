@@ -11,4 +11,5 @@ class ViewHolderReadingsFooter(itemView: View?): RecyclerView.ViewHolder(itemVie
     val pressureReaced = itemView?.findViewById<TextView>(R.id.tvPressureReached)
     val calcResult = itemView?.findViewById<TextView>(R.id.tvCalcResult)
     val testStatus = itemView?.findViewById<TextView>(R.id.tvTestStatus)
+    val testLabel = itemView?.findViewById<TextView>(R.id.tvTestLabel)
 }

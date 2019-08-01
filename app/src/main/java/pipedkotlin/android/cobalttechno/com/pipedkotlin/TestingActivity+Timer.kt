@@ -16,7 +16,8 @@ fun TestingActivity.saveReading1(pr: LogReading)
         tibiisSession.peReading1MissedByLogger = false
         tibiisSession.setLogReading1(pr)
         p.save(this)
-        Log.d("Cobalt", "Add reading 1")
+
+        Log.d("petest", "saveReading1 $press")
         loadData()
     }
 
@@ -36,7 +37,7 @@ fun TestingActivity.saveReading2(pr: LogReading)
         tibiisSession.peReading2MissedByLogger = false
         tibiisSession.setLogReading2(pr)
         p.save(this)
-        Log.d("Cobalt", "Add reading 2")
+        Log.d("petest", "saveReading2 $press (R1: ${p.pt_reading_1})")
         loadData()
     }
 
@@ -55,7 +56,7 @@ fun TestingActivity.saveReading3(pr: LogReading)
     tibiisSession.peReading3MissedByLogger = false
     tibiisSession.setLogReading3(pr)
     p.save(this)
-    Log.d("Cobalt", "Add reading 3")
+    Log.d("petest", "saveReading3 $press (R1: ${p.pt_reading_1} R2: ${p.pt_reading_3})")
     loadData()
 }
 

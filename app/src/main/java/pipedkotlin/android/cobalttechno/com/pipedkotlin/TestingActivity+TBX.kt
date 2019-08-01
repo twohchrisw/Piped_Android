@@ -198,21 +198,21 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
             {
                 saveReading1(logReading)
                 loadData()
-                Log.d("Cobalt", "Reading 1 saved by log number ${logReading.logNumber}")
+                Log.d("petest", "Reading 1 saved by log number ${logReading.logNumber}")
             }
 
             if (logReading.logNumber == tibiisSession.getLogNumberForReading2())
             {
                 saveReading2(logReading)
                 loadData()
-                Log.d("Cobalt", "Reading 2 saved by log number ${logReading.logNumber}")
+                Log.d("petest", "Reading 2 saved by log number ${logReading.logNumber}")
             }
 
             if (logReading.logNumber == tibiisSession.getLogNumberForReading3())
             {
                 saveReading3(logReading)
                 loadData()
-                Log.d("Cobalt", "Reading 3 saved by log number ${logReading.logNumber}")
+                Log.d("petest", "Reading 3 saved by log number ${logReading.logNumber}")
             }
 
             // Save the reading to the tibiis session

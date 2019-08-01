@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import java.text.SimpleDateFormat
 import java.util.*
 
 class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingContext, val testingSession: TestingSessionData, val clickListener: TestingRecyclerClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
@@ -302,6 +303,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         viewHolder.calcResult?.text = "Calc Result: N/A"
         viewHolder.testStatus?.text = "In Progress"
         viewHolder.headerText?.text = "NOTES"
+        viewHolder.testLabel?.text = ""
 
         if (DateHelper.dateIsValid(p.pt_pressurising_start))
         {
@@ -321,6 +323,75 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
             else
             {
                 viewHolder.testStatus?.text = "Ready to Calculate"
+            }
+        }
+
+        // Air Pressure Calc
+        viewHolder.testLabel?.text = ""
+        if (p.isPEPressurising())
+        {
+            var airPercentage = 0
+            var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
+
+            //if (pstart != null && pend != null)
+            //{
+                val pressurisingSeconds = (Date().time - pstart!!.time) / 1000
+                Log.d("petest", "Pressurising seconds: $pressurisingSeconds")
+                val airCalc = AirPressureCalc(AppGlobals.instance.activeProcess, TestingSessionData.TestingContext.pe)
+                if (airCalc.isValid().first)
+                {
+                    val airPressureSeconds = airCalc.performCalc()
+                    if (airPressureSeconds != null)
+                    {
+                        val calendar = Calendar.getInstance()
+                        calendar.time = pstart
+                        calendar.add(Calendar.SECOND, airPressureSeconds.fourPercent)
+                        val cutOff4PercentSeconds = calendar.time
+                        val format = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+                        val formatted4Percent = format.format(cutOff4PercentSeconds)
+
+                        if (pressurisingSeconds >= airPressureSeconds!!.onePercent && pressurisingSeconds < airPressureSeconds!!.twoPrecent)
+                        {
+                            airPercentage = 1
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds!!.twoPrecent && pressurisingSeconds < airPressureSeconds!!.threePercent)
+                        {
+                            airPercentage = 2
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds!!.threePercent && pressurisingSeconds < airPressureSeconds!!.fourPercent)
+                        {
+                            airPercentage = 3
+                        }
+                        if (pressurisingSeconds >= airPressureSeconds.fourPercent)
+                        {
+                            airPercentage = 4
+                        }
+
+                        if (airPercentage > 0)
+                        {
+                            viewHolder.testLabel?.text = "4% Cut Off: $formatted4Percent Pipe has $airPercentage% air"
+                        }
+                        else
+                        {
+                            viewHolder.testLabel?.text = "4% Cut Off: $formatted4Percent"
+                        }
+                    }
+                    else
+                    {
+                        viewHolder.testLabel?.text = "AP Calc Error: No Time Returned"
+                    }
+            }
+            else {
+                    viewHolder.testLabel?.text = "AP CALC Error: ${airCalc.isValid().second}"
+                }
+
+        }
+        else
+        {
+            val airPercentage = p.pt_reading_5.toInt()
+            if (airPercentage > 0)
+            {
+                viewHolder.testLabel?.text = "Pipe has $airPercentage air"
             }
         }
 
@@ -392,14 +463,14 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         val p = AppGlobals.instance.activeProcess
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
-            if (position == PERows.notes.value)
+            if (position == TestingRecyclerAdapter.PERows.notes.value)
             {
                 viewHolder.mainText?.text = p.pt_pe_notes.valueOrNone()
             }
         }
         else
         {
-            if (position == DIRows.notes.value)
+            if (position == TestingRecyclerAdapter.DIRows.notes.value)
             {
                 viewHolder.mainText?.text = p.pt_di_notes.valueOrNone()
             }

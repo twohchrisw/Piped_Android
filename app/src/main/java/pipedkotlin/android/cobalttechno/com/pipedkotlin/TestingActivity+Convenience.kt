@@ -2,6 +2,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.util.Log
 import java.util.*
+import kotlin.concurrent.schedule
 
 fun TestingActivity.updatePressurisingDataFromTibiisSession()
 {
@@ -43,8 +44,34 @@ fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
 
     if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
-        runOnUiThread {
-            AppGlobals.instance.tibiisController.tbxDataController.sendCommandOutputControl(false)
+        val tc = AppGlobals.instance.tibiisController
+
+        Timer("outputControlOn4", false).schedule(100) {
+            runOnUiThread {
+                tc.tbxDataController.sendCommandOutputControl(false)
+
+            }
+        }
+
+        Timer("outputControlOn4", false).schedule(200) {
+            runOnUiThread {
+                tc.tbxDataController.sendCommandOutputControl(false)
+
+            }
+        }
+
+        Timer("outputControlOn4", false).schedule(300) {
+            runOnUiThread {
+                tc.tbxDataController.sendCommandOutputControl(false)
+
+            }
+        }
+
+        Timer("outputControlOn4", false).schedule(400) {
+            runOnUiThread {
+                tc.tbxDataController.sendCommandOutputControl(false)
+
+            }
         }
     }
 

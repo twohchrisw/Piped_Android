@@ -1,6 +1,9 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.net.Uri
+import android.os.Environment
 import android.util.Log
+import java.io.File
 import java.util.logging.Logger
 
 inline fun catchAll(message: String, action: () -> Unit) {
@@ -18,6 +21,13 @@ public class AppGlobals private constructor() {
 
     companion object {
         val instance: AppGlobals by lazy { Holder.INSTANCE }
+
+        fun uriForSavedImage(filename: String): Uri
+        {
+            val path = Environment.getExternalStorageDirectory().toString()
+            val file = File(path, filename)
+            return Uri.parse(file.absolutePath)
+        }
     }
 
     var companyId = ""

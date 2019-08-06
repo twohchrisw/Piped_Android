@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@android:color/darker_gray"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="18dp">
+
+
+        <Button
+            android:id="@+id/btnPause"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:text="Pause"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnAddFlowrate"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Add Flowrate"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+
+</LinearLayout>

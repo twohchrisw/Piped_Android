@@ -2,12 +2,28 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import org.jetbrains.anko.db.classParser
+import org.jetbrains.anko.db.delete
+import org.jetbrains.anko.db.parseList
+import org.jetbrains.anko.db.select
 import java.util.*
 
-class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double,
+                              var delegate: StandardRecyclerAdapterInterface?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    var pauseSessions: List<EXLDPauseSessions>? = null
+    var taskIsPaused = false
+    var currentPause: EXLDPauseSessions? = null
+    var shouldCalculateTotalWater = false
+
+    interface StandardRecyclerAdapterInterface {
+        fun didRequestMainImage(fieldName: String)
+        fun didRequestNotes(fieldName: String)
+    }
 
     enum class PipedTask {
         Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling
@@ -18,8 +34,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         SwabbingDetailsHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.SectionHeader, "SWABBING DETAILS")),
         SwabLoaded(PipedTableRow(1, PipedTableRow.PipedTableRowType.DateSetLocation, "Swab Loaded", "", EXLDProcess.c_swab_loaded)),
         StartedSwabRun(PipedTableRow(2, PipedTableRow.PipedTableRowType.DateSet, "Started Swab Run", "", EXLDProcess.c_swab_run_started)),
-        FlowratesHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.SectionHeader, "FLOWRATES")),
-        Count(PipedTableRow(4, PipedTableRow.PipedTableRowType.Count, ""));
+        FlowratesHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.PauseSectionHeader, "FLOWRATES")),
+        SwabbingDetailsContdHeader(PipedTableRow(4, PipedTableRow.PipedTableRowType.SectionHeader, "SWABBING DETAILS CONTD")),
+        SwabHome(PipedTableRow(5, PipedTableRow.PipedTableRowType.DateSet, "Swab Home", "", EXLDProcess.c_swab_home)),
+        SwabRemoved(PipedTableRow(6, PipedTableRow.PipedTableRowType.DateSetLocation, "Swab Removed", "", EXLDProcess.c_swab_removed)),
+        TotalWater(PipedTableRow(7, PipedTableRow.PipedTableRowType.TitleValue, "Total Water Volume (Ltrs)", "", EXLDProcess.c_swab_total_water)),
+        PhotoSectionHeader(PipedTableRow(8, PipedTableRow.PipedTableRowType.SectionHeader, "PHOTOS")),
+        ConditionPhoto(PipedTableRow(9, PipedTableRow.PipedTableRowType.MainPicture, "Condition Photo", "", EXLDProcess.c_swab_photo)),
+        NotesSectionHeader(PipedTableRow(10, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(11, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_swab_notes)),
+        FooterSection(PipedTableRow(12, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(13, PipedTableRow.PipedTableRowType.Count, ""));
 
         companion object {
             fun tableRowFromPosition(position: Int): PipedTableRow?
@@ -30,7 +55,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     SwabLoaded.value.position -> return SwabLoaded.value
                     StartedSwabRun.value.position -> return StartedSwabRun.value
                     FlowratesHeader.value.position -> return FlowratesHeader.value
+                    SwabHome.value.position -> return SwabHome.value
+                    SwabbingDetailsContdHeader.value.position -> return SwabbingDetailsContdHeader.value
+                    SwabRemoved.value.position -> return SwabRemoved.value
+                    TotalWater.value.position -> return TotalWater.value
+                    ConditionPhoto.value.position -> return ConditionPhoto.value
                     Count.value.position -> return Count.value
+                    PhotoSectionHeader.value.position -> return PhotoSectionHeader.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    Notes.value.position -> return Notes.value
+                    FooterSection.value.position -> return FooterSection.value
                 }
 
                 return null
@@ -39,9 +73,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     }
 
     override fun getItemCount(): Int {
+
+        val p = AppGlobals.instance.activeProcess
         when (pipedTask)
         {
-            PipedTask.Swabbing -> return SwabbingRows.Count.value.position
+            PipedTask.Swabbing -> return SwabbingRows.Count.value.position + EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
         }
 
         return 0
@@ -49,10 +85,26 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     override fun getItemViewType(position: Int): Int {
 
+        if (isFlowratePosition(position).first)
+        {
+            return PipedTableRow.PipedTableRowType.Flowrate.value
+        }
+
+        // Remove the flowrates count from the position if after flowrate position
+
+        val p = AppGlobals.instance.activeProcess
         var tableRow: PipedTableRow? = null
         if (pipedTask == PipedTask.Swabbing)
         {
-            tableRow = SwabbingRows.tableRowFromPosition(position)!!
+            val flowrateStartRow = 4
+            val frCount = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = SwabbingRows.tableRowFromPosition(workingPosition)!!
         }
         // . . . for each PipedTask
 
@@ -89,11 +141,28 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             }
 
             PipedTableRow.PipedTableRowType.Flowrate.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_flowrate, parent, false)
+                return ViewHolderFlowrate(view)
+            }
 
+            PipedTableRow.PipedTableRowType.TitleValue.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_title_value, parent, false)
+                return ViewHolderTitleValue(view)
             }
 
             PipedTableRow.PipedTableRowType.Notes.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_one_line_text, parent, false)
+                return ViewHolderOneLineText(view)
+            }
 
+            PipedTableRow.PipedTableRowType.MainPicture.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_picture, parent, false)
+                return ViewHolderPicture(view)
+            }
+
+            PipedTableRow.PipedTableRowType.PauseSectionHeader.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_pause_section_header, parent, false)
+                return ViewHolderPauseSectionHeader(view)
             }
 
         }
@@ -101,20 +170,82 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         return null
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    fun isFlowratePosition(position: Int): Pair<Boolean, Int>
+    {
+        val p = AppGlobals.instance.activeProcess
+        var flowrateCount = 0
+        var flowrateStartRow = 0
 
-        var tableRow: PipedTableRow? = null
         if (pipedTask == PipedTask.Swabbing)
         {
-            tableRow = SwabbingRows.tableRowFromPosition(position)
+            flowrateCount = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
+            flowrateStartRow = 4
         }
+
+        if (position >= flowrateStartRow && position < flowrateStartRow + flowrateCount)
+        {
+            // It's a flowrate
+            val flowratePosition = position - flowrateStartRow
+            val flowrates = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId)
+            return Pair(true, flowratePosition)
+        }
+        else
+        {
+            return Pair(false, 0)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+
+        val p = AppGlobals.instance.activeProcess
+        var tableRow: PipedTableRow? = null
+
+        /* Flowrate positions, for all tasks */
+
+        if (pipedTask == PipedTask.Swabbing)
+        {
+            val flowrateStartRow = 4
+            val frCount = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = SwabbingRows.tableRowFromPosition(workingPosition)
+        }
+
         if (pipedTask == PipedTask.Filling)
         {
 
         }
         // etc . . .
 
-        val p = AppGlobals.instance.activeProcess
+        /* Flowrates */
+
+        if (isFlowratePosition(position).first)
+        {
+            var dateString = ""
+            var value = 0.0
+
+            // It's a flowrate
+            when (pipedTask)
+            {
+                PipedTask.Swabbing -> {
+                    val flowrates = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.swab_created)
+                    value = flowrate.swab_flowrate
+                }
+            }
+
+            val viewHolder = holder as ViewHolderFlowrate
+            viewHolder.titleText?.text = dateString
+            viewHolder.valueText?.text = value.toString()
+            return
+        }
+
+        /* Row Types */
+
         if (tableRow != null)
         {
             when (tableRow.rowType)
@@ -124,6 +255,123 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 PipedTableRow.PipedTableRowType.SectionHeader -> {
                     val viewHolder = holder as ViewHolderStandardHeader
                     viewHolder.headerText?.text = tableRow.title
+                }
+
+                /* Notes */
+
+                PipedTableRow.PipedTableRowType.Notes -> {
+                    val viewHolder = holder as ViewHolderOneLineText
+                    when (tableRow.field)
+                    {
+                        EXLDProcess.c_swab_notes -> viewHolder.mainText?.text = p.swab_notes
+                    }
+
+                    if (viewHolder.mainText!!.text!!.length < 1)
+                    {
+                        viewHolder.mainText?.text = "(none)"
+                    }
+
+                    viewHolder.itemView.setOnClickListener {
+                        delegate?.didRequestNotes(tableRow.field)
+                    }
+                }
+
+                /* Picture */
+
+                PipedTableRow.PipedTableRowType.MainPicture -> {
+                    val viewHolder = holder as ViewHolderPicture
+                    viewHolder.titleText?.text = tableRow.title
+
+                    when (tableRow.field)
+                    {
+                        EXLDProcess.c_swab_photo -> {
+                            if (p.swab_photo.length < 2)
+                            {
+                                // No picture
+                                viewHolder.picture?.visibility = View.GONE
+                                viewHolder.valueText?.visibility = View.VISIBLE
+                            }
+                            else
+                            {
+                                // Have picture
+                                viewHolder.valueText?.visibility = View.GONE
+                                viewHolder.picture?.visibility = View.VISIBLE
+
+                                val imageUri = AppGlobals.uriForSavedImage(p.swab_photo)
+                                viewHolder.picture?.setImageURI(imageUri)
+                            }
+                        }
+                    }
+
+                    viewHolder.itemView.setOnClickListener {
+                        delegate?.didRequestMainImage(tableRow.field)
+                    }
+
+                }
+
+                /* Title Value */
+                PipedTableRow.PipedTableRowType.TitleValue -> {
+                    val viewHolder = holder as ViewHolderTitleValue
+                    viewHolder.titleText?.text = tableRow.title
+
+                    when (tableRow.field)
+                    {
+                        EXLDProcess.c_swab_total_water -> {
+
+                            if (shouldCalculateTotalWater)
+                            {
+                                val totalWater = EXLDSwabFlowrates.totalWaterVolume(ctx, p.columnId, getPauseTypeString())
+                                p.swab_total_water = totalWater
+                                p.save(ctx)
+                                shouldCalculateTotalWater = false
+                            }
+                            viewHolder.valueText?.text = p.swab_total_water.formatForDecPlaces(0)
+                        }
+                    }
+                }
+
+                /* Pause Headers */
+
+                PipedTableRow.PipedTableRowType.PauseSectionHeader -> {
+                    val viewHolder = holder as ViewHolderPauseSectionHeader
+
+                    var isRunning = false
+                    if (pipedTask == PipedTask.Swabbing)
+                    {
+                        isRunning = operationIsInProgress(p.swab_run_started, p.swab_home)
+                    }
+
+                    // Formatting
+                    if (taskIsPaused)
+                    {
+                        viewHolder.btnPause?.text = "Restart"
+                        viewHolder.btnPause?.setOnClickListener {
+                            restartButtonPressed()
+                        }
+
+                        viewHolder.btnAddFlowrate?.visibility = View.GONE
+                    }
+                    else
+                    {
+
+                        viewHolder.btnAddFlowrate?.visibility = View.VISIBLE
+                        viewHolder.btnAddFlowrate?.setOnClickListener {
+                            addFlowratePressed()
+                        }
+
+                        if (isRunning)
+                        {
+                            viewHolder.btnPause?.visibility = View.VISIBLE
+                            viewHolder.btnPause?.text = "Pause"
+                            viewHolder.btnPause?.setOnClickListener {
+                                pauseButtonPressed()
+                            }
+                        }
+                        else
+                        {
+                            viewHolder.btnPause?.visibility = View.GONE
+                        }
+                    }
                 }
 
                 /* Date Set Location */
@@ -137,6 +385,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     {
                         EXLDProcess.c_swab_loaded -> {
                             formatSwabLoaded(viewHolder)
+                        }
+
+                        EXLDProcess.c_swab_removed -> {
+                            formatSwabRemoved(viewHolder)
                         }
                     }
                 }
@@ -153,6 +405,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     when (tableRow.field)
                     {
                         EXLDProcess.c_swab_run_started -> theDate = p.swab_run_started
+                        EXLDProcess.c_swab_home -> {
+                            theDate = p.swab_home
+                            closePauseSessions()
+                        }
                     }
 
                     if (theDate.length > 1)
@@ -164,6 +420,18 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     {
                         viewHolder.tvValue?.text = "(none)"
                         viewHolder.btnSet?.text = "Set"
+                    }
+
+                    viewHolder.btnSet?.setOnClickListener {
+                        val now = DateHelper.dateToDBString(Date())
+                        when (tableRow.field)
+                        {
+                            EXLDProcess.c_swab_run_started -> p.swab_run_started = now
+                            EXLDProcess.c_swab_home -> p.swab_home = now
+                        }
+
+                        p.save(ctx)
+                        notifyDataSetChanged()
                     }
                 }
             }
@@ -215,6 +483,55 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
     }
 
+    fun formatSwabRemoved(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val theDate = p.swab_removed
+        val lat = p.swab_removed_lat
+        val lng = p.swab_removed_long
+
+        viewHolder.btnSet?.setOnClickListener {
+            if (viewHolder.btnSet?.text == "Set")
+            {
+                p.swab_removed = DateHelper.dateToDBString(Date())
+                p.swab_removed_lat = lastLat
+                p.swab_removed_long = lastLng
+            }
+            else
+            {
+                p.swab_removed = ""
+                p.swab_removed_lat = 0.0
+                p.swab_removed_long = 0.0
+            }
+            p.save(ctx)
+            notifyDataSetChanged()
+        }
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        if (theDate.length > 1)
+        {
+            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+        }
+        else
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        if (p.swab_removed.length > 1)
+        {
+            viewHolder.btnSet?.text = "Reset"
+        }
+        else
+        {
+            viewHolder.btnSet?.text = "Set"
+        }
+
+        if (lat == 0.0 && lng == 0.0)
+        {
+            viewHolder.tvLocation?.visibility = View.GONE
+        }
+    }
+
     fun resetSwabbing()
     {
         val p = AppGlobals.instance.activeProcess
@@ -228,6 +545,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         p.swab_removed_lat = 0.0
         p.swab_removed_long = 0.0
         p.save(ctx)
+
+        resetPauses()
+
+        EXLDSwabFlowrates.deleteFlowrates(ctx, AppGlobals.instance.activeProcess.columnId)
     }
 
     fun undoSwabbing()
@@ -241,11 +562,236 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         notifyDataSetChanged()
     }
 
+    // Find these methods in TableViewBase.PauseSessions
+    fun loadPauseSessions()
+    {
+        var pauseType = getPauseTypeString()
+        if (pauseType.length > 1)
+        {
+            pauseSessions = ctx.database.use {
+                select(EXLDPauseSessions.TABLE_NAME)
+                        .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+                        .orderBy(EXLDPauseSessions.COLUMN_ID)
+                        .exec {
+                            parseList<EXLDPauseSessions>(classParser())
+                        }
+            }
+        }
+    }
+
+    // Ensures tht orphan pauses are closed
+    fun closePauseSessions()
+    {
+        var pauseType = getPauseTypeString()
+        val pauses = ctx.database.use {
+            select(EXLDPauseSessions.TABLE_NAME)
+                    .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+                    .orderBy(EXLDPauseSessions.COLUMN_ID)
+                    .exec {
+                        parseList<EXLDPauseSessions>(classParser())
+                    }
+        }
+
+        val p = AppGlobals.instance.activeProcess
+        for (pause in pauses)
+        {
+            val pauseEnd = DateHelper.dbStringToDateOrNull(pause.pause_end)
+            if (pauseEnd == null)
+            {
+                when (pause.pause_type)
+                {
+                    EXLDPauseSessions.PAUSE_TYPE_FILLING -> pause.pause_end = p.filling_stopped
+                    EXLDPauseSessions.PAUSE_TYPE_SWABBING -> pause.pause_end = p.swab_home
+                    EXLDPauseSessions.PAUSE_TYPE_CHLOR -> pause.pause_end = p.pt_chlor_main_chlorinated
+                    EXLDPauseSessions.PAUSE_TYPE_DECHLOR -> pause.pause_end = p.pt_dec_dechlorinated
+                    EXLDPauseSessions.PAUSE_TYPE_FLUSH -> pause.pause_end = p.pt_flush_completed
+                    EXLDPauseSessions.PAUSE_TYPE_FLUSH2 -> pause.pause_end = p.pt_flush_completed2
+                }
+            }
+
+            pause.save(ctx)
+        }
+
+        taskIsPaused = false
+    }
+
+    fun resetPauses()
+    {
+        currentPause = null
+        taskIsPaused = false
+        pauseSessions = null
+
+        // Delete any existing pauses of the correct type
+        var pauseType = getPauseTypeString()
+        if (pauseType.length > 1)
+        {
+            ctx.database.use {
+                delete(EXLDPauseSessions.TABLE_NAME, "${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+            }
+        }
+
+        updateTotalWater()
+    }
+
+    
+    fun pauseButtonPressed()
+    {
+        currentPause = EXLDPauseSessions()
+        currentPause!!.pause_process_id = AppGlobals.instance.activeProcess.columnId
+        currentPause!!.pause_type = getPauseTypeString()
+        currentPause!!.pause_start = DateHelper.dateToDBString(Date())
+        currentPause!!.pause_flowrate = getCurrentFlowrate()
+        taskIsPaused = true
+        currentPause!!.save(ctx)
+        notifyDataSetChanged()
+    }
+
+    fun restartButtonPressed()
+    {
+        currentPause!!.pause_end = DateHelper.dateToDBString(Date())
+        taskIsPaused = false
+        currentPause!!.save(ctx)
+        updateTotalWater()
+        notifyDataSetChanged()
+    }
+
+    fun addFlowratePressed()
+    {
+        var guardLowerDate = ""
+        var guardUpperDate = ""
+
+        val p = AppGlobals.instance.activeProcess
+
+        if (pipedTask == PipedTask.Swabbing)
+        {
+            guardLowerDate = p.swab_run_started
+            guardUpperDate = p.swab_home
+        }
+
+        val lowerDate = DateHelper.dbStringToDateOrNull(guardLowerDate)
+        val upperDate = DateHelper.dbStringToDateOrNull(guardUpperDate)
+
+        if (lowerDate == null || upperDate != null)
+        {
+            val alert = AlertHelper(ctx)
+            alert.dialogForOKAlertNoAction("Task Not Running", "The task must be running to enter a flowrate")
+            return
+        }
+
+        val alert = AlertHelper(ctx)
+        alert.dialogForTextInput("Enter Flowrate", "0", {
+            val doubleValue = it.toDoubleOrNull()
+            if (doubleValue != null)
+            {
+                createNewFlowrate(doubleValue)
+            }
+        })
+    }
+
+    fun createNewFlowrate(value: Double)
+    {
+        val p = AppGlobals.instance.activeProcess
+        when (pipedTask)
+        {
+            PipedTask.Swabbing -> {
+
+                val initialFrCount = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
+                Log.d("cobswab", "Flowate count is $initialFrCount")
+                val fr = EXLDSwabFlowrates.createFlowrate(ctx, value, p.columnId)
+                if (initialFrCount == 0) {
+                    if (DateHelper.dbStringToDateOrNull(p.swab_run_started) != null)
+                    {
+                        fr.swab_created = p.swab_run_started
+                    }
+                }
+                fr.save(ctx)
+            }
+        }
+
+        updateTotalWater()
+        notifyDataSetChanged()
+    }
+
+
+
+    fun operationIsInProgress(startDateString: String, finishDateString: String): Boolean
+    {
+        val startDate = DateHelper.dbStringToDateOrNull(startDateString)
+        val finishDate = DateHelper.dbStringToDateOrNull(finishDateString)
+
+        if (startDate != null)
+        {
+            if (finishDate != null)
+            {
+                if (startDate.time < finishDate.time)
+                {
+                    return false
+                }
+                else
+                {
+                    return true
+                }
+            }
+            else
+            {
+                return  true
+            }
+        }
+        else
+        {
+            return false
+        }
+    }
+
+    fun getCurrentFlowrate(): Double
+    {
+        val p = AppGlobals.instance.activeProcess
+        when (pipedTask)
+        {
+            PipedTask.Swabbing -> {
+                val flowrates = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId)
+                if (flowrates.size > 0)
+                {
+                    return flowrates.last().swab_flowrate
+                }
+                else
+                {
+                    return 0.0
+                }
+            }
+        }
+
+        return 0.0
+    }
+
+    fun getPauseTypeString(): String
+    {
+        var pauseType = ""
+        when (pipedTask)
+        {
+            PipedTask.Swabbing -> pauseType = EXLDPauseSessions.PAUSE_TYPE_SWABBING
+            PipedTask.Filling -> pauseType = EXLDPauseSessions.PAUSE_TYPE_FILLING
+            PipedTask.Chlorination -> pauseType = EXLDPauseSessions.PAUSE_TYPE_CHLOR
+            PipedTask.DeChlorination -> pauseType = EXLDPauseSessions.PAUSE_TYPE_DECHLOR
+            PipedTask.Flushing -> pauseType = EXLDPauseSessions.PAUSE_TYPE_FLUSH
+            PipedTask.Flushing2 -> pauseType = EXLDPauseSessions.PAUSE_TYPE_FLUSH2
+        }
+
+        return pauseType
+    }
+
+    fun updateTotalWater()
+    {
+        shouldCalculateTotalWater = true
+        notifyDataSetChanged()
+    }
+
 }
 
 class PipedTableRow(val position: Int, val rowType: PipedTableRowType, val title: String, val table: String = "", val field: String = "", val flowrateId: Int = -1) {
 
     enum class PipedTableRowType(val value: Int) {
-        DateSet(0), DateSetLocation(1), SectionHeader(2), AddFlowrateButton(3), Flowrate(4), Notes(5), Count(6), Unknown(7)
+        DateSet(0), DateSetLocation(1), SectionHeader(2), AddFlowrateButton(3), Flowrate(4), Notes(5), PauseSectionHeader(6), Count(7), Unknown(8),
+        TitleValue(9), MainPicture(10)
     }
 }

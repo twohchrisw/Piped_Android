@@ -257,6 +257,28 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDTibiisReading.COLUMN_TEST_TYPE to TEXT,
                 EXLDTibiisReading.COLUMN_UPLOADED to INTEGER
         )
+
+        // Pause Sessions
+        db!!.createTable(EXLDPauseSessions.TABLE_NAME, true,
+                EXLDPauseSessions.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDPauseSessions.COLUMN_PAUSE_DURATION_SECONDS to INTEGER,
+                EXLDPauseSessions.COLUMN_PAUSE_END to TEXT,
+                EXLDPauseSessions.COLUMN_PAUSE_FLOWRATE to REAL,
+                EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID to INTEGER,
+                EXLDPauseSessions.COLUMN_PAUSE_START to TEXT,
+                EXLDPauseSessions.COLUMN_PAUSE_TYPE to TEXT
+                )
+
+        /** WE MUST CREATE COLUMNS IN THE SAME ORDER AS THEY APPEAR IN THE CLASS CONSTRUCTOR - for the classParser() to work **/
+
+        // Swabbing Flowrates
+        db!!.createTable(EXLDSwabFlowrates.TABLE_NAME, true,
+                EXLDSwabFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDSwabFlowrates.COLUMN_SWAB_CREATED to TEXT,
+                EXLDSwabFlowrates.COLUMN_SWAB_FLOWRATE to REAL,
+                EXLDSwabFlowrates.COLUMN_PROCESS_ID to INTEGER
+                )
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

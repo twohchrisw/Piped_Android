@@ -279,6 +279,13 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDSwabFlowrates.COLUMN_PROCESS_ID to INTEGER
                 )
 
+        // Filling Flowrates
+        db!!.createTable(EXLDFillingFlowrates.TABLE_NAME, true,
+                EXLDFillingFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDFillingFlowrates.COLUMN_FILLING_PROCESS_ID to INTEGER,
+                EXLDFillingFlowrates.COLUMN_FILLING_CREATED to TEXT,
+                EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to REAL)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

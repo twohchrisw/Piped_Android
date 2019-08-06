@@ -73,6 +73,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(swabbingIntent)
     }
 
+    fun loadFilling()
+    {
+        val fillingIntent = Intent(this, FillingActivity::class.java)
+        startActivity(fillingIntent)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         Log.d("cobalt", "Finished")
@@ -132,6 +138,9 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 }
                 ProcessMenuRecyclerAdapter.TaskMenuItems.swabbing.value -> {
                     loadSwabbing()
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.filling.value -> {
+                    loadFilling()
                 }
             }
         }

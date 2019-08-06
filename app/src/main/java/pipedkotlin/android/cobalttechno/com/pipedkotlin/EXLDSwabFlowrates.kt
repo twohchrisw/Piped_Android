@@ -79,7 +79,7 @@ class EXLDSwabFlowrates(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = swab_process_id
+        var saveId: Long = _id
 
         if (_id < 1)
         {

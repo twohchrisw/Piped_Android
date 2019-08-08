@@ -23,7 +23,7 @@ class EXLDSwabFlowrates(var _id: Long = -1,
              return ctx.database.use {
                  select(EXLDSwabFlowrates.TABLE_NAME)
                          .whereArgs("${EXLDSwabFlowrates.COLUMN_PROCESS_ID} = $processId")
-                         .orderBy(EXLDSwabFlowrates.COLUMN_ID)
+                         .orderBy(EXLDSwabFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
                          .exec {
                              parseList<EXLDSwabFlowrates>(classParser())
                          }

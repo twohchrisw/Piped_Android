@@ -286,6 +286,44 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDFillingFlowrates.COLUMN_FILLING_CREATED to TEXT,
                 EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to REAL)
 
+        // Flushing Flowrates
+        db!!.createTable(EXLDFlushFlowrates.TABLE_NAME, true,
+                EXLDFlushFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDFlushFlowrates.COLUMN_FLUSH_PROCESS_ID to INTEGER,
+                EXLDFlushFlowrates.COLUMN_FLUSH_CREATED to TEXT,
+                EXLDFlushFlowrates.COLUMN_FLUSH_FLOWRATE to REAL,
+                EXLDFlushFlowrates.COLUMN_FLUSH_TYPE to INTEGER)
+
+        // Chlor Flowrates
+        db!!.createTable(EXLDChlorFlowrates.TABLE_NAME, true,
+                EXLDChlorFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDChlorFlowrates.COLUMN_CHLOR_PROCESS_ID to INTEGER,
+                EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE to REAL,
+                EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO to TEXT,
+                EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH to REAL,
+                EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP to TEXT)
+
+        // Dec Flowrates
+        db!!.createTable(EXLDDecFlowrates.TABLE_NAME, true,
+                EXLDDecFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDDecFlowrates.COLUMN_DEC_PROCESS_ID to INTEGER,
+                EXLDDecFlowrates.COLUMN_DEC_DISCHARGE to REAL,
+                EXLDDecFlowrates.COLUMN_DEC_FLOWRATE to REAL,
+                EXLDDecFlowrates.COLUMN_DEC_PHOTO to TEXT,
+                EXLDDecFlowrates.COLUMN_DEC_STRENGTH to REAL,
+                EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP to TEXT)
+
+        // Survey Notes
+        db!!.createTable(EXLDSurveyNotes.TABLE_NAME, true,
+                EXLDSurveyNotes.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDSurveyNotes.COLUMN_SN_PROCESS_ID to INTEGER,
+                EXLDSurveyNotes.COLUMN_SN_LAT to REAL,
+                EXLDSurveyNotes.COLUMN_SN_LONG to REAL,
+                EXLDSurveyNotes.COLUMN_SN_NOTE to TEXT,
+                EXLDSurveyNotes.COLUMN_SN_PHOTO to TEXT,
+                EXLDSurveyNotes.COLUMN_SN_TIMESTAMP to TEXT)
+
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

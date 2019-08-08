@@ -96,6 +96,7 @@ class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.Proc
         AppGlobals.instance.activeProcess = process
         val processMenuIntent = Intent(this, ProcessMenuActivity::class.java)
         processMenuIntent.putExtra(ProcessMenuActivity.MENU_MODE_KEY, ProcessMenuActivity.MENU_MODE_MAIN)
+        AppGlobals.instance.processMenuShowingTasks = false
         startActivityForResult(processMenuIntent, 1)
     }
 

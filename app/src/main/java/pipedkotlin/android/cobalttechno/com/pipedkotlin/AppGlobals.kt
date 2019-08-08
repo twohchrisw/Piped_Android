@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import java.io.File
-import java.util.logging.Logger
 
 inline fun catchAll(message: String, action: () -> Unit) {
     try {
@@ -39,5 +38,7 @@ public class AppGlobals private constructor() {
     var sampleFailMessageAfterSync = ""
     var diFailMessageAfterSync = ""
     var excelPEReadings = PEReadings()
+    var currentFlushType = 1
+    var processMenuShowingTasks = false
 
 }

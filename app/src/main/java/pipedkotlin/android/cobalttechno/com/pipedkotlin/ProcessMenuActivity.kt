@@ -27,7 +27,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_menu)
 
-        menuMode = intent.getIntExtra(MENU_MODE_KEY, MENU_MODE_MAIN)
+        menuMode = MENU_MODE_MAIN
+        if (AppGlobals.instance.processMenuShowingTasks)
+        {
+            menuMode = MENU_MODE_TASKS
+        }
+
         assignOutlets()
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
@@ -57,7 +62,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
     fun loadTasksMenu()
     {
         val processMenuIntent = Intent(this, ProcessMenuActivity::class.java)
-        processMenuIntent.putExtra(ProcessMenuActivity.MENU_MODE_KEY, ProcessMenuActivity.MENU_MODE_TASKS)
+        AppGlobals.instance.processMenuShowingTasks = true
         startActivity(processMenuIntent)
     }
 
@@ -79,6 +84,35 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(fillingIntent)
     }
 
+    fun loadFlushing(flushType: Int)
+    {
+        AppGlobals.instance.currentFlushType = flushType
+        val flushIntent = Intent(this, FlushingActivity::class.java)
+        startActivity(flushIntent)
+    }
+
+    fun loadChlor()
+    {
+        val chlorIntent = Intent(this, ChlorActivity::class.java)
+        startActivity(chlorIntent)
+    }
+
+    fun loadDec()
+    {
+        val decIntent = Intent(this, DecActivity::class.java)
+        startActivity(decIntent)
+    }
+
+    fun loadSurveying()
+    {
+        val surveyIntent = Intent(this, SurveyNotesActivity::class.java)
+        startActivity(surveyIntent)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        AppGlobals.instance.processMenuShowingTasks = false
+    }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         Log.d("cobalt", "Finished")
@@ -141,6 +175,21 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 }
                 ProcessMenuRecyclerAdapter.TaskMenuItems.filling.value -> {
                     loadFilling()
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.flushing.value -> {
+                    loadFlushing(1)
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.flushing2.value -> {
+                    loadFlushing(2)
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.chlor.value -> {
+                    loadChlor()
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.dechlor.value -> {
+                    loadDec()
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.surveying.value -> {
+                    loadSurveying()
                 }
             }
         }

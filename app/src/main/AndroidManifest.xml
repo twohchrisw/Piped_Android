@@ -17,7 +17,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FillingActivity" android:parentActivityName=".ProcessMenuActivity"></activity>
+        <activity android:name=".SurveyNotesActivity" android:parentActivityName=".ProcessMenuActivity"></activity>
+        <activity
+            android:name=".DecActivity"
+            android:parentActivityName=".ProcessMenuActivity" />
+        <activity
+            android:name=".ChlorActivity"
+            android:parentActivityName=".ProcessMenuActivity" />
+        <activity
+            android:name=".FlushingActivity"
+            android:parentActivityName=".ProcessMenuActivity" />
+        <activity
+            android:name=".FillingActivity"
+            android:parentActivityName=".ProcessMenuActivity" />
         <activity
             android:name=".SwabbingActivity"
             android:parentActivityName=".ProcessMenuActivity" />

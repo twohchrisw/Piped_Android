@@ -22,7 +22,7 @@ class EXLDFillingFlowrates(var _id: Long = -1,
             return ctx.database.use {
                 select(EXLDFillingFlowrates.TABLE_NAME)
                         .whereArgs("${EXLDFillingFlowrates.COLUMN_FILLING_PROCESS_ID} = $processId")
-                        .orderBy(EXLDFillingFlowrates.COLUMN_ID)
+                        .orderBy(EXLDFillingFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
                         .exec {
                             parseList<EXLDFillingFlowrates>(classParser())
                         }

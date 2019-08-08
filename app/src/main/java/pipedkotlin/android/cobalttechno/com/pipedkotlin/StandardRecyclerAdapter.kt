@@ -6,14 +6,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.view_holder_picture.view.*
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.select
+import java.nio.channels.Pipe
+import java.nio.file.Files.delete
 import java.util.*
 
 class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double,
-                              var delegate: StandardRecyclerAdapterInterface?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                              var delegate: StandardRecyclerAdapterInterface?, var surveyNoteInterface: StandardRecyclerSurveyNoteInterface? = null): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var pauseSessions: List<EXLDPauseSessions>? = null
     var taskIsPaused = false
@@ -23,10 +26,165 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     interface StandardRecyclerAdapterInterface {
         fun didRequestMainImage(fieldName: String)
         fun didRequestNotes(fieldName: String)
+        fun didRequestFlowrate()
+    }
+
+    interface StandardRecyclerSurveyNoteInterface {
+        fun didRequestNote(note: EXLDSurveyNotes)
+        fun didRequestImage(note: EXLDSurveyNotes)
     }
 
     enum class PipedTask {
         Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling
+    }
+
+    //region Rows Definition
+
+    enum class ChlorRows(val value: PipedTableRow)
+    {
+        ChlorDetailsHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.SectionHeader, "CHLORINATION DETAILS")),
+        StartChlorinating(PipedTableRow(1, PipedTableRow.PipedTableRowType.DateSetLocation, "Start Chlorinating", "", EXLDProcess.c_pt_chlor_start_time)),
+        FlowratesHeader(PipedTableRow(2, PipedTableRow.PipedTableRowType.PauseSectionHeader, "FLOWRATES")),
+        ChlorDetailsContdHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.SectionHeader, "CHLORINATION DETAILS CONTD")),
+        MainChlorinated(PipedTableRow(4, PipedTableRow.PipedTableRowType.DateSet, "Main Chlorinated", "", EXLDProcess.c_pt_chlor_main_chlorinated)),
+        ChlorineEndStrength(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Chlorine End Strength", "", EXLDProcess.c_pt_chlor_end_strength)),
+        TotalWater(PipedTableRow(6, PipedTableRow.PipedTableRowType.TitleValue, "Total Volume Chlorinated", "", EXLDProcess.c_pt_chlor_volume)),
+        PhotoSectionHeader(PipedTableRow(7, PipedTableRow.PipedTableRowType.SectionHeader, "PHOTOS")),
+        EndPhoto(PipedTableRow(8, PipedTableRow.PipedTableRowType.MainPicture, "End Photo", "", EXLDProcess.c_pt_chlor_end_photo)),
+        NotesSectionHeader(PipedTableRow(9, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(10, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_pt_chlor_notes)),
+        FooterSection(PipedTableRow(11, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(12, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position) {
+                    ChlorDetailsHeader.value.position -> return ChlorDetailsHeader.value
+                    StartChlorinating.value.position -> return StartChlorinating.value
+                    FlowratesHeader.value.position -> return FlowratesHeader.value
+                    ChlorDetailsContdHeader.value.position -> return ChlorDetailsContdHeader.value
+                    MainChlorinated.value.position -> return MainChlorinated.value
+                    ChlorineEndStrength.value.position -> return ChlorineEndStrength.value
+                    TotalWater.value.position -> return TotalWater.value
+                    PhotoSectionHeader.value.position -> return PhotoSectionHeader.value
+                    EndPhoto.value.position -> return EndPhoto.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    Notes.value.position -> return Notes.value
+                    FooterSection.value.position -> return  FooterSection.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
+    enum class DecRows(val value: PipedTableRow)
+    {
+        DeChlorDetailsHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.SectionHeader, "DECHLORINATION DETAILS")),
+        StartDeChlorinating(PipedTableRow(1, PipedTableRow.PipedTableRowType.DateSetLocation, "Start DeChlorinating", "", EXLDProcess.c_pt_dec_start)),
+        FlowratesHeader(PipedTableRow(2, PipedTableRow.PipedTableRowType.PauseSectionHeader, "FLOWRATES")),
+        DeChlorDetailsContdHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.SectionHeader, "DECHLORINATION DETAILS CONTD")),
+        MainDeChlorinated(PipedTableRow(4, PipedTableRow.PipedTableRowType.DateSet, "Main Dechlorinated", "", EXLDProcess.c_pt_dec_dechlorinated)),
+        TotalWater(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Total Volume Dechlorinated", "", EXLDProcess.c_pt_dec_volume)),
+        NotesSectionHeader(PipedTableRow(6, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(7, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_pt_dec_notes)),
+        FooterSection(PipedTableRow(8, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(9, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    DeChlorDetailsHeader.value.position -> return DeChlorDetailsHeader.value
+                    StartDeChlorinating.value.position -> return StartDeChlorinating.value
+                    FlowratesHeader.value.position -> return FlowratesHeader.value
+                    DeChlorDetailsContdHeader.value.position -> return  DeChlorDetailsContdHeader.value
+                    MainDeChlorinated.value.position -> return MainDeChlorinated.value
+                    TotalWater.value.position -> return TotalWater.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    Notes.value.position -> return Notes.value
+                    FooterSection.value.position -> return FooterSection.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
+    enum class FlushingRows(val value: PipedTableRow)
+    {
+        FlushingDetailsHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.SectionHeader, "FLUSHING DETAILS")),
+        StartedFlushing(PipedTableRow(1, PipedTableRow.PipedTableRowType.DateSetLocation, "Started Flushing", "", EXLDProcess.c_pt_flush_started)),
+        FlowratesHeader(PipedTableRow(2, PipedTableRow.PipedTableRowType.PauseSectionHeader, "FLOWRATES")),
+        FlushingDetailsContdHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.SectionHeader, "FLUSHING DETAILS CONTD")),
+        FinishedFlushing(PipedTableRow(4, PipedTableRow.PipedTableRowType.DateSet, "Finished Flushing", "", EXLDProcess.c_pt_flush_completed)),
+        TotalFlushingTime(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Total Flushing Time", "", "flushing_time")),
+        TotalWater(PipedTableRow(6, PipedTableRow.PipedTableRowType.TitleValue, "Total Water Volume (Ltrs)", "", EXLDProcess.c_pt_flush_total_water)),
+        NotesSectionHeader(PipedTableRow(7, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(8, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_pt_flush_notes)),
+        FooterSection(PipedTableRow(9, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(10, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow?
+            {
+                when (position)
+                {
+                    FlushingDetailsHeader.value.position -> return FlushingDetailsHeader.value
+                    StartedFlushing.value.position -> return StartedFlushing.value
+                    FlowratesHeader.value.position -> return FlowratesHeader.value
+                    FlushingDetailsContdHeader.value.position -> return FlushingDetailsContdHeader.value
+                    FinishedFlushing.value.position -> return FinishedFlushing.value
+                    TotalFlushingTime.value.position -> return TotalFlushingTime.value
+                    TotalWater.value.position -> return TotalWater.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    Notes.value.position -> return Notes.value
+                    FooterSection.value.position -> return FooterSection.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
+    enum class FlushingRows2(val value: PipedTableRow)
+    {
+        FlushingDetailsHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.SectionHeader, "FLUSHING DETAILS")),
+        StartedFlushing(PipedTableRow(1, PipedTableRow.PipedTableRowType.DateSetLocation, "Started Flushing", "", EXLDProcess.c_pt_flush_started2)),
+        FlowratesHeader(PipedTableRow(2, PipedTableRow.PipedTableRowType.PauseSectionHeader, "FLOWRATES")),
+        FlushingDetailsContdHeader(PipedTableRow(3, PipedTableRow.PipedTableRowType.SectionHeader, "FLUSHING DETAILS CONTD")),
+        FinishedFlushing(PipedTableRow(4, PipedTableRow.PipedTableRowType.DateSet, "Finished Flushing", "", EXLDProcess.c_pt_flush_completed2)),
+        TotalFlushingTime(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Total Flushing Time", "", "flushing_time2")),
+        TotalWater(PipedTableRow(6, PipedTableRow.PipedTableRowType.TitleValue, "Total Water Volume (Ltrs)", "", EXLDProcess.c_pt_flush_total_water2)),
+        NotesSectionHeader(PipedTableRow(7, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(8, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_pt_flush_notes2)),
+        FooterSection(PipedTableRow(9, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(10, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow?
+            {
+                when (position)
+                {
+                    FlushingDetailsHeader.value.position -> return FlushingDetailsHeader.value
+                    StartedFlushing.value.position -> return StartedFlushing.value
+                    FlowratesHeader.value.position -> return FlowratesHeader.value
+                    FlushingDetailsContdHeader.value.position -> return FlushingDetailsContdHeader.value
+                    FinishedFlushing.value.position -> return FinishedFlushing.value
+                    TotalFlushingTime.value.position -> return TotalFlushingTime.value
+                    TotalWater.value.position -> return TotalWater.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    Notes.value.position -> return Notes.value
+                    FooterSection.value.position -> return FooterSection.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
     }
 
     enum class FillingRows(val value: PipedTableRow)
@@ -109,13 +267,20 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
     }
 
+    //endregion
+
     override fun getItemCount(): Int {
 
         val p = AppGlobals.instance.activeProcess
         when (pipedTask)
         {
-            PipedTask.Swabbing -> return SwabbingRows.Count.value.position + EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
-            PipedTask.Filling -> return FillingRows.Count.value.position + EXLDFillingFlowrates.getFillingFlowrates(ctx, p.columnId).size
+            StandardRecyclerAdapter.PipedTask.Swabbing -> return SwabbingRows.Count.value.position + EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
+            StandardRecyclerAdapter.PipedTask.Filling -> return FillingRows.Count.value.position + EXLDFillingFlowrates.getFillingFlowrates(ctx, p.columnId).size
+            StandardRecyclerAdapter.PipedTask.Flushing -> return FlushingRows.Count.value.position + EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1).size
+            StandardRecyclerAdapter.PipedTask.Flushing2 -> return FlushingRows2.Count.value.position + EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2).size
+            PipedTask.Chlorination -> return ChlorRows.Count.value.position + EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId).size
+            PipedTask.DeChlorination -> return DecRows.Count.value.position + EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
+            PipedTask.Surveying -> return EXLDSurveyNotes.getSurveyNotes(ctx, p.columnId).size
         }
 
         return 0
@@ -126,6 +291,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         if (isFlowratePosition(position).first)
         {
             return PipedTableRow.PipedTableRowType.Flowrate.value
+        }
+
+        if (pipedTask == PipedTask.Surveying)
+        {
+            return PipedTableRow.PipedTableRowType.DateSetLocation.value
         }
 
         // Remove the flowrates count from the position if after flowrate position
@@ -156,6 +326,58 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             }
 
             tableRow = FillingRows.tableRowFromPosition(workingPosition)!!
+        }
+
+        if (pipedTask == PipedTask.Flushing)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = FlushingRows.tableRowFromPosition(workingPosition)!!
+        }
+
+        if (pipedTask == PipedTask.Flushing2)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = FlushingRows2.tableRowFromPosition(workingPosition)!!
+        }
+
+        if (pipedTask == PipedTask.Chlorination)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = ChlorRows.tableRowFromPosition(workingPosition)!!
+        }
+
+        if (pipedTask == PipedTask.DeChlorination)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = DecRows.tableRowFromPosition(workingPosition)!!
         }
 
 
@@ -241,6 +463,30 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             flowrateStartRow = 3
         }
 
+        if (pipedTask == PipedTask.Flushing)
+        {
+            flowrateCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1).size
+            flowrateStartRow = 3
+        }
+
+        if (pipedTask == PipedTask.Flushing2)
+        {
+            flowrateCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2).size
+            flowrateStartRow = 3
+        }
+
+        if (pipedTask == PipedTask.Chlorination)
+        {
+            flowrateCount = EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId).size
+            flowrateStartRow = 3
+        }
+
+        if (pipedTask == PipedTask.DeChlorination)
+        {
+            flowrateCount = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
+            flowrateStartRow = 3
+        }
+
         if (position >= flowrateStartRow && position < flowrateStartRow + flowrateCount)
         {
             // It's a flowrate
@@ -257,6 +503,37 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
         val p = AppGlobals.instance.activeProcess
         var tableRow: PipedTableRow? = null
+
+        /* Exceptions that don't follow the normal rules
+           i.e. Surveying which is just one type of row and just a list of notes
+         */
+
+        if (pipedTask == PipedTask.Surveying)
+        {
+            val sn = EXLDSurveyNotes.getSurveyNotes(ctx, p.columnId).get(position)
+            val viewHolder = holder as ViewHolderDateSet
+            viewHolder.tvLocation?.text = NumbersHelper.latLongString(sn.sn_lat, sn.sn_long)
+            viewHolder.tvTitle?.text = DateHelper.dbDateStringFormattedWithSeconds(sn.sn_timestamp)
+            viewHolder.tvValue?.text = sn.sn_note
+            viewHolder.btnSet?.visibility = View.GONE
+
+            if (sn.sn_photo.length > 2)
+            {
+                viewHolder.itemView.ivPicture?.visibility = View.VISIBLE
+                val imageUri = AppGlobals.uriForSavedImage(sn.sn_photo)
+                viewHolder.ivPicture?.setImageURI(imageUri)
+            }
+            else
+            {
+                viewHolder.itemView.ivPicture?.visibility = View.GONE
+            }
+
+            viewHolder.itemView.setOnClickListener {
+                surveyNoteInterface?.didRequestImage(sn)
+            }
+
+            return
+        }
 
         /* Flowrate positions, for all tasks */
 
@@ -284,6 +561,54 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = FillingRows.tableRowFromPosition(workingPosition)
         }
 
+        if (pipedTask == PipedTask.Flushing)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = FlushingRows.tableRowFromPosition(workingPosition)
+        }
+
+        if (pipedTask == PipedTask.Flushing2)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = FlushingRows2.tableRowFromPosition(workingPosition)
+        }
+
+        if (pipedTask == PipedTask.Chlorination)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = ChlorRows.tableRowFromPosition(workingPosition)
+        }
+
+        if (pipedTask == PipedTask.DeChlorination)
+        {
+            val flowrateStartRow = 3
+            val frCount = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = DecRows.tableRowFromPosition(workingPosition)
+        }
+
         // etc . . .
 
         /* Flowrates */
@@ -292,6 +617,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         {
             var dateString = ""
             var value = 0.0
+            var ignoreDefaultStyling = false
 
             // It's a flowrate
             when (pipedTask)
@@ -309,11 +635,56 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.filling_created)
                     value = flowrate.filling_flowrate
                 }
+
+                PipedTask.Flushing -> {
+                    val flowrates = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.flush_created)
+                    value = flowrate.flush_flowrate
+                }
+
+                PipedTask.Flushing2 -> {
+                    val flowrates = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.flush_created)
+                    value = flowrate.flush_flowrate
+                }
+
+                PipedTask.Chlorination -> {
+                    val flowrates = EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.chlor_timestamp)
+                    val strength = flowrate.chlor_strength.formatForDecPlaces(2)
+                    val valueText = "Flow: ${flowrate.chlor_flowrate}, Strength: $strength"
+
+                    val viewHolder = holder as ViewHolderFlowrate
+                    viewHolder.titleText?.text = dateString
+                    viewHolder.valueText?.text = valueText
+                    ignoreDefaultStyling = true
+                }
+
+                PipedTask.DeChlorination -> {
+                    val flowrates = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.dec_timestamp)
+                    val strength = flowrate.dec_strength.formatForDecPlaces(2)
+                    val discharge = flowrate.dec_discharge.formatForDecPlaces(2)
+                    val valueText = "Flow: ${flowrate.dec_flowrate}, Strength: $strength, Discharge: $discharge"
+
+                    val viewHolder = holder as ViewHolderFlowrate
+                    viewHolder.titleText?.text = dateString
+                    viewHolder.valueText?.text = valueText
+                    ignoreDefaultStyling = true
+                }
+
             }
 
-            val viewHolder = holder as ViewHolderFlowrate
-            viewHolder.titleText?.text = dateString
-            viewHolder.valueText?.text = value.toString()
+            if (!ignoreDefaultStyling) {
+                val viewHolder = holder as ViewHolderFlowrate
+                viewHolder.titleText?.text = dateString
+                viewHolder.valueText?.text = value.toString()
+            }
+
             return
         }
 
@@ -338,6 +709,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     {
                         EXLDProcess.c_swab_notes -> viewHolder.mainText?.text = p.swab_notes
                         EXLDProcess.c_filling_notes -> viewHolder.mainText?.text = p.filling_notes
+                        EXLDProcess.c_pt_flush_notes -> viewHolder.mainText?.text = p.pt_flush_notes
+                        EXLDProcess.c_pt_flush_notes2 -> viewHolder.mainText?.text = p.pt_flush_notes2
+                        EXLDProcess.c_pt_chlor_notes -> viewHolder.mainText?.text = p.pt_chlor_notes
+                        EXLDProcess.c_pt_dec_notes -> viewHolder.mainText?.text = p.pt_dec_notes
                     }
 
                     if (viewHolder.mainText!!.text!!.length < 1)
@@ -375,6 +750,24 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                                 viewHolder.picture?.setImageURI(imageUri)
                             }
                         }
+
+                        EXLDProcess.c_pt_chlor_end_photo -> {
+                            if (p.pt_chlor_end_photo.length < 2)
+                            {
+                                // No picture
+                                viewHolder.picture?.visibility = View.GONE
+                                viewHolder.valueText?.visibility = View.VISIBLE
+                            }
+                            else
+                            {
+                                // Have picture
+                                viewHolder.valueText?.visibility = View.GONE
+                                viewHolder.picture?.visibility = View.VISIBLE
+
+                                val imageUri = AppGlobals.uriForSavedImage(p.pt_chlor_end_photo)
+                                viewHolder.picture?.setImageURI(imageUri)
+                            }
+                        }
                     }
 
                     viewHolder.itemView.setOnClickListener {
@@ -390,6 +783,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                     when (tableRow.field)
                     {
+                        /* Total Water */
+
                         EXLDProcess.c_swab_total_water -> {
 
                             if (shouldCalculateTotalWater)
@@ -413,9 +808,104 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.filling_total_water_volume.formatForDecPlaces(0)
                         }
 
+                        EXLDProcess.c_pt_flush_total_water -> {
+                            if (shouldCalculateTotalWater)
+                            {
+                                val totalWater = EXLDFlushFlowrates.totalWaterVolume(ctx, p.columnId, getPauseTypeString(), 1)
+                                p.pt_flush_total_water = totalWater
+                                p.save(ctx)
+                                shouldCalculateTotalWater = false
+                            }
+                            viewHolder.valueText?.text = p.pt_flush_total_water.formatForDecPlaces(0)
+                        }
+
+                        EXLDProcess.c_pt_flush_total_water2 -> {
+                            if (shouldCalculateTotalWater)
+                            {
+                                val totalWater = EXLDFlushFlowrates.totalWaterVolume(ctx, p.columnId, getPauseTypeString(), 2)
+                                p.pt_flush_total_water2 = totalWater
+                                p.save(ctx)
+                                shouldCalculateTotalWater = false
+                            }
+                            viewHolder.valueText?.text = p.pt_flush_total_water2.formatForDecPlaces(0)
+                        }
+
+                        EXLDProcess.c_pt_chlor_volume -> {
+                            if (shouldCalculateTotalWater)
+                            {
+                                val totalWater = EXLDChlorFlowrates.totalWaterVolume(ctx, p.columnId, getPauseTypeString())
+                                p.pt_chlor_volume = totalWater
+                                p.save(ctx)
+                                shouldCalculateTotalWater = false
+                            }
+                            viewHolder.valueText?.text = p.pt_chlor_volume.formatForDecPlaces(0)
+                        }
+
+                        EXLDProcess.c_pt_dec_volume -> {
+                            if (shouldCalculateTotalWater)
+                            {
+                                val totalWater = EXLDDecFlowrates.totalWaterVolume(ctx, p.columnId, getPauseTypeString())
+                                p.pt_dec_volume = totalWater
+                                p.save(ctx)
+                                shouldCalculateTotalWater = false
+                            }
+                            viewHolder.valueText?.text = p.pt_dec_volume.formatForDecPlaces(0)
+                        }
+
+                        /* Chlorination */
+
+                        EXLDProcess.c_pt_chlor_end_strength -> {
+                            viewHolder.valueText?.text = p.pt_chlor_end_strength.formatForDecPlaces(2)
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Chlorine End Strength", p.pt_chlor_end_strength.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.pt_chlor_end_strength = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+
+                        /* Filling Times */
+
                         "filling_time" -> {
                             val fillingStarted = DateHelper.dbStringToDateOrNull(p.filling_started)
                             val fillingStopped = DateHelper.dbStringToDateOrNull(p.filling_stopped)
+
+                            if (fillingStarted != null && fillingStopped != null)
+                            {
+                                val totalMillis = fillingStopped!!.time - fillingStarted!!.time
+                                viewHolder.valueText?.text = DateHelper.timeDifferenceFormattedForCountdown(totalMillis)
+                            }
+                            else
+                            {
+                                viewHolder.valueText?.text = DateHelper.timeDifferenceFormattedForCountdown(0)
+                            }
+                        }
+
+                        "flushing_time" -> {
+                            val fillingStarted = DateHelper.dbStringToDateOrNull(p.pt_flush_started)
+                            val fillingStopped = DateHelper.dbStringToDateOrNull(p.pt_flush_completed)
+
+                            if (fillingStarted != null && fillingStopped != null)
+                            {
+                                val totalMillis = fillingStopped!!.time - fillingStarted!!.time
+                                viewHolder.valueText?.text = DateHelper.timeDifferenceFormattedForCountdown(totalMillis)
+                            }
+                            else
+                            {
+                                viewHolder.valueText?.text = DateHelper.timeDifferenceFormattedForCountdown(0)
+                            }
+                        }
+
+                        "flushing_time2" -> {
+                            val fillingStarted = DateHelper.dbStringToDateOrNull(p.pt_flush_started2)
+                            val fillingStopped = DateHelper.dbStringToDateOrNull(p.pt_flush_completed2)
 
                             if (fillingStarted != null && fillingStopped != null)
                             {
@@ -443,6 +933,24 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     if (pipedTask == PipedTask.Filling)
                     {
                         isRunning = operationIsInProgress(p.filling_started, p.filling_stopped)
+                    }
+                    if (pipedTask == PipedTask.Flushing)
+                    {
+                        isRunning = operationIsInProgress(p.pt_flush_started, p.pt_flush_completed)
+                    }
+                    if (pipedTask == PipedTask.Flushing2)
+                    {
+                        isRunning = operationIsInProgress(p.pt_flush_started2, p.pt_flush_completed2)
+                    }
+
+                    if (pipedTask == PipedTask.Chlorination)
+                    {
+                        isRunning = operationIsInProgress(p.pt_chlor_start_time, p.pt_chlor_main_chlorinated)
+                    }
+
+                    if (pipedTask == PipedTask.DeChlorination)
+                    {
+                        isRunning = operationIsInProgress(p.pt_dec_start, p.pt_dec_dechlorinated)
                     }
 
                     // Formatting
@@ -498,6 +1006,23 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         EXLDProcess.c_filling_started -> {
                             formatFillingStarted(viewHolder)
                         }
+
+                        EXLDProcess.c_pt_flush_started -> {
+                            formatFlushingStarted(viewHolder)
+                        }
+
+                        EXLDProcess.c_pt_flush_started2 -> {
+                            formatFlushingStarted2(viewHolder)
+                        }
+
+                        EXLDProcess.c_pt_chlor_start_time -> {
+                            formatStartChlorinating(viewHolder)
+                        }
+
+                        EXLDProcess.c_pt_dec_start -> {
+                            formatStartDechlorinating(viewHolder)
+                        }
+
                     }
                 }
 
@@ -521,6 +1046,22 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             theDate = p.filling_stopped
                             closePauseSessions()
                         }
+                        EXLDProcess.c_pt_flush_completed -> {
+                            theDate = p.pt_flush_completed
+                            closePauseSessions()
+                        }
+                        EXLDProcess.c_pt_flush_completed2 -> {
+                            theDate = p.pt_flush_completed2
+                            closePauseSessions()
+                        }
+                        EXLDProcess.c_pt_chlor_main_chlorinated -> {
+                            theDate = p.pt_chlor_main_chlorinated
+                            closePauseSessions()
+                        }
+                        EXLDProcess.c_pt_dec_dechlorinated -> {
+                            theDate = p.pt_dec_dechlorinated
+                            closePauseSessions()
+                        }
                     }
 
                     if (theDate.length > 1)
@@ -541,6 +1082,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             EXLDProcess.c_swab_run_started -> p.swab_run_started = now
                             EXLDProcess.c_swab_home -> p.swab_home = now
                             EXLDProcess.c_filling_stopped -> p.filling_stopped = now
+                            EXLDProcess.c_pt_flush_completed -> p.pt_flush_completed = now
+                            EXLDProcess.c_pt_flush_completed2 -> p.pt_flush_completed2 = now
+                            EXLDProcess.c_pt_chlor_main_chlorinated -> p.pt_chlor_main_chlorinated = now
+                            EXLDProcess.c_pt_dec_dechlorinated -> p.pt_dec_dechlorinated = now
                         }
 
                         p.save(ctx)
@@ -548,6 +1093,187 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     }
                 }
             }
+        }
+    }
+
+    fun formatStartDechlorinating(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val theDate = p.pt_dec_start
+        val lat = p.pt_dec_start_lat
+        val lng = p.pt_dec_start_long
+
+        viewHolder.btnSet?.setOnClickListener {
+            if (viewHolder.btnSet?.text == "Set") {
+                resetDeChlor()
+            }
+            else
+            {
+                val alert = AlertHelper(ctx)
+                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoDeChlor)
+
+            }
+            notifyDataSetChanged()
+        }
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        if (theDate.length > 1)
+        {
+            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+        }
+        else
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        if (p.pt_chlor_start_time.length > 1 && p.pt_chlor_main_chlorinated.length == 0)
+        {
+            viewHolder.btnSet?.text = "Reset"
+        }
+        else
+        {
+            viewHolder.btnSet?.text = "Set"
+        }
+
+        if (lat == 0.0 && lng == 0.0)
+        {
+            viewHolder.tvLocation?.visibility = View.GONE
+        }
+    }
+
+
+    fun formatStartChlorinating(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val theDate = p.pt_chlor_start_time
+        val lat = p.pt_chlor_start_lat
+        val lng = p.pt_chlor_start_long
+
+        viewHolder.btnSet?.setOnClickListener {
+            if (viewHolder.btnSet?.text == "Set") {
+                resetChlor()
+            }
+            else
+            {
+                val alert = AlertHelper(ctx)
+                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoChlor)
+
+            }
+            notifyDataSetChanged()
+        }
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        if (theDate.length > 1)
+        {
+            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+        }
+        else
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        if (p.pt_chlor_start_time.length > 1 && p.pt_chlor_main_chlorinated.length == 0)
+        {
+            viewHolder.btnSet?.text = "Reset"
+        }
+        else
+        {
+            viewHolder.btnSet?.text = "Set"
+        }
+
+        if (lat == 0.0 && lng == 0.0)
+        {
+            viewHolder.tvLocation?.visibility = View.GONE
+        }
+    }
+
+    fun formatFlushingStarted(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val theDate = p.pt_flush_started
+        val lat = p.pt_flush_start_lat
+        val lng = p.pt_flush_start_long
+
+        viewHolder.btnSet?.setOnClickListener {
+            if (viewHolder.btnSet?.text == "Set") {
+                resetFlushing()
+            }
+            else
+            {
+                val alert = AlertHelper(ctx)
+                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoFilling)
+
+            }
+            notifyDataSetChanged()
+        }
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        if (theDate.length > 1)
+        {
+            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+        }
+        else
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        if (p.pt_flush_started.length > 1 && p.pt_flush_completed.length == 0)
+        {
+            viewHolder.btnSet?.text = "Reset"
+        }
+        else
+        {
+            viewHolder.btnSet?.text = "Set"
+        }
+
+        if (lat == 0.0 && lng == 0.0)
+        {
+            viewHolder.tvLocation?.visibility = View.GONE
+        }
+    }
+
+    fun formatFlushingStarted2(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val theDate = p.pt_flush_started2
+        val lat = p.pt_flush_start_lat2
+        val lng = p.pt_flush_start_long2
+
+        viewHolder.btnSet?.setOnClickListener {
+            if (viewHolder.btnSet?.text == "Set") {
+                resetFlushing2()
+            }
+            else
+            {
+                val alert = AlertHelper(ctx)
+                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoFlushing2)
+
+            }
+            notifyDataSetChanged()
+        }
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        if (theDate.length > 1)
+        {
+            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+        }
+        else
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        if (p.pt_flush_started2.length > 1 && p.pt_flush_completed2.length == 0)
+        {
+            viewHolder.btnSet?.text = "Reset"
+        }
+        else
+        {
+            viewHolder.btnSet?.text = "Set"
+        }
+
+        if (lat == 0.0 && lng == 0.0)
+        {
+            viewHolder.tvLocation?.visibility = View.GONE
         }
     }
 
@@ -565,7 +1291,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             else
             {
                 val alert = AlertHelper(ctx)
-                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoFilling)
+                alert.dialogForOKAlert("Reset Task", "Are you sure you want to reset this task (including resetting flowrates)?", ::undoFlushing)
 
             }
             notifyDataSetChanged()
@@ -691,6 +1417,37 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
     }
 
+    fun resetChlor()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_chlor_start_time = DateHelper.dateToDBString(Date())
+        p.pt_chlor_main_chlorinated = ""
+        p.pt_chlor_end_strength = 0.0
+        p.pt_chlor_volume = 0.0
+        p.pt_chlor_start_lat = lastLat
+        p.pt_chlor_start_long = lastLng
+        p.save(ctx)
+
+        resetPauses()
+        EXLDChlorFlowrates.deleteFlowrates(ctx, p.columnId)
+        notifyDataSetChanged()
+    }
+
+    fun resetDeChlor()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_dec_start = DateHelper.dateToDBString(Date())
+        p.pt_dec_dechlorinated = ""
+        p.pt_dec_volume = 0.0
+        p.pt_dec_start_lat = lastLat
+        p.pt_dec_start_long = lastLng
+        p.save(ctx)
+
+        resetPauses()
+        EXLDDecFlowrates.deleteFlowrates(ctx, p.columnId)
+        notifyDataSetChanged()
+    }
+
     fun resetSwabbing()
     {
         val p = AppGlobals.instance.activeProcess
@@ -709,6 +1466,34 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         EXLDSwabFlowrates.deleteFlowrates(ctx, AppGlobals.instance.activeProcess.columnId)
         notifyDataSetChanged()
     }
+
+    fun undoChlor()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_chlor_start_time = ""
+        p.pt_chlor_start_lat = 0.0
+        p.pt_chlor_start_long = 0.0
+        p.pt_chlor_main_chlorinated = ""
+        p.pt_chlor_end_strength = 0.0
+        p.pt_chlor_volume = 0.0
+        p.save(ctx)
+
+        notifyDataSetChanged()
+    }
+
+    fun undoDeChlor()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_dec_start = ""
+        p.pt_dec_dechlorinated = ""
+        p.pt_dec_start_lat = 0.0
+        p.pt_dec_start_long = 0.0
+        p.pt_dec_volume = 0.0
+        p.save(ctx)
+
+        notifyDataSetChanged()
+    }
+
 
     fun undoSwabbing()
     {
@@ -736,12 +1521,64 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         notifyDataSetChanged()
     }
 
+    fun resetFlushing()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_flush_started = DateHelper.dateToDBString(Date())
+        p.pt_flush_completed = ""
+        p.pt_flush_start_lat = lastLat
+        p.pt_flush_start_long = lastLng
+        p.pt_flush_total_water = 0.0
+        p.save(ctx)
+
+        resetPauses()
+        EXLDFlushFlowrates.deleteFlowrates(ctx, p.columnId, 1)
+        notifyDataSetChanged()
+    }
+
+    fun resetFlushing2()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_flush_started2 = DateHelper.dateToDBString(Date())
+        p.pt_flush_completed2 = ""
+        p.pt_flush_start_lat2 = lastLat
+        p.pt_flush_start_long2 = lastLng
+        p.pt_flush_total_water2 = 0.0
+        p.save(ctx)
+
+        resetPauses()
+        EXLDFlushFlowrates.deleteFlowrates(ctx, p.columnId, 2)
+        notifyDataSetChanged()
+    }
+
     fun undoFilling()
     {
         val p = AppGlobals.instance.activeProcess
         p.filling_started = ""
         p.filling_lat = 0.0
         p.filling_long = 0.0
+        p.save(ctx)
+
+        notifyDataSetChanged()
+    }
+
+    fun undoFlushing()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_flush_started = ""
+        p.pt_flush_start_lat = 0.0
+        p.pt_flush_start_long = 0.0
+        p.save(ctx)
+
+        notifyDataSetChanged()
+    }
+
+    fun undoFlushing2()
+    {
+        val p = AppGlobals.instance.activeProcess
+        p.pt_flush_started2 = ""
+        p.pt_flush_start_lat2 = 0.0
+        p.pt_flush_start_long2 = 0.0
         p.save(ctx)
 
         notifyDataSetChanged()
@@ -859,6 +1696,30 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             guardUpperDate = p.filling_stopped
         }
 
+        if (pipedTask == PipedTask.Flushing)
+        {
+            guardLowerDate = p.pt_flush_started
+            guardUpperDate = p.pt_flush_completed
+        }
+
+        if (pipedTask == PipedTask.Flushing2)
+        {
+            guardLowerDate = p.pt_flush_started2
+            guardUpperDate = p.pt_flush_completed2
+        }
+
+        if (pipedTask == PipedTask.Chlorination)
+        {
+            guardLowerDate = p.pt_chlor_start_time
+            guardUpperDate = p.pt_chlor_main_chlorinated
+        }
+
+        if (pipedTask == PipedTask.DeChlorination)
+        {
+            guardLowerDate = p.pt_dec_start
+            guardUpperDate = p.pt_dec_dechlorinated
+        }
+
         val lowerDate = DateHelper.dbStringToDateOrNull(guardLowerDate)
         val upperDate = DateHelper.dbStringToDateOrNull(guardUpperDate)
 
@@ -887,7 +1748,6 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             PipedTask.Swabbing -> {
 
                 val initialFrCount = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
-                Log.d("cobswab", "Flowate count is $initialFrCount")
                 val fr = EXLDSwabFlowrates.createFlowrate(ctx, value, p.columnId)
                 if (initialFrCount == 0) {
                     if (DateHelper.dbStringToDateOrNull(p.swab_run_started) != null)
@@ -900,12 +1760,51 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
             PipedTask.Filling -> {
                 val initialFrCount = EXLDFillingFlowrates.getFillingFlowrates(ctx, p.columnId).size
-                Log.d("cobswab", "Flowate count is $initialFrCount")
                 val fr = EXLDFillingFlowrates.createFlowrate(ctx, value, p.columnId)
                 if (initialFrCount == 0) {
                     if (DateHelper.dbStringToDateOrNull(p.filling_started) != null)
                     {
                         fr.filling_created = p.filling_started
+                    }
+                }
+                fr.save(ctx)
+            }
+
+            PipedTask.Flushing -> {
+                val initialFrCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1).size
+                val fr = EXLDFlushFlowrates.createFlowrate(ctx, value, p.columnId, 1)
+                if (initialFrCount == 0) {
+                    if (DateHelper.dbStringToDateOrNull(p.pt_flush_started) != null)
+                    {
+                        fr.flush_created = p.pt_flush_started
+                    }
+                }
+                fr.save(ctx)
+            }
+
+            PipedTask.Flushing2 -> {
+                val initialFrCount = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2).size
+                val fr = EXLDFlushFlowrates.createFlowrate(ctx, value, p.columnId, 2)
+                if (initialFrCount == 0) {
+                    if (DateHelper.dbStringToDateOrNull(p.pt_flush_started2) != null)
+                    {
+                        fr.flush_created = p.pt_flush_started2
+                    }
+                }
+                fr.save(ctx)
+            }
+
+            PipedTask.Chlorination -> {
+                delegate?.didRequestFlowrate()
+            }
+
+            PipedTask.DeChlorination -> {
+                val initialFrCount = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
+                val fr = EXLDDecFlowrates.createFlowrate(ctx, p.columnId)
+                if (initialFrCount == 0) {
+                    if (DateHelper.dbStringToDateOrNull(p.pt_dec_start) != null)
+                    {
+                        fr.dec_timestamp = p.pt_dec_start
                     }
                 }
                 fr.save(ctx)
@@ -975,7 +1874,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 val flowrates = EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId)
                 if (flowrates.size > 0)
                 {
-                    return flowrates.last().swab_flowrate
+                    return flowrates.first().swab_flowrate
                 }
                 else
                 {
@@ -987,7 +1886,55 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 val flowrates = EXLDFillingFlowrates.getFillingFlowrates(ctx, p.columnId)
                 if (flowrates.size > 0)
                 {
-                    return flowrates.last().filling_flowrate
+                    return flowrates.first().filling_flowrate
+                }
+                else
+                {
+                    return 0.0
+                }
+            }
+
+            PipedTask.Flushing -> {
+                val flowrates = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 1)
+                if (flowrates.size > 0)
+                {
+                    return flowrates.first().flush_flowrate
+                }
+                else
+                {
+                    return 0.0
+                }
+            }
+
+            PipedTask.Flushing2 -> {
+                val flowrates = EXLDFlushFlowrates.getFlushFlowrates(ctx, p.columnId, 2)
+                if (flowrates.size > 0)
+                {
+                    return flowrates.first().flush_flowrate
+                }
+                else
+                {
+                    return 0.0
+                }
+            }
+
+            PipedTask.Chlorination -> {
+                val flowrates = EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId)
+                if (flowrates.size > 0)
+                {
+                    return flowrates.first().chlor_flowrate
+                }
+                else
+                {
+                    return 0.0
+                }
+            }
+
+            PipedTask.DeChlorination -> {
+                val flowrates = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId)
+                if (flowrates.size > 0)
+                {
+                    return flowrates.first().dec_flowrate
                 }
                 else
                 {

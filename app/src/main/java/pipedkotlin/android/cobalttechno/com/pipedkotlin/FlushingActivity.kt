@@ -65,7 +65,7 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     }
 
-    override fun didRequestFlowrate() {
+    override fun didRequestFlowrate(position: Int) {
 
     }
 

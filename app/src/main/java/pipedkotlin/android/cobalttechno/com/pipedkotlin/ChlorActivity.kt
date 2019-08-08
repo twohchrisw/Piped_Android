@@ -42,8 +42,22 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         setNotes(AppGlobals.instance.activeProcess.pt_chlor_notes)
     }
 
-    override fun didRequestFlowrate() {
+    override fun didRequestFlowrate(position: Int) {
+        AppGlobals.instance.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.Chlor
 
+        var fr: EXLDChlorFlowrates
+        if (position < 0)
+        {
+            fr = EXLDChlorFlowrates.createFlowrate(this, AppGlobals.instance.activeProcess.columnId)
+        }
+        else
+        {
+            fr = EXLDChlorFlowrates.getChlorFlowrates(this, AppGlobals.instance.activeProcess.columnId).get(position)
+        }
+
+        AppGlobals.instance.drillChlorFlowrate = fr
+        val intent = Intent(this, FlowrateActivity::class.java)
+        startActivityForResult(intent, 99)
     }
 
     override fun cameraPermissionsGranted() {

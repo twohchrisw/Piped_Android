@@ -39,8 +39,22 @@ class DecActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdap
         setNotes(AppGlobals.instance.activeProcess.pt_dec_notes)
     }
 
-    override fun didRequestFlowrate() {
+    override fun didRequestFlowrate(position: Int) {
+        AppGlobals.instance.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.DeChlor
 
+        var fr: EXLDDecFlowrates
+        if (position < 0)
+        {
+            fr = EXLDDecFlowrates.createFlowrate(this, AppGlobals.instance.activeProcess.columnId)
+        }
+        else
+        {
+            fr = EXLDDecFlowrates.getDecFlowrates(this, AppGlobals.instance.activeProcess.columnId).get(position)
+        }
+
+        AppGlobals.instance.drillDecFlowrate = fr
+        val intent = Intent(this, FlowrateActivity::class.java)
+        startActivityForResult(intent, 99)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

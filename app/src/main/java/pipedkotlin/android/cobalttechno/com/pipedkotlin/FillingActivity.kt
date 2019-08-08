@@ -42,7 +42,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
         setNotes(AppGlobals.instance.activeProcess.filling_notes)
     }
 
-    override fun didRequestFlowrate() {
+    override fun didRequestFlowrate(position: Int) {
 
     }
 

@@ -27,6 +27,10 @@ public class AppGlobals private constructor() {
             val file = File(path, filename)
             return Uri.parse(file.absolutePath)
         }
+
+        enum class FlowrateViewType {
+            None, Chlor, DeChlor, Sampling, Consumables
+        }
     }
 
     var companyId = ""
@@ -40,5 +44,10 @@ public class AppGlobals private constructor() {
     var excelPEReadings = PEReadings()
     var currentFlushType = 1
     var processMenuShowingTasks = false
+    var currentFlowrateActivityType = FlowrateViewType.None
+
+    var drillChlorFlowrate: EXLDChlorFlowrates? = null
+    var drillDecFlowrate: EXLDDecFlowrates? = null
+
 
 }

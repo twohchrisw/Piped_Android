@@ -46,7 +46,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         setNotes(AppGlobals.instance.activeProcess.swab_notes)
     }
 
-    override fun didRequestFlowrate() {
+    override fun didRequestFlowrate(position: Int) {
 
     }
 

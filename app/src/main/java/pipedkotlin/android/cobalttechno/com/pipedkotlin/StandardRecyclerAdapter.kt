@@ -16,7 +16,10 @@ import java.nio.file.Files.delete
 import java.util.*
 
 class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double,
-                              var delegate: StandardRecyclerAdapterInterface?, var surveyNoteInterface: StandardRecyclerSurveyNoteInterface? = null): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                              var delegate: StandardRecyclerAdapterInterface?,
+                              var surveyNoteInterface: StandardRecyclerSurveyNoteInterface? = null,
+                              var chlorInterface: StandardRecyclerChlorInterface? = null,
+                              var decInterface: StandardRecyclerDeChlorInterface? = null): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var pauseSessions: List<EXLDPauseSessions>? = null
     var taskIsPaused = false
@@ -26,7 +29,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     interface StandardRecyclerAdapterInterface {
         fun didRequestMainImage(fieldName: String)
         fun didRequestNotes(fieldName: String)
-        fun didRequestFlowrate()
+        fun didRequestFlowrate(position: Int)
     }
 
     interface StandardRecyclerSurveyNoteInterface {
@@ -34,11 +37,71 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         fun didRequestImage(note: EXLDSurveyNotes)
     }
 
+    interface StandardRecyclerChlorInterface
+    {
+        fun didRequestChlorImage(flowrate: EXLDChlorFlowrates)
+    }
+
+    interface StandardRecyclerDeChlorInterface
+    {
+        fun didRequestDeChlorImage(flowrate: EXLDDecFlowrates)
+    }
+
     enum class PipedTask {
-        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling
+        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate
     }
 
     //region Rows Definition
+
+    enum class FlowrateChlorRows(val value: PipedTableRow)
+    {
+        DateTime(PipedTableRow(0, PipedTableRow.PipedTableRowType.TitleValue, "Date/Time", "", EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP)),
+        Flowrate(PipedTableRow(1, PipedTableRow.PipedTableRowType.TitleValue, "Flowrate (Ltrs/min)", "", EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE)),
+        Strength(PipedTableRow(2, PipedTableRow.PipedTableRowType.TitleValue, "Chlorine Strength", "", EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH)),
+        Photo(PipedTableRow(3, PipedTableRow.PipedTableRowType.MainPicture, "Photo", "", EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO)),
+        Count(PipedTableRow(4, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    DateTime.value.position -> return DateTime.value
+                    Flowrate.value.position -> return Flowrate.value
+                    Strength.value.position -> return Strength.value
+                    Photo.value.position -> return  Photo.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
+    enum class FlowrateDecRows(val value: PipedTableRow)
+    {
+        DateTime(PipedTableRow(0, PipedTableRow.PipedTableRowType.TitleValue, "Date/Time", "", EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP)),
+        Flowrate(PipedTableRow(1, PipedTableRow.PipedTableRowType.TitleValue, "Flowrate (Ltrs/min)", "", EXLDDecFlowrates.COLUMN_DEC_FLOWRATE)),
+        Strength(PipedTableRow(2, PipedTableRow.PipedTableRowType.TitleValue, "Chlorine Strength", "", EXLDDecFlowrates.COLUMN_DEC_STRENGTH)),
+        Discharge(PipedTableRow(3, PipedTableRow.PipedTableRowType.TitleValue, "Level at Discharge", "", EXLDDecFlowrates.COLUMN_DEC_DISCHARGE)),
+        Photo(PipedTableRow(4, PipedTableRow.PipedTableRowType.MainPicture, "Photo", "", EXLDDecFlowrates.COLUMN_DEC_PHOTO)),
+        Count(PipedTableRow(5, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    DateTime.value.position -> return DateTime.value
+                    Flowrate.value.position -> return Flowrate.value
+                    Strength.value.position -> return Strength.value
+                    Photo.value.position -> return  Photo.value
+                    Discharge.value.position -> return Discharge.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
 
     enum class ChlorRows(val value: PipedTableRow)
     {
@@ -281,6 +344,9 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             PipedTask.Chlorination -> return ChlorRows.Count.value.position + EXLDChlorFlowrates.getChlorFlowrates(ctx, p.columnId).size
             PipedTask.DeChlorination -> return DecRows.Count.value.position + EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
             PipedTask.Surveying -> return EXLDSurveyNotes.getSurveyNotes(ctx, p.columnId).size
+
+            PipedTask.ChlorFlowrate -> return FlowrateChlorRows.Count.value.position
+            PipedTask.DecFlowrate -> return FlowrateDecRows.Count.value.position
         }
 
         return 0
@@ -378,6 +444,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             }
 
             tableRow = DecRows.tableRowFromPosition(workingPosition)!!
+        }
+
+        if (pipedTask == PipedTask.ChlorFlowrate)
+        {
+            tableRow = FlowrateChlorRows.tableRowFromPosition(position)!!
+        }
+
+        if (pipedTask == PipedTask.DecFlowrate)
+        {
+            tableRow = FlowrateDecRows.tableRowFromPosition(position)!!
         }
 
 
@@ -485,6 +561,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         {
             flowrateCount = EXLDDecFlowrates.getDecFlowrates(ctx, p.columnId).size
             flowrateStartRow = 3
+        }
+
+        if (pipedTask == PipedTask.ChlorFlowrate || pipedTask == PipedTask.DecFlowrate)
+        {
+            return Pair(false, 0)
         }
 
         if (position >= flowrateStartRow && position < flowrateStartRow + flowrateCount)
@@ -609,6 +690,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = DecRows.tableRowFromPosition(workingPosition)
         }
 
+        if (pipedTask == PipedTask.ChlorFlowrate)
+        {
+            tableRow = FlowrateChlorRows.tableRowFromPosition(position)!!
+        }
+
+        if (pipedTask == PipedTask.DecFlowrate)
+        {
+            tableRow = FlowrateDecRows.tableRowFromPosition(position)!!
+        }
+
         // etc . . .
 
         /* Flowrates */
@@ -660,6 +751,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     val viewHolder = holder as ViewHolderFlowrate
                     viewHolder.titleText?.text = dateString
                     viewHolder.valueText?.text = valueText
+                    viewHolder.itemView.setOnClickListener {
+                        delegate?.didRequestFlowrate(isFlowratePosition(position).second)
+                    }
+
                     ignoreDefaultStyling = true
                 }
 
@@ -674,6 +769,9 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     val viewHolder = holder as ViewHolderFlowrate
                     viewHolder.titleText?.text = dateString
                     viewHolder.valueText?.text = valueText
+                    viewHolder.itemView.setOnClickListener {
+                        delegate?.didRequestFlowrate(isFlowratePosition(position).second)
+                    }
                     ignoreDefaultStyling = true
                 }
 
@@ -730,6 +828,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 PipedTableRow.PipedTableRowType.MainPicture -> {
                     val viewHolder = holder as ViewHolderPicture
                     viewHolder.titleText?.text = tableRow.title
+                    var ignoreSetViewHolder = false
 
                     when (tableRow.field)
                     {
@@ -768,10 +867,60 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                                 viewHolder.picture?.setImageURI(imageUri)
                             }
                         }
+
+                        EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO -> {
+                            val fr = AppGlobals.instance.drillChlorFlowrate!!
+                            if (fr.chlor_photo.length < 2)
+                            {
+                                // No picture
+                                viewHolder.picture?.visibility = View.GONE
+                                viewHolder.valueText?.visibility = View.VISIBLE
+                            }
+                            else
+                            {
+                                // Have picture
+                                viewHolder.valueText?.visibility = View.GONE
+                                viewHolder.picture?.visibility = View.VISIBLE
+
+                                val imageUri = AppGlobals.uriForSavedImage(fr.chlor_photo)
+                                viewHolder.picture?.setImageURI(imageUri)
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                chlorInterface?.didRequestChlorImage(fr)
+                            }
+                            ignoreSetViewHolder = true
+                        }
+
+                        EXLDDecFlowrates.COLUMN_DEC_PHOTO -> {
+                            val fr = AppGlobals.instance.drillDecFlowrate!!
+                            if (fr.dec_photo.length < 2)
+                            {
+                                // No picture
+                                viewHolder.picture?.visibility = View.GONE
+                                viewHolder.valueText?.visibility = View.VISIBLE
+                            }
+                            else
+                            {
+                                // Have picture
+                                viewHolder.valueText?.visibility = View.GONE
+                                viewHolder.picture?.visibility = View.VISIBLE
+
+                                val imageUri = AppGlobals.uriForSavedImage(fr.dec_photo)
+                                viewHolder.picture?.setImageURI(imageUri)
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                decInterface?.didRequestDeChlorImage(fr)
+                            }
+                            ignoreSetViewHolder = true
+                        }
                     }
 
-                    viewHolder.itemView.setOnClickListener {
-                        delegate?.didRequestMainImage(tableRow.field)
+                    if (!ignoreSetViewHolder) {
+                        viewHolder.itemView.setOnClickListener {
+                            delegate?.didRequestMainImage(tableRow.field)
+                        }
                     }
 
                 }
@@ -783,6 +932,98 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                     when (tableRow.field)
                     {
+                        /* Chlor Flowrates */
+
+                        EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP -> {
+                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(AppGlobals.instance.drillChlorFlowrate!!.chlor_timestamp)
+                        }
+
+                        EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2)
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Flowrate", AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate = inputValue!!
+                                        AppGlobals.instance.drillChlorFlowrate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2)
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Chlorine End Strength", AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        AppGlobals.instance.drillChlorFlowrate!!.chlor_strength = inputValue!!
+                                        AppGlobals.instance.drillChlorFlowrate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        /* Dec Flowrates */
+
+                        EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP -> {
+                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(AppGlobals.instance.drillDecFlowrate!!.dec_timestamp)
+                        }
+
+                        EXLDDecFlowrates.COLUMN_DEC_FLOWRATE -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2)
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Flowrate", AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        AppGlobals.instance.drillDecFlowrate!!.dec_flowrate = inputValue!!
+                                        AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDDecFlowrates.COLUMN_DEC_STRENGTH -> {
+                        viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2)
+                        viewHolder.itemView.setOnClickListener {
+                            val alert = AlertHelper(ctx)
+                            alert.dialogForTextInput("Chlorine Strength", AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2), {
+                                val inputValue = it.toDoubleOrNull()
+                                if (inputValue != null)
+                                {
+                                    AppGlobals.instance.drillDecFlowrate!!.dec_strength = inputValue!!
+                                    AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                    notifyDataSetChanged()
+                                }
+                            })
+                        }
+                    }
+
+                        EXLDDecFlowrates.COLUMN_DEC_DISCHARGE -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2)
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Level at Discharge", AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        AppGlobals.instance.drillDecFlowrate!!.dec_discharge = inputValue!!
+                                        AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
                         /* Total Water */
 
                         EXLDProcess.c_swab_total_water -> {
@@ -1126,7 +1367,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             viewHolder.tvValue?.text = "(none)"
         }
 
-        if (p.pt_chlor_start_time.length > 1 && p.pt_chlor_main_chlorinated.length == 0)
+        if (p.pt_dec_start.length > 1 && p.pt_dec_dechlorinated.length == 0)
         {
             viewHolder.btnSet?.text = "Reset"
         }
@@ -1730,6 +1971,18 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             return
         }
 
+        if (pipedTask == PipedTask.Chlorination)
+        {
+            delegate?.didRequestFlowrate(-1)
+            return
+        }
+
+        if (pipedTask == PipedTask.DeChlorination)
+        {
+            delegate?.didRequestFlowrate(-1)
+            return
+        }
+
         val alert = AlertHelper(ctx)
         alert.dialogForTextInput("Enter Flowrate", "0", {
             val doubleValue = it.toDoubleOrNull()
@@ -1795,7 +2048,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             }
 
             PipedTask.Chlorination -> {
-                delegate?.didRequestFlowrate()
+                delegate?.didRequestFlowrate(-1)
             }
 
             PipedTask.DeChlorination -> {

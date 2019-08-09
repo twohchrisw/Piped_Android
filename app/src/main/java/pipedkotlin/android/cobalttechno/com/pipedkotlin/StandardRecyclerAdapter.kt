@@ -14,6 +14,7 @@ import org.jetbrains.anko.db.select
 import java.nio.channels.Pipe
 import java.nio.file.Files.delete
 import java.util.*
+import kotlin.math.E
 
 class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double,
                               var delegate: StandardRecyclerAdapterInterface?,
@@ -48,10 +49,43 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     }
 
     enum class PipedTask {
-        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate, Equipment
+        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate, Consumables
     }
 
     //region Rows Definition
+
+    enum class ConsumableRows(val value: PipedTableRow)
+    {
+        Hyp(PipedTableRow(0, PipedTableRow.PipedTableRowType.TitleValue, "Sodium Hypochlorite (Ltrs)", "", EXLDProcess.c_consum_sodium_hypoclorite)),
+        Bis(PipedTableRow(1, PipedTableRow.PipedTableRowType.TitleValue, "Sodium Bisulphate (Ltrs)", "", EXLDProcess.c_consum_sodium_bisulphate)),
+        SwabsQty(PipedTableRow(2, PipedTableRow.PipedTableRowType.TitleValue, "Swabs Qty", "", EXLDProcess.c_consum_swabs_qty)),
+        SwabsSize(PipedTableRow(3, PipedTableRow.PipedTableRowType.TitleValue, "Swabs Size", "", EXLDProcess.c_consum_swabs_size)),
+        FlangesQty(PipedTableRow(4, PipedTableRow.PipedTableRowType.TitleValue, "Flanges Qty", "", EXLDProcess.c_consum_flanges_qty)),
+        FlangesSize(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Flanges Size", "", EXLDProcess.c_consum_flanges_size)),
+        FireHose(PipedTableRow(6, PipedTableRow.PipedTableRowType.TitleValue, "Additional Fire Hose", "", EXLDProcess.c_consum_additional_fire_hose_qty)),
+        Notes(PipedTableRow(7, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_consum_notes)),
+        Count(PipedTableRow(8, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    Hyp.value.position -> return  Hyp.value
+                    Bis.value.position -> return Bis.value
+                    SwabsQty.value.position -> return SwabsQty.value
+                    SwabsSize.value.position -> return SwabsSize.value
+                    FlangesQty.value.position -> return FlangesQty.value
+                    FlangesSize.value.position -> return FlangesSize.value
+                    FireHose.value.position -> return FireHose.value
+                    Notes.value.position -> return Notes.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
 
     enum class FlowrateChlorRows(val value: PipedTableRow)
     {
@@ -347,6 +381,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
             PipedTask.ChlorFlowrate -> return FlowrateChlorRows.Count.value.position
             PipedTask.DecFlowrate -> return FlowrateDecRows.Count.value.position
+            PipedTask.Consumables -> return ConsumableRows.Count.value.position
         }
 
         return 0
@@ -456,6 +491,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = FlowrateDecRows.tableRowFromPosition(position)!!
         }
 
+        if (pipedTask == PipedTask.Consumables)
+        {
+            tableRow = ConsumableRows.tableRowFromPosition(position)!!
+        }
+
 
         // . . . for each PipedTask
 
@@ -563,7 +603,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             flowrateStartRow = 3
         }
 
-        if (pipedTask == PipedTask.ChlorFlowrate || pipedTask == PipedTask.DecFlowrate)
+        if (pipedTask == PipedTask.ChlorFlowrate || pipedTask == PipedTask.DecFlowrate || pipedTask == PipedTask.Consumables)
         {
             return Pair(false, 0)
         }
@@ -700,6 +740,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = FlowrateDecRows.tableRowFromPosition(position)!!
         }
 
+        if (pipedTask == PipedTask.Consumables)
+        {
+            tableRow = ConsumableRows.tableRowFromPosition(position)!!
+        }
+
         // etc . . .
 
         /* Flowrates */
@@ -811,6 +856,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         EXLDProcess.c_pt_flush_notes2 -> viewHolder.mainText?.text = p.pt_flush_notes2
                         EXLDProcess.c_pt_chlor_notes -> viewHolder.mainText?.text = p.pt_chlor_notes
                         EXLDProcess.c_pt_dec_notes -> viewHolder.mainText?.text = p.pt_dec_notes
+                        EXLDProcess.c_consum_notes -> viewHolder.mainText?.text = p.consum_notes
                     }
 
                     if (viewHolder.mainText!!.text!!.length < 1)
@@ -932,6 +978,121 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                     when (tableRow.field)
                     {
+                        /* Consumables */
+
+                        EXLDProcess.c_consum_sodium_hypoclorite -> {
+                            viewHolder.valueText?.text = p.consum_sodium_hypoclorite.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Sodium Hypoclorite (Ltrs)", p.consum_sodium_hypoclorite.toString(), {
+                                    val inputValue = it.toIntOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_sodium_hypoclorite = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_sodium_bisulphate -> {
+                            viewHolder.valueText?.text = p.consum_sodium_bisulphate.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Sodium Bisulphate (Ltrs)", p.consum_sodium_bisulphate.toString(), {
+                                    val inputValue = it.toIntOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_sodium_bisulphate = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_swabs_qty -> {
+                            viewHolder.valueText?.text = p.consum_swabs_qty.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Swabs Qty", p.consum_swabs_qty.toString(), {
+                                    val inputValue = it.toIntOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_swabs_qty = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_swabs_size -> {
+                            viewHolder.valueText?.text = p.consum_swabs_size.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Swabs Size", p.consum_swabs_size.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_swabs_size = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_flanges_qty -> {
+                            viewHolder.valueText?.text = p.consum_flanges_qty.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Flanges Qty", p.consum_flanges_qty.toString(), {
+                                    val inputValue = it.toIntOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_flanges_qty = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_flanges_size -> {
+                            viewHolder.valueText?.text = p.consum_flanges_size.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Flanges Size", p.consum_flanges_size.formatForDecPlaces(2), {
+                                    val inputValue = it.toDoubleOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_flanges_size = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDProcess.c_consum_additional_fire_hose_qty -> {
+                            viewHolder.valueText?.text = p.consum_additional_fire_hose_qty.toString()
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Additional Fire Hose", p.consum_additional_fire_hose_qty.toString(), {
+                                    val inputValue = it.toIntOrNull()
+                                    if (inputValue != null)
+                                    {
+                                        p.consum_additional_fire_hose_qty = inputValue!!
+                                        p.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+
                         /* Chlor Flowrates */
 
                         EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP -> {

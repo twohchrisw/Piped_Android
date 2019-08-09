@@ -115,6 +115,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(equipIntent)
     }
 
+    fun loadConsumables()
+    {
+        val cons = Intent(this, ConsumablesActivity::class.java)
+        startActivity(cons)
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         AppGlobals.instance.processMenuShowingTasks = false
@@ -150,7 +156,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 ProcessMenuRecyclerAdapter.MainMenuItems.consumables.value -> {
                     if (hasEnteredDetails)
                     {
-
+                        loadConsumables()
                     }
                 }
                 ProcessMenuRecyclerAdapter.MainMenuItems.equipment.value -> {

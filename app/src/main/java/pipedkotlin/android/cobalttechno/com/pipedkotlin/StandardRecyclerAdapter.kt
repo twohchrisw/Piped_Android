@@ -11,6 +11,7 @@ import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.select
+import org.jetbrains.anko.runOnUiThread
 import java.nio.channels.Pipe
 import java.nio.file.Files.delete
 import java.util.*
@@ -20,7 +21,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                               var delegate: StandardRecyclerAdapterInterface?,
                               var surveyNoteInterface: StandardRecyclerSurveyNoteInterface? = null,
                               var chlorInterface: StandardRecyclerChlorInterface? = null,
-                              var decInterface: StandardRecyclerDeChlorInterface? = null): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                              var decInterface: StandardRecyclerDeChlorInterface? = null,
+                              var sampInterface: StandardRecyclerSamplingInterface? = null): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var pauseSessions: List<EXLDPauseSessions>? = null
     var taskIsPaused = false
@@ -48,11 +50,85 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         fun didRequestDeChlorImage(flowrate: EXLDDecFlowrates)
     }
 
+    interface StandardRecyclerSamplingInterface {
+        fun didRequestSampleImage(flowrate: EXLDSamplingData)
+    }
+
     enum class PipedTask {
-        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate, Consumables
+        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate, Consumables, SamplingFlowrate
     }
 
     //region Rows Definition
+
+    enum class SamplFlowrateRows(val value: PipedTableRow)
+    {
+        SampleID(PipedTableRow(0, PipedTableRow.PipedTableRowType.TitleValue, "Sample ID", "", EXLDSamplingData.COLUMN_SAMP_SAMPLE_ID)),
+        SampleDesc(PipedTableRow(1, PipedTableRow.PipedTableRowType.TitleValue, "Sample Description", "", EXLDSamplingData.COLUMN_SAMP_DESC)),
+        Location(PipedTableRow(2, PipedTableRow.PipedTableRowType.TitleValue, "Location", "", EXLDSamplingData.COLUMN_SAMP_LOCATION)),
+        LocationCoords(PipedTableRow(3, PipedTableRow.PipedTableRowType.DateSet, "Location Coordinates", "", EXLDSamplingData.COLUMN_SAMP_LAT)),
+        ChlorineFree(PipedTableRow(4, PipedTableRow.PipedTableRowType.TitleValue, "Chlorine Free", "", EXLDSamplingData.COLUMN_SAMP_CHLOR_FREE)),
+        ChlorineTotal(PipedTableRow(5, PipedTableRow.PipedTableRowType.TitleValue, "Chlorine Total", "", EXLDSamplingData.COLUMN_SAMP_CHLOR_TOTAL)),
+        Turbidity(PipedTableRow(6, PipedTableRow.PipedTableRowType.TitleValue, "Turbidity", "", EXLDSamplingData.COLUMN_SAMP_TURBIDITY)),
+        WaterTemp(PipedTableRow(7, PipedTableRow.PipedTableRowType.TitleValue, "Water Temperature", "", EXLDSamplingData.COLUMN_SAMP_WATER_TEMP)),
+        OtherInfo(PipedTableRow(8, PipedTableRow.PipedTableRowType.TitleValue, "Other Info", "", EXLDSamplingData.COLUMN_SAMP_OTHER_INFO)),
+        TestStatus(PipedTableRow(9, PipedTableRow.PipedTableRowType.TestStatus, "", "", EXLDSamplingData.COLUMN_SAMP_TEST_STATUS)),
+        Photo(PipedTableRow(10, PipedTableRow.PipedTableRowType.MainPicture, "Sample Data Photo", "", EXLDSamplingData.COLUMN_SAMP_PHOTO)),
+        Count(PipedTableRow(11, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    SampleID.value.position -> return SampleID.value
+                    SampleDesc.value.position -> return SampleDesc.value
+                    Location.value.position -> return Location.value
+                    LocationCoords.value.position -> return LocationCoords.value
+                    ChlorineFree.value.position -> return ChlorineFree.value
+                    ChlorineTotal.value.position -> return ChlorineTotal.value
+                    Turbidity.value.position -> return Turbidity.value
+                    WaterTemp.value.position -> return WaterTemp.value
+                    OtherInfo.value.position -> return OtherInfo.value
+                    TestStatus.value.position -> return TestStatus.value
+                    Photo.value.position -> return Photo.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
+
+    enum class SamplingRows(val value: PipedTableRow)
+    {
+        FlowratesHeader(PipedTableRow(0, PipedTableRow.PipedTableRowType.PauseSectionHeader, "SAMLPLING DATA")),
+        SamplingDetailsHeader(PipedTableRow(1, PipedTableRow.PipedTableRowType.SectionHeader, "SAMPLING DETAILS")),
+        TakenTo(PipedTableRow(2, PipedTableRow.PipedTableRowType.DateSetLocation, "Taken To", "", EXLDProcess.c_pt_sampl_taken_to_address)),
+        GivenTo(PipedTableRow(3, PipedTableRow.PipedTableRowType.TitleValue, "Given To", "", EXLDProcess.c_pt_sampl_given_to)),
+        GivenToDate(PipedTableRow(4, PipedTableRow.PipedTableRowType.DateSet, "Sample Given At", "", EXLDProcess.c_pt_sampl_given_time)),
+        NotesSectionHeader(PipedTableRow(5, PipedTableRow.PipedTableRowType.SectionHeader, "NOTES")),
+        Notes(PipedTableRow(6, PipedTableRow.PipedTableRowType.Notes, "", "", EXLDProcess.c_pt_sampl_notes)),
+        FooterSection(PipedTableRow(7, PipedTableRow.PipedTableRowType.SectionHeader, "")),
+        Count(PipedTableRow(8, PipedTableRow.PipedTableRowType.Count, ""));
+
+        companion object {
+            fun tableRowFromPosition(position: Int): PipedTableRow? {
+                when (position)
+                {
+                    FlowratesHeader.value.position -> return FlowratesHeader.value
+                    SamplingDetailsHeader.value.position -> return SamplingDetailsHeader.value
+                    TakenTo.value.position -> return TakenTo.value
+                    GivenTo.value.position -> return GivenTo.value
+                    GivenToDate.value.position -> return GivenToDate.value
+                    NotesSectionHeader.value.position -> return NotesSectionHeader.value
+                    FooterSection.value.position -> return FooterSection.value
+                    Notes.value.position -> return Notes.value
+                    Count.value.position -> return Count.value
+                }
+
+                return null
+            }
+        }
+    }
 
     enum class ConsumableRows(val value: PipedTableRow)
     {
@@ -382,6 +458,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             PipedTask.ChlorFlowrate -> return FlowrateChlorRows.Count.value.position
             PipedTask.DecFlowrate -> return FlowrateDecRows.Count.value.position
             PipedTask.Consumables -> return ConsumableRows.Count.value.position
+            PipedTask.Sampling -> return SamplingRows.Count.value.position + EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId).size
+            PipedTask.SamplingFlowrate -> return SamplFlowrateRows.Count.value.position
         }
 
         return 0
@@ -481,6 +559,19 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = DecRows.tableRowFromPosition(workingPosition)!!
         }
 
+        if (pipedTask == PipedTask.Sampling)
+        {
+            val flowrateStartRow = 1
+            val frCount = EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+
+            tableRow = SamplingRows.tableRowFromPosition(workingPosition)!!
+        }
+
         if (pipedTask == PipedTask.ChlorFlowrate)
         {
             tableRow = FlowrateChlorRows.tableRowFromPosition(position)!!
@@ -494,6 +585,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         if (pipedTask == PipedTask.Consumables)
         {
             tableRow = ConsumableRows.tableRowFromPosition(position)!!
+        }
+
+        if (pipedTask == PipedTask.SamplingFlowrate)
+        {
+            tableRow = SamplFlowrateRows.tableRowFromPosition(position)!!
         }
 
 
@@ -525,6 +621,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             PipedTableRow.PipedTableRowType.DateSetLocation.value -> {
                 val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_date_set, parent, false)
                 return ViewHolderDateSet(view)
+            }
+
+            PipedTableRow.PipedTableRowType.TestStatus.value -> {
+                val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_test_status, parent, false)
+                return ViewHolderTestStatus(view)
             }
 
             PipedTableRow.PipedTableRowType.AddFlowrateButton.value -> {
@@ -603,7 +704,13 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             flowrateStartRow = 3
         }
 
-        if (pipedTask == PipedTask.ChlorFlowrate || pipedTask == PipedTask.DecFlowrate || pipedTask == PipedTask.Consumables)
+        if (pipedTask == PipedTask.Sampling)
+        {
+            flowrateCount = EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId).size
+            flowrateStartRow = 1
+        }
+
+        if (pipedTask == PipedTask.ChlorFlowrate || pipedTask == PipedTask.DecFlowrate || pipedTask == PipedTask.Consumables || pipedTask == PipedTask.SamplingFlowrate)
         {
             return Pair(false, 0)
         }
@@ -730,6 +837,18 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             tableRow = DecRows.tableRowFromPosition(workingPosition)
         }
 
+        if (pipedTask == PipedTask.Sampling)
+        {
+            val flowrateStartRow = 1
+            val frCount = EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId).size
+            var workingPosition = position
+            if (position >= (frCount + flowrateStartRow))
+            {
+                workingPosition = workingPosition - frCount
+            }
+            tableRow = SamplingRows.tableRowFromPosition(workingPosition)
+        }
+
         if (pipedTask == PipedTask.ChlorFlowrate)
         {
             tableRow = FlowrateChlorRows.tableRowFromPosition(position)!!
@@ -743,6 +862,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         if (pipedTask == PipedTask.Consumables)
         {
             tableRow = ConsumableRows.tableRowFromPosition(position)!!
+        }
+
+        if (pipedTask == PipedTask.SamplingFlowrate)
+        {
+            tableRow = SamplFlowrateRows.tableRowFromPosition(position)!!
         }
 
         // etc . . .
@@ -820,6 +944,19 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     ignoreDefaultStyling = true
                 }
 
+                PipedTask.Sampling -> {
+                    val flowrates = EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId)
+                    val flowrate = flowrates[isFlowratePosition(position).second]
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.samp_timestamp)
+
+                    val viewHolder = holder as ViewHolderFlowrate
+                    viewHolder.titleText?.text = dateString
+                    viewHolder.valueText?.text = flowrate.samp_sample_id
+                    viewHolder.itemView.setOnClickListener {
+                        delegate?.didRequestFlowrate(isFlowratePosition(position).second)
+                    }
+                    ignoreDefaultStyling = true
+                }
             }
 
             if (!ignoreDefaultStyling) {
@@ -857,6 +994,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         EXLDProcess.c_pt_chlor_notes -> viewHolder.mainText?.text = p.pt_chlor_notes
                         EXLDProcess.c_pt_dec_notes -> viewHolder.mainText?.text = p.pt_dec_notes
                         EXLDProcess.c_consum_notes -> viewHolder.mainText?.text = p.consum_notes
+                        EXLDProcess.c_pt_sampl_notes -> viewHolder.mainText?.text = p.pt_sampl_notes
                     }
 
                     if (viewHolder.mainText!!.text!!.length < 1)
@@ -961,6 +1099,30 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             }
                             ignoreSetViewHolder = true
                         }
+
+                        EXLDSamplingData.COLUMN_SAMP_PHOTO -> {
+                            val fr = AppGlobals.instance.drillSamplFlorwate!!
+                            if (fr.samp_photo.length < 2)
+                            {
+                                // No picture
+                                viewHolder.picture?.visibility = View.GONE
+                                viewHolder.valueText?.visibility = View.VISIBLE
+                            }
+                            else
+                            {
+                                // Have picture
+                                viewHolder.valueText?.visibility = View.GONE
+                                viewHolder.picture?.visibility = View.VISIBLE
+
+                                val imageUri = AppGlobals.uriForSavedImage(fr.samp_photo)
+                                viewHolder.picture?.setImageURI(imageUri)
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                sampInterface?.didRequestSampleImage(fr)
+                            }
+                            ignoreSetViewHolder = true
+                        }
                     }
 
                     if (!ignoreSetViewHolder) {
@@ -978,6 +1140,176 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                     when (tableRow.field)
                     {
+                        /* Sample Flowrate Details */
+
+                        EXLDSamplingData.COLUMN_SAMP_SAMPLE_ID -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id
+
+                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id.length < 1)
+                            {
+                                viewHolder.valueText?.text = "(none)"
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Sample ID", AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id = it
+                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                    notifyDataSetChanged()
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_DESC -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_desc
+
+                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_desc.length < 1)
+                            {
+                                viewHolder.valueText?.text = "(none)"
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Sample Description", AppGlobals.instance.drillSamplFlorwate!!.samp_desc, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.samp_desc = it
+                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                    notifyDataSetChanged()
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_LOCATION -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_location
+
+                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_location.length < 1)
+                            {
+                                viewHolder.valueText?.text = "(none)"
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Location", AppGlobals.instance.drillSamplFlorwate!!.samp_location, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.samp_location = it
+                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                    notifyDataSetChanged()
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_CHLOR_FREE -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free.formatForDecPlaces(2)
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free.formatForDecPlaces(2), {
+
+                                    val theValue = it.toDoubleOrNull()
+                                    if (theValue != null)
+                                    {
+                                        AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_CHLOR_TOTAL -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total.formatForDecPlaces(2)
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total.formatForDecPlaces(2), {
+
+                                    val theValue = it.toDoubleOrNull()
+                                    if (theValue != null)
+                                    {
+                                        AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_TURBIDITY -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity.formatForDecPlaces(2)
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity.formatForDecPlaces(2), {
+
+                                    val theValue = it.toDoubleOrNull()
+                                    if (theValue != null)
+                                    {
+                                        AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_WATER_TEMP -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp.toString()
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp.toString(), {
+
+                                    val theValue = it.toIntOrNull()
+                                    if (theValue != null)
+                                    {
+                                        AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        notifyDataSetChanged()
+                                    }
+                                })
+                            }
+                        }
+
+                        EXLDSamplingData.COLUMN_SAMP_OTHER_INFO -> {
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_other_info
+
+                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_other_info.length < 1)
+                            {
+                                viewHolder.valueText?.text = "(none)"
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Other Info", AppGlobals.instance.drillSamplFlorwate!!.samp_other_info, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.samp_other_info = it
+                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                    notifyDataSetChanged()
+                                })
+                            }
+                        }
+
+                        /* Sampling */
+
+                        EXLDProcess.c_pt_sampl_given_to -> {
+                            viewHolder.valueText?.text = p.pt_sampl_given_to
+
+                            if (p.pt_sampl_given_to.length < 1)
+                            {
+                                viewHolder.valueText?.text = "(none)"
+                            }
+
+                            viewHolder.itemView.setOnClickListener {
+                                val alert = AlertHelper(ctx)
+                                alert.dialogForTextInput("Samples Given To", p.pt_sampl_given_to, {
+                                    p.pt_sampl_given_to = it
+                                    p.save(ctx)
+                                    notifyDataSetChanged()
+                                })
+                            }
+                        }
+
+
                         /* Consumables */
 
                         EXLDProcess.c_consum_sodium_hypoclorite -> {
@@ -1355,6 +1687,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         isRunning = operationIsInProgress(p.pt_dec_start, p.pt_dec_dechlorinated)
                     }
 
+                    if (pipedTask == PipedTask.Sampling)
+                    {
+                        viewHolder.btnPause?.visibility = View.GONE
+                        viewHolder.btnAddFlowrate?.text = "Add Data"
+                        viewHolder.btnAddFlowrate?.setOnClickListener {
+                            delegate?.didRequestFlowrate(-1)
+                        }
+                        return
+                    }
+
                     // Formatting
                     if (taskIsPaused)
                     {
@@ -1425,6 +1767,10 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             formatStartDechlorinating(viewHolder)
                         }
 
+                        EXLDProcess.c_pt_sampl_taken_to_address -> {
+                            formatSamplingTakenTo(viewHolder)
+                        }
+
                     }
                 }
 
@@ -1464,6 +1810,30 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             theDate = p.pt_dec_dechlorinated
                             closePauseSessions()
                         }
+                        EXLDProcess.c_pt_sampl_given_time -> {
+                            theDate = p.pt_sampl_given_time
+                            viewHolder.tvValue?.text = DateHelper.dbDateStringFormattedWithSeconds(theDate)
+                            viewHolder.btnSet?.text = "Set"
+                            viewHolder.btnSet?.setOnClickListener {
+                                p.pt_sampl_given_time = DateHelper.dateToDBString(Date())
+                                p.save(ctx)
+                                notifyDataSetChanged()
+                            }
+
+                            return
+                        }
+                        EXLDSamplingData.COLUMN_SAMP_LAT -> {
+                            viewHolder.tvValue?.text = NumbersHelper.latLongString(AppGlobals.instance.drillSamplFlorwate!!.samp_lat, AppGlobals.instance.drillSamplFlorwate!!.samp_lng)
+                            viewHolder.btnSet?.text = "Set"
+                            viewHolder.btnSet?.setOnClickListener {
+                                AppGlobals.instance.drillSamplFlorwate!!.samp_lat = AppGlobals.instance.lastLat
+                                AppGlobals.instance.drillSamplFlorwate!!.samp_lng = AppGlobals.instance.lastLng
+                                AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                notifyDataSetChanged()
+                            }
+
+                            return
+                        }
                     }
 
                     if (theDate.length > 1)
@@ -1494,7 +1864,125 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         notifyDataSetChanged()
                     }
                 }
+
+                PipedTableRow.PipedTableRowType.TestStatus -> {
+                    // Only relevant for sampling flowrates
+                    val fr = AppGlobals.instance.drillSamplFlorwate!!
+                    val TEST_STATUS_NOT_SET = 0
+                    val TEST_STAUTS_PASS = 1
+                    val TEST_STATUS_FAIL = 2
+                    val viewHolder = holder as ViewHolderTestStatus
+
+                    viewHolder.rdFail?.isChecked = false
+                    viewHolder.rdNotSet?.isChecked = true
+                    viewHolder.rdPass?.isChecked = false
+                    viewHolder.tvFailMessage?.visibility = View.GONE
+
+                    viewHolder.tvFailMessage?.text = fr.samp_failnotes
+                    if (fr.samp_failnotes.length < 1)
+                    {
+                        viewHolder.tvFailMessage?.text = "[Tap to enter fail notes]"
+                    }
+
+                    viewHolder.tvFailMessage?.setOnClickListener {
+                        val alert = AlertHelper(ctx)
+                        alert.dialogForTextInput("Fail Notes", fr.samp_failnotes, {
+
+                            fr.samp_failnotes = it
+                            fr.save(ctx)
+
+                            ctx.runOnUiThread {
+                                if (fr.samp_failnotes.length > 0) {
+                                    viewHolder.tvFailMessage?.text = fr.samp_failnotes
+                                }
+                                else
+                                {
+                                    viewHolder.tvFailMessage?.text = "[Tap to enter fail notes]"
+                                }
+                            }
+                        })
+                    }
+
+                    if (fr.samp_test_status == TEST_STATUS_FAIL)
+                    {
+                        viewHolder.rdFail?.isChecked = true
+                        viewHolder.tvFailMessage?.visibility = View.VISIBLE
+                    }
+
+                    if (fr.samp_test_status == TEST_STAUTS_PASS)
+                    {
+                        viewHolder.rdPass?.isChecked = true
+                    }
+
+                    if (fr.samp_test_status == TEST_STATUS_NOT_SET)
+                    {
+                        viewHolder.rdNotSet?.isChecked = true
+                    }
+
+
+                    viewHolder.radioGroup?.setOnCheckedChangeListener { group, checkedId ->
+                        when (checkedId)
+                        {
+                            viewHolder.rdPass!!.id -> {
+                                fr.samp_test_status = TEST_STAUTS_PASS
+                                ctx.runOnUiThread {
+                                    viewHolder.tvFailMessage?.visibility = View.GONE
+                                }
+                            }
+
+                            viewHolder.rdNotSet!!.id -> {
+                                fr.samp_test_status = TEST_STATUS_NOT_SET
+                                ctx.runOnUiThread {
+                                    viewHolder.tvFailMessage?.visibility = View.GONE
+                                }
+                            }
+
+                            viewHolder.rdFail!!.id -> {
+                                fr.samp_test_status = TEST_STATUS_FAIL
+                                ctx.runOnUiThread {
+                                    viewHolder.tvFailMessage?.visibility = View.VISIBLE
+                                }
+
+                            }
+                        }
+
+                        fr.save(ctx)
+                        //notifyDataSetChanged()
+                    }
+
+                }
             }
+        }
+    }
+
+    fun formatSamplingTakenTo(viewHolder: ViewHolderDateSet)
+    {
+        val p = AppGlobals.instance.activeProcess
+        val lat = p.pt_sampl_taken_to_lat
+        val lng = p.pt_sampl_taken_to_long
+
+        viewHolder.tvLocation?.text = NumbersHelper.latLongString(lat, lng)
+        viewHolder.tvValue?.text = p.pt_sampl_taken_to_address
+
+        if (p.pt_sampl_taken_to_address.length < 1)
+        {
+            viewHolder.tvValue?.text = "(none)"
+        }
+
+        viewHolder.btnSet?.setOnClickListener {
+            p.pt_sampl_taken_to_lat = AppGlobals.instance.lastLat
+            p.pt_sampl_taken_to_long = AppGlobals.instance.lastLng
+            p.save(ctx)
+            notifyDataSetChanged()
+        }
+
+        viewHolder.itemView.setOnClickListener {
+            val alert = AlertHelper(ctx)
+            alert.dialogForTextInput("Taken To", p.pt_sampl_taken_to_address, {
+                p.pt_sampl_taken_to_address = it
+                p.save(ctx)
+                notifyDataSetChanged()
+            })
         }
     }
 
@@ -2388,6 +2876,6 @@ class PipedTableRow(val position: Int, val rowType: PipedTableRowType, val title
 
     enum class PipedTableRowType(val value: Int) {
         DateSet(0), DateSetLocation(1), SectionHeader(2), AddFlowrateButton(3), Flowrate(4), Notes(5), PauseSectionHeader(6), Count(7), Unknown(8),
-        TitleValue(9), MainPicture(10)
+        TitleValue(9), MainPicture(10), TestStatus(11)
     }
 }

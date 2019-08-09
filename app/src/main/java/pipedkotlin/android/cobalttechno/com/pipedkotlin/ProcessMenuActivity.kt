@@ -121,6 +121,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(cons)
     }
 
+    fun loadSampling()
+    {
+        val samp = Intent(this, SamplingActivity::class.java)
+        startActivity(samp)
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         AppGlobals.instance.processMenuShowingTasks = false
@@ -202,6 +208,9 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 }
                 ProcessMenuRecyclerAdapter.TaskMenuItems.surveying.value -> {
                     loadSurveying()
+                }
+                ProcessMenuRecyclerAdapter.TaskMenuItems.sampling.value -> {
+                    loadSampling()
                 }
             }
         }

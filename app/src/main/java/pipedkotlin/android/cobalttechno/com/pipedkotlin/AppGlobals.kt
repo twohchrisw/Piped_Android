@@ -29,7 +29,7 @@ public class AppGlobals private constructor() {
         }
 
         enum class FlowrateViewType {
-            None, Chlor, DeChlor, Sampling, Consumables
+            None, Chlor, DeChlor, Sampling
         }
     }
 
@@ -48,6 +48,7 @@ public class AppGlobals private constructor() {
 
     var drillChlorFlowrate: EXLDChlorFlowrates? = null
     var drillDecFlowrate: EXLDDecFlowrates? = null
+    var drillSamplFlorwate: EXLDSamplingData? = null
 
     var lastLat: Double = 0.0
     var lastLng: Double = 0.0

@@ -330,6 +330,25 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDEquipmentExtra.COLUMN_EE_DESC to TEXT,
                 EXLDEquipmentExtra.COLUMN_EE_TYPE to INTEGER)
 
+        // Sampling
+        db!!.createTable(EXLDSamplingData.TABLE_NAME, true,
+                EXLDSamplingData.COLUMN_SAMP_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDSamplingData.COLUMN_PROCESS_ID to INTEGER,
+                EXLDSamplingData.COLUMN_SAMP_CHLOR_FREE to REAL,
+                EXLDSamplingData.COLUMN_SAMP_CHLOR_TOTAL to REAL,
+                EXLDSamplingData.COLUMN_SAMP_DESC to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_FAILNOTES to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_LAT to REAL,
+                EXLDSamplingData.COLUMN_SAMP_LNG to REAL,
+                EXLDSamplingData.COLUMN_SAMP_SAMPLE_ID to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_LOCATION to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_OTHER_INFO to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_PHOTO to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_TEST_STATUS to INTEGER,
+                EXLDSamplingData.COLUMN_SAMP_TIMESTAMP to TEXT,
+                EXLDSamplingData.COLUMN_SAMP_TURBIDITY to REAL,
+                EXLDSamplingData.COLUMN_SAMP_WATER_TEMP to INTEGER)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

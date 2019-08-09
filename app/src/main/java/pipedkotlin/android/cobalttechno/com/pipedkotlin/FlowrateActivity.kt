@@ -11,12 +11,13 @@ import android.view.Menu
 import android.view.MenuItem
 import java.util.*
 
-class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerDeChlorInterface, StandardRecyclerAdapter.StandardRecyclerChlorInterface
+class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerDeChlorInterface, StandardRecyclerAdapter.StandardRecyclerChlorInterface, StandardRecyclerAdapter.StandardRecyclerSamplingInterface
 {
 
     private lateinit var recyclerView: RecyclerView
     private var chlorFlowrate: EXLDChlorFlowrates? = null
     private var decFlowrate: EXLDDecFlowrates? = null
+    private var samplFlowrate: EXLDSamplingData? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +59,10 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                 title = "Flowrate"
                 recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DecFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, null, this)
             }
+            AppGlobals.Companion.FlowrateViewType.Sampling -> {
+                title = "Sampling Data"
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.SamplingFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, null, null, this)
+            }
         }
     }
 
@@ -78,6 +83,11 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun didRequestDeChlorImage(flowrate: EXLDDecFlowrates) {
         decFlowrate = flowrate
+        requestCameraPermissions()
+    }
+
+    override fun didRequestSampleImage(flowrate: EXLDSamplingData) {
+        samplFlowrate = flowrate
         requestCameraPermissions()
     }
 
@@ -125,6 +135,25 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                     })
                 }
             }
+
+            AppGlobals.Companion.FlowrateViewType.Sampling -> {
+                if (samplFlowrate!!.samp_photo.length < 2)
+                {
+                    // Straight load
+                    choosePicFromCamera()
+                }
+                else {
+                    // Ask for user direction
+                    val alert = AlertHelper(this)
+                    alert.dialogForOKAlert("Delete Image", "Do you want to delete this image?", {
+                        samplFlowrate!!.samp_photo = ""
+                        samplFlowrate!!.save(this)
+                        runOnUiThread {
+                            recyclerView.adapter.notifyDataSetChanged()
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -161,6 +190,17 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                         saveImageToExternalStorage(bitmap, fileName)
                         decFlowrate!!.dec_photo = fileName
                         decFlowrate!!.save(this)
+                    }
+                }
+
+                AppGlobals.Companion.FlowrateViewType.Sampling -> {
+                    val fileName = "sample${uuid}.jpg"
+                    if (data != null)
+                    {
+                        val bitmap = data!!.extras.get("data") as Bitmap
+                        saveImageToExternalStorage(bitmap, fileName)
+                        samplFlowrate!!.samp_photo = fileName
+                        samplFlowrate!!.save(this)
                     }
                 }
             }

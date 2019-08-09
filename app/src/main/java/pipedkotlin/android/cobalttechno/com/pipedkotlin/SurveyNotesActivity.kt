@@ -25,7 +25,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, lastLat, lastLng, null, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -52,9 +52,9 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        lastLat = lat
-        lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, lastLat, lastLng, null, this)
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, this)
     }
 
     override fun didRequestNote(note: EXLDSurveyNotes) {

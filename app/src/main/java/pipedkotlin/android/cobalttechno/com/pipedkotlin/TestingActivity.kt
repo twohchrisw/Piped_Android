@@ -275,22 +275,22 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
         {
             AppGlobals.instance.activeProcess.pt_section_name = value
-            AppGlobals.instance.activeProcess.pt_lat = lastLat
-            AppGlobals.instance.activeProcess.pt_long = lastLng
+            AppGlobals.instance.activeProcess.pt_lat = AppGlobals.instance.lastLat
+            AppGlobals.instance.activeProcess.pt_long = AppGlobals.instance.lastLng
         }
         else
         {
             AppGlobals.instance.activeProcess.pt_di_section_name = value
-            AppGlobals.instance.activeProcess.di_lat = lastLat
-            AppGlobals.instance.activeProcess.di_long = lastLng
+            AppGlobals.instance.activeProcess.di_lat = AppGlobals.instance.lastLat
+            AppGlobals.instance.activeProcess.di_long = AppGlobals.instance.lastLng
         }
         AppGlobals.instance.activeProcess.save(this)
         loadData()
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        lastLat = lat
-        lastLng = lng
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
     }
 
     override fun locationPermissionsGranted()

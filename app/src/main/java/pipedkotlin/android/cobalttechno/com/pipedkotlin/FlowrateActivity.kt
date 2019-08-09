@@ -52,18 +52,18 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         {
             AppGlobals.Companion.FlowrateViewType.Chlor -> {
                 title = "Flowrate"
-                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.ChlorFlowrate, lastLat, lastLng, null, null, this)
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.ChlorFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, this)
             }
             AppGlobals.Companion.FlowrateViewType.DeChlor -> {
                 title = "Flowrate"
-                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DecFlowrate, lastLat, lastLng, null, null, null, this)
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DecFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, null, this)
             }
         }
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        lastLat = lat
-        lastLng = lng
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
         bindRecycler()
     }
 

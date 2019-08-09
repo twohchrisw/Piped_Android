@@ -24,13 +24,13 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, lastLat, lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        lastLat = lat
-        lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, lastLat, lastLng, this)
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
     }
 
     override fun didRequestMainImage(fieldName: String) {

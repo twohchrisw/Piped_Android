@@ -323,6 +323,12 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDSurveyNotes.COLUMN_SN_PHOTO to TEXT,
                 EXLDSurveyNotes.COLUMN_SN_TIMESTAMP to TEXT)
 
+        // Equipment Extra
+        db!!.createTable(EXLDEquipmentExtra.TABLE_NAME, true,
+                EXLDEquipmentExtra.COLUMN_EE_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                EXLDEquipmentExtra.COLUMN_EE_PROCESS_ID to INTEGER,
+                EXLDEquipmentExtra.COLUMN_EE_DESC to TEXT,
+                EXLDEquipmentExtra.COLUMN_EE_TYPE to INTEGER)
 
     }
 

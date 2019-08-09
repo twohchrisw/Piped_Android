@@ -225,8 +225,8 @@ fun TestingActivity.startPressurisingButtonPressed()
     testWillFailN1Ignored = false
     p.initialiseForPETest(this)
 
-    p.pt_lat = lastLat
-    p.pt_long = lastLng
+    p.pt_lat = AppGlobals.instance.lastLat
+    p.pt_long = AppGlobals.instance.lastLng
 
     // Start the timer
     testingSession.timerStage = 0

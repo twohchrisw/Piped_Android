@@ -49,5 +49,7 @@ public class AppGlobals private constructor() {
     var drillChlorFlowrate: EXLDChlorFlowrates? = null
     var drillDecFlowrate: EXLDDecFlowrates? = null
 
+    var lastLat: Double = 0.0
+    var lastLng: Double = 0.0
 
 }

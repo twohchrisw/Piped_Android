@@ -31,22 +31,22 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         if (AppGlobals.instance.currentFlushType == 1) {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, lastLat, lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
         }
         else {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, lastLat, lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
         }
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        lastLat = lat
-        lastLng = lng
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
 
         if (AppGlobals.instance.currentFlushType == 1) {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, lastLat, lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
         }
         else {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, lastLat, lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
         }
     }
 

@@ -109,6 +109,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(surveyIntent)
     }
 
+    fun loadEquipment()
+    {
+        val equipIntent = Intent(this, EquipmentActivity::class.java)
+        startActivity(equipIntent)
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         AppGlobals.instance.processMenuShowingTasks = false
@@ -150,7 +156,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 ProcessMenuRecyclerAdapter.MainMenuItems.equipment.value -> {
                     if (hasEnteredDetails)
                     {
-
+                        loadEquipment()
                     }
                 }
             }

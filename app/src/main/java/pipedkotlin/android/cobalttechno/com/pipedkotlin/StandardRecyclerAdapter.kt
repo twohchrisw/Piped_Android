@@ -48,7 +48,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     }
 
     enum class PipedTask {
-        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate
+        Swabbing, Filling, Chlorination, DeChlorination, Flushing, Flushing2, Surveying, Sampling, DecFlowrate, ChlorFlowrate, Equipment
     }
 
     //region Rows Definition
@@ -1620,8 +1620,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             if (viewHolder.btnSet?.text == "Set")
             {
                 p.swab_removed = DateHelper.dateToDBString(Date())
-                p.swab_removed_lat = lastLat
-                p.swab_removed_long = lastLng
+                p.swab_removed_lat = AppGlobals.instance.lastLat
+                p.swab_removed_long = AppGlobals.instance.lastLng
             }
             else
             {
@@ -1665,8 +1665,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         p.pt_chlor_main_chlorinated = ""
         p.pt_chlor_end_strength = 0.0
         p.pt_chlor_volume = 0.0
-        p.pt_chlor_start_lat = lastLat
-        p.pt_chlor_start_long = lastLng
+        p.pt_chlor_start_lat = AppGlobals.instance.lastLat
+        p.pt_chlor_start_long = AppGlobals.instance.lastLng
         p.save(ctx)
 
         resetPauses()
@@ -1680,8 +1680,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         p.pt_dec_start = DateHelper.dateToDBString(Date())
         p.pt_dec_dechlorinated = ""
         p.pt_dec_volume = 0.0
-        p.pt_dec_start_lat = lastLat
-        p.pt_dec_start_long = lastLng
+        p.pt_dec_start_lat = AppGlobals.instance.lastLat
+        p.pt_dec_start_long = AppGlobals.instance.lastLng
         p.save(ctx)
 
         resetPauses()
@@ -1697,8 +1697,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         p.swab_home = ""
         p.swab_removed = ""
         p.swab_total_water = 0.0
-        p.swab_latitude = lastLat
-        p.swab_longitude = lastLng
+        p.swab_latitude = AppGlobals.instance.lastLat
+        p.swab_longitude = AppGlobals.instance.lastLng
         p.swab_removed_lat = 0.0
         p.swab_removed_long = 0.0
         p.save(ctx)
@@ -1752,8 +1752,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         val p = AppGlobals.instance.activeProcess
         p.filling_started = DateHelper.dateToDBString(Date())
         p.filling_stopped = ""
-        p.filling_lat = lastLat
-        p.filling_long = lastLng
+        p.filling_lat = AppGlobals.instance.lastLat
+        p.filling_long = AppGlobals.instance.lastLng
         p.filling_total_water_volume = 0.0
         p.save(ctx)
 
@@ -1767,8 +1767,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         val p = AppGlobals.instance.activeProcess
         p.pt_flush_started = DateHelper.dateToDBString(Date())
         p.pt_flush_completed = ""
-        p.pt_flush_start_lat = lastLat
-        p.pt_flush_start_long = lastLng
+        p.pt_flush_start_lat = AppGlobals.instance.lastLat
+        p.pt_flush_start_long = AppGlobals.instance.lastLng
         p.pt_flush_total_water = 0.0
         p.save(ctx)
 
@@ -1782,8 +1782,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         val p = AppGlobals.instance.activeProcess
         p.pt_flush_started2 = DateHelper.dateToDBString(Date())
         p.pt_flush_completed2 = ""
-        p.pt_flush_start_lat2 = lastLat
-        p.pt_flush_start_long2 = lastLng
+        p.pt_flush_start_lat2 = AppGlobals.instance.lastLat
+        p.pt_flush_start_long2 = AppGlobals.instance.lastLng
         p.pt_flush_total_water2 = 0.0
         p.save(ctx)
 

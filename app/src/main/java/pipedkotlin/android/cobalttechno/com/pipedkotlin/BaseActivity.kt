@@ -34,8 +34,8 @@ open class BaseActivity: AppCompatActivity() {
     val NULL_COORDINATE: Double = -10000.0
     val LOCATION_PERMISSION_REQUEST_CODE = 1
     val CAMERA_PERMISSION_REQUEST_CODE  = 2
-    var lastLat: Double = NULL_COORDINATE
-    var lastLng: Double = NULL_COORDINATE
+    //var lastLat: Double = NULL_COORDINATE
+    //var lastLng: Double = NULL_COORDINATE
 
     val CAMERA_REQUEST_CAMERA = 1
     val CAMERA_REQUEST_GALLERY = 2
@@ -71,8 +71,8 @@ open class BaseActivity: AppCompatActivity() {
         {
             fusedLocationClient.lastLocation.addOnCompleteListener {
                 if (it.result != null)
-                {   lastLat = it.result.latitude
-                    lastLng = it.result.longitude
+                {   AppGlobals.instance.lastLat = it.result.latitude
+                    AppGlobals.instance.lastLng = it.result.longitude
                     Log.d("cobalt", "Lat: " + it.result.latitude + " Lng: " + it.result.longitude)
                     action.invoke(it.result.latitude, it.result.longitude)
                 }

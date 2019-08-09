@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FlowrateActivity"></activity>
+        <activity android:name=".EquipmentActivity" android:parentActivityName=".ProcessMenuActivity"></activity>
+        <activity android:name=".FlowrateActivity" />
         <activity
             android:name=".SurveyNotesActivity"
             android:parentActivityName=".ProcessMenuActivity" />

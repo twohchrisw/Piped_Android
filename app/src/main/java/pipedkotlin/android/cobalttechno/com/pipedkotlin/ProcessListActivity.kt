@@ -11,7 +11,7 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_process_list.*
 import org.jetbrains.anko.startActivityForResult
 
-class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.ProcessListRecyclerViewClickListener {
+class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessListRecyclerViewClickListener {
 
     // Outlets
     lateinit var recyclerView: RecyclerView
@@ -24,6 +24,10 @@ class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.Proc
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_list)
 
+        // Setup the location client
+        setupLocationClient()
+        getCurrentLocation(::locationReceived)
+
         // Set the context for the tbxDataController so we can run commands on the main thread
         AppGlobals.instance.tibiisController.tbxDataController.context = this
 
@@ -35,6 +39,11 @@ class ProcessListActivity : AppCompatActivity(), ProcessListRecyclerAdapter.Proc
         addListeners()
         supportActionBar?.setTitle("Process List")
         //TODO: Ensure processes refresh after adding new and returning to this view
+    }
+
+    fun locationReceived(lat: Double, lng: Double) {
+        AppGlobals.instance.lastLat = lat
+        AppGlobals.instance.lastLng = lng
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

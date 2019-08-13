@@ -41,6 +41,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         {
             // We have an existing company id, download list items, prefs and clients
             AppGlobals.instance.companyId = existingCompanyId
+            AppGlobals.instance.userId = EXLDSettings.getExistingUserId(this)
             Log.d("cobalt", "List sets company id as " + AppGlobals.instance.companyId)
             progressBar.visibility = View.VISIBLE
 

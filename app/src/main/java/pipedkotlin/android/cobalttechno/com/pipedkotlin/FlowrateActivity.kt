@@ -1,9 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -137,7 +135,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
             }
 
             AppGlobals.Companion.FlowrateViewType.Sampling -> {
-                if (samplFlowrate!!.samp_photo.length < 2)
+                if (samplFlowrate!!.sampl_photo.length < 2)
                 {
                     // Straight load
                     choosePicFromCamera()
@@ -146,7 +144,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                     // Ask for user direction
                     val alert = AlertHelper(this)
                     alert.dialogForOKAlert("Delete Image", "Do you want to delete this image?", {
-                        samplFlowrate!!.samp_photo = ""
+                        samplFlowrate!!.sampl_photo = ""
                         samplFlowrate!!.save(this)
                         runOnUiThread {
                             recyclerView.adapter.notifyDataSetChanged()
@@ -199,7 +197,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                     {
                         val bitmap = data!!.extras.get("data") as Bitmap
                         saveImageToExternalStorage(bitmap, fileName)
-                        samplFlowrate!!.samp_photo = fileName
+                        samplFlowrate!!.sampl_photo = fileName
                         samplFlowrate!!.save(this)
                     }
                 }

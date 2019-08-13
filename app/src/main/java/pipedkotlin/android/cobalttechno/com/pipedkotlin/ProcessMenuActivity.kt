@@ -8,9 +8,11 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
+import java.util.*
 
-class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.ProcessMenuRecyclerClickListener {
+class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.ProcessMenuRecyclerClickListener, SyncManager.SyncManagerDelegate {
 
     companion object {
         val MENU_MODE_MAIN = 0
@@ -26,6 +28,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_menu)
+        AppGlobals.instance.processMenuActivity = this
 
         menuMode = MENU_MODE_MAIN
         if (AppGlobals.instance.processMenuShowingTasks)
@@ -43,6 +46,35 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         if (menuMode == ProcessMenuActivity.MENU_MODE_TASKS)
         {
             supportActionBar?.title = "Tasks"
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("cobsync", "Process Menu on Resume")
+
+        AppGlobals.instance.activeProcess = EXLDProcess.processForId(MainApplication.applicationContext(), AppGlobals.instance.activeProcess.columnId)!!
+
+        if (AppGlobals.instance.activeProcess.needsSync())
+        {
+            Log.d("cobsync", "initiating sync")
+            val a = this
+            doAsync {
+                AppGlobals.instance.syncManager.syncProcess(AppGlobals.instance.activeProcess)
+            }
+        }
+        else
+        {
+            Log.d("cobsync","Resume needs sync is false: Sync: ${AppGlobals.instance.activeProcess.last_sync_millis}  Update: ${AppGlobals.instance.activeProcess.last_update_millis}")
+        }
+    }
+
+    fun syncCompleted()
+    {
+        runOnUiThread {
+            headerProcess.text = AppGlobals.instance.activeProcess.processNoDescription()
         }
     }
 
@@ -214,5 +246,13 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
                 }
             }
         }
+    }
+
+    override fun processHasSynced(process: EXLDProcess) {
+
+    }
+
+    override fun processFailedToSync(process: EXLDProcess, errorMessage: String) {
+
     }
 }

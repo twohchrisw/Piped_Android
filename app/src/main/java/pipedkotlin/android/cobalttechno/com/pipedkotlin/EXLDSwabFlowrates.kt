@@ -6,17 +6,19 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class EXLDSwabFlowrates(var _id: Long = -1,
+class EXLDSwabFlowrates(var swab_id: Long = -1,
                         var swab_created: String = "",
                         var swab_flowrate: Double = 0.0,
-                        var swab_process_id: Long = -1) {
+                        var swab_process_id: Long = -1,
+                        var uploaded: Int = 0) {
 
     companion object {
-        var COLUMN_ID = "_id"
+        var COLUMN_ID = "swab_id"
         var TABLE_NAME = "EXLDSwabFlowrates"
         var COLUMN_SWAB_CREATED = "swab_created"
         var COLUMN_SWAB_FLOWRATE = "swab_flowrate"
         var COLUMN_PROCESS_ID = "swab_process_id"
+        var COLUMN_UPLOADED = "uploaded"
 
         fun getSwabbingFlowrates(ctx: Context, processId: Long): List<EXLDSwabFlowrates>
         {
@@ -28,6 +30,27 @@ class EXLDSwabFlowrates(var _id: Long = -1,
                              parseList<EXLDSwabFlowrates>(classParser())
                          }
              }
+        }
+
+        fun getSwabbingForUploaded(ctx: Context, processId: Long): List<EXLDSwabFlowrates>
+        {
+            return ctx.database.use {
+                select(EXLDSwabFlowrates.TABLE_NAME)
+                        .whereArgs("${EXLDSwabFlowrates.COLUMN_PROCESS_ID} = $processId AND ${COLUMN_UPLOADED} = 0")
+                        .orderBy(EXLDSwabFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
+                        .exec {
+                            parseList<EXLDSwabFlowrates>(classParser())
+                        }
+            }
+        }
+
+        fun markAsUploaded(ctx: Context, items: List<EXLDSwabFlowrates>)
+        {
+            for (s in items)
+            {
+                s.uploaded = 1
+                s.save(ctx)
+            }
         }
 
         fun createFlowrate(ctx: Context, value: Double, processId: Long): EXLDSwabFlowrates
@@ -79,23 +102,24 @@ class EXLDSwabFlowrates(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = _id
+        var saveId: Long = swab_id
 
-        if (_id < 1)
+        if (swab_id < 1)
         {
             context.database.use {
                 saveId = insert(TABLE_NAME,
                         COLUMN_PROCESS_ID to swab_process_id,
                         COLUMN_SWAB_CREATED to today,
-                        COLUMN_SWAB_FLOWRATE to swab_flowrate)
-                _id = saveId
+                        COLUMN_SWAB_FLOWRATE to swab_flowrate,
+                        COLUMN_UPLOADED to uploaded)
+                swab_id = saveId
             }
         }
         else
         {
             context.database.use {
-                update(TABLE_NAME, COLUMN_SWAB_FLOWRATE to swab_flowrate)
-                        .whereArgs("$COLUMN_ID == $_id").exec()
+                update(TABLE_NAME, COLUMN_SWAB_FLOWRATE to swab_flowrate, COLUMN_UPLOADED to uploaded)
+                        .whereArgs("$COLUMN_ID == $swab_id").exec()
             }
         }
 

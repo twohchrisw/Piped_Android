@@ -11,6 +11,6 @@ class ViewHolderProcessList(itemView: View?): RecyclerView.ViewHolder(itemView)
     val schemeName = itemView?.findViewById<TextView>(R.id.tvSchemeName) as TextView
     val clientName = itemView?.findViewById<TextView>(R.id.tvClientName) as TextView
     val createdOn = itemView?.findViewById<TextView>(R.id.tvCreatedOn) as TextView
-
+    var syncMessage = itemView?.findViewById<TextView>(R.id.tvSyncMessage) as TextView
 
 }

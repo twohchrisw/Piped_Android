@@ -97,6 +97,8 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         if (requestCode == NOTES_REQUEST && data != null)
         {
             currentSurveyNote!!.sn_note = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            currentSurveyNote!!.sn_lat = AppGlobals.instance.lastLat
+            currentSurveyNote!!.sn_long = AppGlobals.instance.lastLng
             currentSurveyNote!!.save(this)
         }
 

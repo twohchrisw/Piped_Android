@@ -7,6 +7,7 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 data class EXLDProcess(val columnId: Long = -1,
                   var address: String = "",
@@ -193,10 +194,36 @@ data class EXLDProcess(val columnId: Long = -1,
                        var vehicle_name: String = "",
                        var peNeedsUploading: Int = 0,
                        var diNeedsUploading: Int = 0,
-                       var pt_reading_5: Double = 0.0
-                       )
+                       var pt_reading_5: Double = 0.0,
+                       var last_update_millis: Long = 0,
+                       var last_sync_millis: Long = 0)
 {
     var processSyncInProgress = false
+    var company_user_id = ""
+    var peWaterVolume = 0.0 //TODO: It won't let me add this as a property which it needs to be, just put it here to test sync
+    // Fields we need to existing for the sync
+    var pt_reading_4 = 0.0
+    var pe_pdf_log_pa_t4 = 0.0
+    var pe_pdf_log_pa_t5 = 0.0
+    var pe_pdf_log_t4 = 0.0
+    var pe_pdf_log_t5 = 0.0
+    var pt_reading4_time = ""
+    var pt_reading5_time = ""
+
+    // Flowrates
+    var chlorFlowrates = ArrayList<EXLDChlorFlowrates>()
+    var decFlowrates = ArrayList<EXLDDecFlowrates>()
+    var pauseSessions = ArrayList<EXLDPauseSessions>()
+    var equipmentExtra = ArrayList<EXLDEquipmentExtra>()
+    var fillingFlowrates = ArrayList<EXLDFillingFlowrates>()
+    var flushingFlowrates = ArrayList<EXLDFlushFlowrates>()
+    var samplingData = ArrayList<EXLDSamplingData>()
+    var swabFlowrates = ArrayList<EXLDSwabFlowrates>()
+    var surveyNotes = ArrayList<EXLDSurveyNotes>()
+    var tibiisReadings = ArrayList<EXLDTibiisReading>()
+    var prevDITests = ArrayList<String>()
+    var prevPETests = ArrayList<String>()
+
 
     companion object {
         val TABLE_NAME = "EXLDProcess"
@@ -386,6 +413,9 @@ data class EXLDProcess(val columnId: Long = -1,
         val c_pe_needs_uploading = "peNeedsUploading"
         val c_di_needs_uploading = "diNeedsUploading"
         val c_pt_reading_5 = "pt_reading_5"
+        val c_last_sync_millis = "last_sync_millis"
+        val c_last_update_millis = "last_update_millis"
+        val c_pe_water_volume = "pe_water_volume"
 
         fun allProcesses(context: Context):List<EXLDProcess>
         {
@@ -445,7 +475,8 @@ data class EXLDProcess(val columnId: Long = -1,
                         EXLDProcess.c_pt_dec_start_lat to defaultCoordinate,
                         EXLDProcess.c_pt_dec_start_long to defaultCoordinate,
                         EXLDProcess.c_pt_chlor_start_lat to defaultCoordinate,
-                        EXLDProcess.c_pt_chlor_start_long to defaultCoordinate)
+                        EXLDProcess.c_pt_chlor_start_long to defaultCoordinate,
+                        EXLDProcess.c_last_update_millis to Date().time)
             }
         }
         else
@@ -636,7 +667,9 @@ data class EXLDProcess(val columnId: Long = -1,
                         EXLDProcess.c_vehicle_name to vehicle_name,
                         c_pe_needs_uploading to peNeedsUploading,
                         c_di_needs_uploading to diNeedsUploading,
-                        c_pt_reading_5 to pt_reading_5
+                        c_pt_reading_5 to pt_reading_5,
+                        EXLDProcess.c_last_update_millis to Date().time,
+                        EXLDProcess.c_last_sync_millis to last_sync_millis
                         ).whereArgs(EXLDProcess.COLUMN_ID + " = " + columnId.toString()).exec()
             }
         }
@@ -897,5 +930,23 @@ data class EXLDProcess(val columnId: Long = -1,
     }
 
 
+    // Mark the process as having synced successfully
+    fun finishedSync(ctx: Context)
+    {
+        last_sync_millis = Date().time
+        save(ctx)
+    }
+
+    fun needsSync(): Boolean
+    {
+        if (last_update_millis > last_sync_millis)
+        {
+            return true
+        }
+
+        // Account for Flowrates
+
+        return false
+    }
 
 }

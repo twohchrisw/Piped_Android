@@ -84,6 +84,15 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tvSyncMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="this is where it will go"
+        android:layout_marginTop="4dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="14sp" />
+
     <View
         android:layout_marginTop="4dp"
         android:layout_width="match_parent"

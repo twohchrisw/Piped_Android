@@ -1,7 +1,9 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 
 class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickListener: ProcessListRecyclerViewClickListener): RecyclerView.Adapter<RecyclerView.ViewHolder>()
@@ -23,6 +25,23 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickList
         viewHolder.schemeName.text = process.scheme_name
         viewHolder.clientName.text = process.client
         viewHolder.createdOn.text = process.create_timestamp
+
+        if (AppGlobals.instance.syncManager.processBeingSynced?.internalId == process.internalId)
+        {
+            viewHolder.syncMessage.visibility = View.VISIBLE
+            viewHolder.syncMessage.text = "[Sync in Progress]"
+        }
+        else if (process.needsSync())
+        {
+            viewHolder.syncMessage.visibility = View.VISIBLE
+            viewHolder.syncMessage.text = "[Needs Sync]"
+        }
+        else
+        {
+            viewHolder.syncMessage.visibility = View.GONE
+        }
+
+        Log.d("cobsync", "process sync: ${process.last_sync_millis}, update: ${process.last_update_millis}")
 
         // Add the click listener
         viewHolder.itemView.setOnClickListener({

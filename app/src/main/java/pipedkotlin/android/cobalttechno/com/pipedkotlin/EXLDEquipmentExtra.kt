@@ -3,8 +3,8 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.content.Context
 import org.jetbrains.anko.db.*
 
-class EXLDEquipmentExtra(var _id: Long = -1,
-                         var process_id: Long = -1,
+class EXLDEquipmentExtra(var ee_id: Long = -1,
+                         var ee_process_id: Long = -1,
                          var ee_desc: String = "",
                          var ee_type: Int = 0) {
 
@@ -16,8 +16,8 @@ class EXLDEquipmentExtra(var _id: Long = -1,
     companion object {
 
         val TABLE_NAME = "EXLDEquipmentExtra"
-        val COLUMN_EE_ID = "_id"
-        val COLUMN_EE_PROCESS_ID = "process_id"
+        val COLUMN_EE_ID = "ee_id"
+        val COLUMN_EE_PROCESS_ID = "ee_process_id"
         val COLUMN_EE_DESC = "ee_desc"
         val COLUMN_EE_TYPE = "ee_type"
 
@@ -27,6 +27,18 @@ class EXLDEquipmentExtra(var _id: Long = -1,
             return ctx.database.use {
                 select(EXLDEquipmentExtra.TABLE_NAME)
                         .whereArgs("${EXLDEquipmentExtra.COLUMN_EE_PROCESS_ID} = $pid AND ${EXLDEquipmentExtra.COLUMN_EE_TYPE} == $section")
+                        .orderBy(EXLDEquipmentExtra.COLUMN_EE_ID)
+                        .exec {
+                            parseList<EXLDEquipmentExtra>(classParser())
+                        }
+            }
+        }
+
+        fun getExtrasForUpload(ctx: Context, pid: Long): List<EXLDEquipmentExtra>
+        {
+            return ctx.database.use {
+                select(EXLDEquipmentExtra.TABLE_NAME)
+                        .whereArgs("${EXLDEquipmentExtra.COLUMN_EE_PROCESS_ID} = $pid")
                         .orderBy(EXLDEquipmentExtra.COLUMN_EE_ID)
                         .exec {
                             parseList<EXLDEquipmentExtra>(classParser())

@@ -5,17 +5,19 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class EXLDFillingFlowrates(var _id: Long = -1,
+class EXLDFillingFlowrates(var filling_id: Long = -1,
                            var filling_process_id: Long = -1,
                            var filling_created: String = "",
-                           var filling_flowrate: Double = 0.0) {
+                           var filling_flowrate: Double = 0.0,
+                           var uploaded: Int = 0) {
 
     companion object {
-        val COLUMN_ID = "_id"
+        val COLUMN_ID = "filling_id"
         val TABLE_NAME = "EXLDFillingFlowrates"
         val COLUMN_FILLING_CREATED = "filling_created"
         val COLUMN_FILLING_FLOWRATE = "filling_flowrate"
         val COLUMN_FILLING_PROCESS_ID = "filling_process_id"
+        val COLUMN_UPLOADED = "uploaded"
 
         fun getFillingFlowrates(ctx: Context, processId: Long): List<EXLDFillingFlowrates>
         {
@@ -26,6 +28,27 @@ class EXLDFillingFlowrates(var _id: Long = -1,
                         .exec {
                             parseList<EXLDFillingFlowrates>(classParser())
                         }
+            }
+        }
+
+        fun getFillingFlowratesForUpload(ctx: Context, processId: Long): List<EXLDFillingFlowrates>
+        {
+            return ctx.database.use {
+                select(EXLDFillingFlowrates.TABLE_NAME)
+                        .whereArgs("${EXLDFillingFlowrates.COLUMN_FILLING_PROCESS_ID} = $processId AND ${COLUMN_UPLOADED} = 0")
+                        .orderBy(EXLDFillingFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
+                        .exec {
+                            parseList<EXLDFillingFlowrates>(classParser())
+                        }
+            }
+        }
+
+        fun markAsUploaded(ctx: Context, items: List<EXLDFillingFlowrates>)
+        {
+            for (f in items)
+            {
+                f.uploaded = 1
+                f.save(ctx)
             }
         }
 
@@ -78,23 +101,23 @@ class EXLDFillingFlowrates(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = _id
+        var saveId: Long = filling_id
 
-        if (_id < 1)
+        if (filling_id < 1)
         {
             context.database.use {
                 saveId = insert(EXLDFillingFlowrates.TABLE_NAME,
                         EXLDFillingFlowrates.COLUMN_FILLING_PROCESS_ID to filling_process_id,
                         EXLDFillingFlowrates.COLUMN_FILLING_CREATED to today,
-                        EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to filling_flowrate)
-                _id = saveId
+                        EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to filling_flowrate, COLUMN_UPLOADED to uploaded)
+                filling_id = saveId
             }
         }
         else
         {
             context.database.use {
-                update(EXLDFillingFlowrates.TABLE_NAME, EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to filling_flowrate)
-                        .whereArgs("${EXLDFillingFlowrates.COLUMN_ID} == $_id").exec()
+                update(EXLDFillingFlowrates.TABLE_NAME, EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to filling_flowrate, COLUMN_UPLOADED to uploaded)
+                        .whereArgs("${EXLDFillingFlowrates.COLUMN_ID} == $filling_id").exec()
             }
         }
 

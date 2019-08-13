@@ -68,6 +68,8 @@ class GetAddressActivity : BaseActivity() {
         etAddress.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 AppGlobals.instance.activeProcess.address = etAddress.text.toString()
+                AppGlobals.instance.activeProcess.location_lat = currentLat
+                AppGlobals.instance.activeProcess.location_long = currentLng
                 AppGlobals.instance.activeProcess.save(myContext)
             }
 

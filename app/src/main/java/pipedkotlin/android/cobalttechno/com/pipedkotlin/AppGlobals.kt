@@ -20,6 +20,9 @@ public class AppGlobals private constructor() {
 
     companion object {
         val instance: AppGlobals by lazy { Holder.INSTANCE }
+        val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+        val FILE_UPLOAD_URL = "${SERVICE_DOMAIN}fileupload.php"
+
 
         fun uriForSavedImage(filename: String): Uri
         {
@@ -37,6 +40,7 @@ public class AppGlobals private constructor() {
     var userId = ""
     var activeProcess = EXLDProcess()
     var tibiisController = TibiisController()
+    var syncManager = SyncManager()
     var peFailMessage = ""
     var peFailMessageAfterSync = false
     var sampleFailMessageAfterSync = ""
@@ -45,6 +49,8 @@ public class AppGlobals private constructor() {
     var currentFlushType = 1
     var processMenuShowingTasks = false
     var currentFlowrateActivityType = FlowrateViewType.None
+    var processListActivity: ProcessListActivity? = null
+    var processMenuActivity: ProcessMenuActivity? = null
 
     var drillChlorFlowrate: EXLDChlorFlowrates? = null
     var drillDecFlowrate: EXLDDecFlowrates? = null

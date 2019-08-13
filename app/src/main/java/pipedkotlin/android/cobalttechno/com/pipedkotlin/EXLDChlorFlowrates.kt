@@ -5,12 +5,13 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class EXLDChlorFlowrates(var _id: Long = -1,
+class EXLDChlorFlowrates(var chlor_id: Long = -1,
                          var chlor_process_id: Long = -1,
                          var chlor_flowrate: Double = 0.0,
                          var chlor_photo: String = "",
                          var chlor_strength: Double = 0.0,
-                         var chlor_timestamp: String = "") {
+                         var chlor_timestamp: String = "",
+                         var uploaded: Int = 0) {
 
     companion object {
         val TABLE_NAME = "EXLDChlorFlowrates"
@@ -20,6 +21,7 @@ class EXLDChlorFlowrates(var _id: Long = -1,
         val COLUMN_CHLOR_PHOTO = "chlor_photo"
         val COLUMN_CHLOR_STRENGTH = "chlor_strength"
         val COLUMN_CHLOR_TIMESTAMP = "chlor_timestamp"
+        val COLUMN_UPLOADED = "uploaded"
 
         fun getChlorFlowrates(ctx: Context, processId: Long): List<EXLDChlorFlowrates>
         {
@@ -30,6 +32,27 @@ class EXLDChlorFlowrates(var _id: Long = -1,
                         .exec {
                             parseList<EXLDChlorFlowrates>(classParser())
                         }
+            }
+        }
+
+        fun getChlorFlowratesForUpload(ctx: Context, processId: Long): List<EXLDChlorFlowrates>
+        {
+            return ctx.database.use {
+                select(EXLDChlorFlowrates.TABLE_NAME)
+                        .whereArgs("${EXLDChlorFlowrates.COLUMN_CHLOR_PROCESS_ID} = $processId AND ${EXLDChlorFlowrates.COLUMN_UPLOADED} = 0")
+                        .orderBy(EXLDChlorFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
+                        .exec {
+                            parseList<EXLDChlorFlowrates>(classParser())
+                        }
+            }
+        }
+
+        fun markAsUploaded(ctx: Context, items: List<EXLDChlorFlowrates>)
+        {
+            for (c in items)
+            {
+                c.uploaded = 1
+                c.save(ctx)
             }
         }
 
@@ -82,9 +105,9 @@ class EXLDChlorFlowrates(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = _id
+        var saveId: Long = chlor_id
 
-        if (_id < 1)
+        if (chlor_id < 1)
         {
             context.database.use {
                 saveId = insert(EXLDChlorFlowrates.TABLE_NAME,
@@ -92,8 +115,9 @@ class EXLDChlorFlowrates(var _id: Long = -1,
                         EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE to chlor_flowrate,
                         EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO to chlor_photo,
                         EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH to chlor_strength,
-                        EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP to today)
-                _id = saveId
+                        EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP to today,
+                        EXLDChlorFlowrates.COLUMN_UPLOADED to uploaded)
+                chlor_id = saveId
             }
         }
         else
@@ -101,8 +125,9 @@ class EXLDChlorFlowrates(var _id: Long = -1,
             context.database.use {
                 update(EXLDChlorFlowrates.TABLE_NAME, EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE to chlor_flowrate,
                         EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH to chlor_strength,
-                        EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO to chlor_photo)
-                        .whereArgs("${EXLDChlorFlowrates.COLUMN_ID} == $_id").exec()
+                        EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO to chlor_photo,
+                        EXLDChlorFlowrates.COLUMN_UPLOADED to uploaded)
+                        .whereArgs("${EXLDChlorFlowrates.COLUMN_ID} == $chlor_id").exec()
             }
         }
 

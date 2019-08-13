@@ -13,7 +13,8 @@ class EXLDPauseSessions(var _id: Long = -1,
                         var pause_flowrate: Double = 0.0,
                         var pause_process_id: Long = -1,
                         var pause_start: String = "",
-                        var pause_type: String = "") {
+                        var pause_type: String = "" ,
+                        var uploaded: Int = 0) {
 
     companion object {
         val PAUSE_TYPE_CHLOR = "chlor"
@@ -31,6 +32,7 @@ class EXLDPauseSessions(var _id: Long = -1,
         val COLUMN_PAUSE_START = "pause_start"
         val COLUMN_PAUSE_TYPE = "pause_type"
         val COLUMN_PAUSE_DURATION_SECONDS = "pause_duration_seconds"
+        val COLUMN_PAUSE_UPLOADED = "uploaded"
 
         fun pauseSessions(ctx: Context, processId: Long, pauseType: String): List<EXLDPauseSessions>
         {
@@ -41,6 +43,27 @@ class EXLDPauseSessions(var _id: Long = -1,
                         .exec {
                             parseList<EXLDPauseSessions>(classParser())
                         }
+            }
+        }
+
+        fun pauseSessionForUpload(ctx: Context, processId: Long): List<EXLDPauseSessions>
+        {
+            return ctx.database.use {
+                select(EXLDPauseSessions.TABLE_NAME)
+                        .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = $processId")
+                        .orderBy(EXLDPauseSessions.COLUMN_ID)
+                        .exec {
+                            parseList<EXLDPauseSessions>(classParser())
+                        }
+            }
+        }
+
+        fun markAsUploaded(ctx: Context, items: List<EXLDPauseSessions>)
+        {
+            for (p in items)
+            {
+                p.uploaded = 1
+                p.save(ctx)
             }
         }
     }
@@ -74,7 +97,8 @@ class EXLDPauseSessions(var _id: Long = -1,
                         COLUMN_PAUSE_PROCESS_ID to pause_process_id,
                         COLUMN_PAUSE_TYPE to pause_type,
                         COLUMN_PAUSE_DURATION_SECONDS to pause_duration_seconds,
-                        COLUMN_PAUSE_END to pause_end)
+                        COLUMN_PAUSE_END to pause_end,
+                        COLUMN_PAUSE_UPLOADED to uploaded)
                 _id = saveId
             }
         }
@@ -88,7 +112,8 @@ class EXLDPauseSessions(var _id: Long = -1,
                         COLUMN_PAUSE_PROCESS_ID to pause_process_id,
                         COLUMN_PAUSE_TYPE to pause_type,
                         COLUMN_PAUSE_DURATION_SECONDS to pause_duration_seconds,
-                        COLUMN_PAUSE_END to pause_end)
+                        COLUMN_PAUSE_END to pause_end,
+                        COLUMN_PAUSE_UPLOADED to uploaded)
                         .whereArgs("$COLUMN_ID = $_id")
                         .exec()
             }

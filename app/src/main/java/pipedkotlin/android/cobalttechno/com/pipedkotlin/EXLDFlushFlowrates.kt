@@ -5,31 +5,46 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class EXLDFlushFlowrates(var _id: Long = -1,
+class EXLDFlushFlowrates(var flush_id: Long = -1,
                          var flush_process_id: Long = -1,
                          var flush_created: String = "",
                          var flush_flowrate: Double = 0.0,
-                         var flush_type: Int = 1) {
+                         var flush_type: Int = 1,
+                         var uploaded: Int = 0) {
 
     companion object {
         val TABLE_NAME = "EXLDFlushFlowrates"
-        val COLUMN_ID = "_id"
+        val COLUMN_ID = "flush_id"
         val COLUMN_FLUSH_PROCESS_ID = "flush_process_id"
         val COLUMN_FLUSH_CREATED = "flush_created"
         val COLUMN_FLUSH_FLOWRATE = "flush_flowrate"
         val COLUMN_FLUSH_TYPE = "flush_type"
+        val COLUMN_UPLOADED = "uploaded"
 
         fun getFlushFlowrates(ctx: Context, processId: Long, flushType: Int): List<EXLDFlushFlowrates>
         {
             return ctx.database.use {
                 select(EXLDFlushFlowrates.TABLE_NAME)
-                        .whereArgs("${EXLDFlushFlowrates.COLUMN_FLUSH_PROCESS_ID} = $processId AND ${EXLDFlushFlowrates.COLUMN_FLUSH_TYPE} == $flushType")
-                        .orderBy(EXLDFillingFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
+                        .whereArgs("${EXLDFlushFlowrates.COLUMN_FLUSH_PROCESS_ID} = $processId AND ${EXLDFlushFlowrates.COLUMN_FLUSH_TYPE} = $flushType")
+                        .orderBy(EXLDFlushFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
                         .exec {
                             parseList<EXLDFlushFlowrates>(classParser())
                         }
             }
         }
+
+        fun getFlushFlowratesForUpload(ctx: Context, processId: Long): List<EXLDFlushFlowrates>
+        {
+            return ctx.database.use {
+                select(EXLDFlushFlowrates.TABLE_NAME)
+                        .whereArgs("${EXLDFlushFlowrates.COLUMN_FLUSH_PROCESS_ID} = $processId")
+                        .orderBy(EXLDFlushFlowrates.COLUMN_ID, SqlOrderDirection.DESC)
+                        .exec {
+                            parseList<EXLDFlushFlowrates>(classParser())
+                        }
+            }
+        }
+
 
         fun createFlowrate(ctx: Context, value: Double, processId: Long, flushType: Int): EXLDFlushFlowrates
         {
@@ -88,24 +103,25 @@ class EXLDFlushFlowrates(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = _id
+        var saveId: Long = flush_id
 
-        if (_id < 1)
+        if (flush_id < 1)
         {
             context.database.use {
                 saveId = insert(TABLE_NAME,
                         COLUMN_FLUSH_PROCESS_ID to flush_process_id,
                         EXLDFlushFlowrates.COLUMN_FLUSH_CREATED to today,
                         EXLDFlushFlowrates.COLUMN_FLUSH_TYPE to flush_type,
-                        EXLDFlushFlowrates.COLUMN_FLUSH_FLOWRATE to flush_flowrate)
-                _id = saveId
+                        EXLDFlushFlowrates.COLUMN_FLUSH_FLOWRATE to flush_flowrate,
+                        EXLDFlushFlowrates.COLUMN_UPLOADED to uploaded)
+                flush_id = saveId
             }
         }
         else
         {
             context.database.use {
                 update(EXLDFlushFlowrates.TABLE_NAME, EXLDFlushFlowrates.COLUMN_FLUSH_FLOWRATE to flush_flowrate)
-                        .whereArgs("${EXLDFlushFlowrates.COLUMN_ID} == $_id").exec()
+                        .whereArgs("${EXLDFlushFlowrates.COLUMN_ID} == $flush_id").exec()
             }
         }
 

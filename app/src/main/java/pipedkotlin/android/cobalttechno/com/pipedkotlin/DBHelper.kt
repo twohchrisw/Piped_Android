@@ -1,6 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
+import android.content.IntentFilter
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import org.jetbrains.anko.db.*
@@ -242,7 +243,9 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDProcess.c_vehicle_name to TEXT + DEFAULT("''"),
                 EXLDProcess.c_pe_needs_uploading to INTEGER + DEFAULT("0"),
                 EXLDProcess.c_di_needs_uploading to INTEGER + DEFAULT("0"),
-                EXLDProcess.c_pt_reading_5 to REAL + DEFAULT("0"))
+                EXLDProcess.c_pt_reading_5 to REAL + DEFAULT("0"),
+                EXLDProcess.c_last_update_millis to INTEGER + DEFAULT("0"),
+                EXLDProcess.c_last_sync_millis to INTEGER + DEFAULT("0"))
 
         // Tibiis Readings
         db!!.createTable(EXLDTibiisReading.TABLE_NAME, true,
@@ -266,7 +269,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDPauseSessions.COLUMN_PAUSE_FLOWRATE to REAL,
                 EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID to INTEGER,
                 EXLDPauseSessions.COLUMN_PAUSE_START to TEXT,
-                EXLDPauseSessions.COLUMN_PAUSE_TYPE to TEXT
+                EXLDPauseSessions.COLUMN_PAUSE_TYPE to TEXT,
+                EXLDPauseSessions.COLUMN_PAUSE_UPLOADED to INTEGER
                 )
 
         /** WE MUST CREATE COLUMNS IN THE SAME ORDER AS THEY APPEAR IN THE CLASS CONSTRUCTOR - for the classParser() to work **/
@@ -276,7 +280,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDSwabFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
                 EXLDSwabFlowrates.COLUMN_SWAB_CREATED to TEXT,
                 EXLDSwabFlowrates.COLUMN_SWAB_FLOWRATE to REAL,
-                EXLDSwabFlowrates.COLUMN_PROCESS_ID to INTEGER
+                EXLDSwabFlowrates.COLUMN_PROCESS_ID to INTEGER,
+                EXLDSwabFlowrates.COLUMN_UPLOADED to INTEGER
                 )
 
         // Filling Flowrates
@@ -284,7 +289,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDFillingFlowrates.COLUMN_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
                 EXLDFillingFlowrates.COLUMN_FILLING_PROCESS_ID to INTEGER,
                 EXLDFillingFlowrates.COLUMN_FILLING_CREATED to TEXT,
-                EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to REAL)
+                EXLDFillingFlowrates.COLUMN_FILLING_FLOWRATE to REAL,
+                EXLDFillingFlowrates.COLUMN_UPLOADED to INTEGER)
 
         // Flushing Flowrates
         db!!.createTable(EXLDFlushFlowrates.TABLE_NAME, true,
@@ -292,7 +298,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDFlushFlowrates.COLUMN_FLUSH_PROCESS_ID to INTEGER,
                 EXLDFlushFlowrates.COLUMN_FLUSH_CREATED to TEXT,
                 EXLDFlushFlowrates.COLUMN_FLUSH_FLOWRATE to REAL,
-                EXLDFlushFlowrates.COLUMN_FLUSH_TYPE to INTEGER)
+                EXLDFlushFlowrates.COLUMN_FLUSH_TYPE to INTEGER,
+                EXLDFlushFlowrates.COLUMN_UPLOADED to INTEGER)
 
         // Chlor Flowrates
         db!!.createTable(EXLDChlorFlowrates.TABLE_NAME, true,
@@ -301,7 +308,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE to REAL,
                 EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO to TEXT,
                 EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH to REAL,
-                EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP to TEXT)
+                EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP to TEXT,
+                EXLDChlorFlowrates.COLUMN_UPLOADED to INTEGER)
 
         // Dec Flowrates
         db!!.createTable(EXLDDecFlowrates.TABLE_NAME, true,
@@ -311,7 +319,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDDecFlowrates.COLUMN_DEC_FLOWRATE to REAL,
                 EXLDDecFlowrates.COLUMN_DEC_PHOTO to TEXT,
                 EXLDDecFlowrates.COLUMN_DEC_STRENGTH to REAL,
-                EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP to TEXT)
+                EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP to TEXT,
+                EXLDDecFlowrates.COLUMN_UPLOADED to INTEGER)
 
         // Survey Notes
         db!!.createTable(EXLDSurveyNotes.TABLE_NAME, true,
@@ -321,7 +330,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDSurveyNotes.COLUMN_SN_LONG to REAL,
                 EXLDSurveyNotes.COLUMN_SN_NOTE to TEXT,
                 EXLDSurveyNotes.COLUMN_SN_PHOTO to TEXT,
-                EXLDSurveyNotes.COLUMN_SN_TIMESTAMP to TEXT)
+                EXLDSurveyNotes.COLUMN_SN_TIMESTAMP to TEXT,
+                EXLDSurveyNotes.COLUMN_UPLOADED to INTEGER)
 
         // Equipment Extra
         db!!.createTable(EXLDEquipmentExtra.TABLE_NAME, true,

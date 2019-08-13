@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -10,8 +11,9 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_process_list.*
 import org.jetbrains.anko.startActivityForResult
+import java.util.*
 
-class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessListRecyclerViewClickListener {
+class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessListRecyclerViewClickListener, SyncManager.SyncManagerDelegate {
 
     // Outlets
     lateinit var recyclerView: RecyclerView
@@ -23,6 +25,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_list)
+        AppGlobals.instance.processListActivity = this  // For getting updates from the sync manager
 
         // Setup the location client
         setupLocationClient()
@@ -39,6 +42,15 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         addListeners()
         supportActionBar?.setTitle("Process List")
         //TODO: Ensure processes refresh after adding new and returning to this view
+    }
+
+    public fun updateRecycler()
+    {
+        processes = EXLDProcess.allProcesses(this)
+
+        runOnUiThread {
+            recyclerView.adapter = ProcessListRecyclerAdapter(processes, this)
+        }
     }
 
     fun locationReceived(lat: Double, lng: Double) {
@@ -141,5 +153,16 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         {
             Log.d("cobalt", "ERROR: No process after create")
         }
+    }
+
+    override fun processHasSynced(process: EXLDProcess) {
+        Log.d("cobsync", "Process Has Synced")
+        runOnUiThread {
+            recyclerView.adapter.notifyDataSetChanged()
+        }
+    }
+
+    override fun processFailedToSync(process: EXLDProcess, errorMessage: String) {
+
     }
 }

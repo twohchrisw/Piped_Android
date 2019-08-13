@@ -62,6 +62,25 @@ data class EXLDSettings(val settingsID: Int,
             }
         }
 
+        fun getExistingUserId(context: Context): String {
+
+            val settings = context.database.use {
+                select(EXLDSettings.TABLE_NAME).whereArgs("settingsID = 1").exec {
+                    parseList<EXLDSettings>(classParser())
+                }
+            }
+
+            if (settings.size == 0)
+            {
+                return ""
+            }
+            else
+            {
+                val firstRecord = settings.get(0)
+                return firstRecord.userID ?: ""
+            }
+        }
+
         fun writeCompanyIdToDatabase(context: Context, companyId: String, userId: String, userIdBeingChecked: String)
         {
             val settings = context.database.use {

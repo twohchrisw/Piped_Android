@@ -5,26 +5,26 @@ import org.jetbrains.anko.db.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class EXLDSamplingData(var _id: Long = -1,
-                       var samp_process_id: Long = -1,
-                       var samp_chlor_free: Double = 0.0,
-                       var samp_chlor_total: Double = 0.0,
-                       var samp_desc: String = "",
-                       var samp_failnotes: String = "",
-                       var samp_lat: Double = 0.0,
-                       var samp_lng: Double = 0.0,
-                       var samp_sample_id: String = "",
-                       var samp_location: String = "",
-                       var samp_other_info: String = "",
-                       var samp_photo: String = "",
-                       var samp_test_status: Int = 0,
-                       var samp_timestamp: String = "",
-                       var samp_turbidity: Double = 0.0,
-                       var samp_water_temp: Int = 0) {
+class EXLDSamplingData(var sampl_id: Long = -1,
+                       var sampl_process_id: Long = -1,
+                       var sampl_chlor_free: Double = 0.0,
+                       var sampl_chlor_total: Double = 0.0,
+                       var sampl_desc: String = "",
+                       var sampl_failnotes: String = "",
+                       var sampl_lat: Double = 0.0,
+                       var sampl_long: Double = 0.0,
+                       var sampl_sample_id: String = "",
+                       var sampl_location: String = "",
+                       var sampl_other_info: String = "",
+                       var sampl_photo: String = "",
+                       var sampl_test_status: Int = 0,
+                       var sampl_timestamp: String = "",
+                       var sampl_turbidity: Double = 0.0,
+                       var sampl_water_temp: Int = 0) {
 
     companion object {
         val TABLE_NAME = "EXLDSamplingData"
-        val COLUMN_SAMP_ID = "_id"
+        val COLUMN_SAMP_ID = "sampl_id"
         val COLUMN_PROCESS_ID = "sampl_process_id"
         val COLUMN_SAMP_CHLOR_FREE = "sampl_chlor_free"
         val COLUMN_SAMP_CHLOR_TOTAL = "sampl_chlor_total"
@@ -44,7 +44,7 @@ class EXLDSamplingData(var _id: Long = -1,
         fun createFlowrate(ctx: Context, processId: Long): EXLDSamplingData
         {
             var flowrate = EXLDSamplingData()
-            flowrate.samp_process_id = processId
+            flowrate.sampl_process_id = processId
             flowrate.save(ctx)
 
             return flowrate
@@ -67,48 +67,48 @@ class EXLDSamplingData(var _id: Long = -1,
     {
         val sdf = SimpleDateFormat(DateHelper.DB_DATE_FORMAT)
         val today = sdf.format(Date())
-        var saveId: Long = _id
+        var saveId: Long = sampl_id
 
-        if (_id < 1)
+        if (sampl_id < 1)
         {
             ctx.database.use {
                 saveId = insert(TABLE_NAME,
-                        COLUMN_PROCESS_ID to samp_process_id,
-                        COLUMN_SAMP_CHLOR_FREE to samp_chlor_free,
-                        COLUMN_SAMP_CHLOR_TOTAL to samp_chlor_total,
-                        COLUMN_SAMP_DESC to samp_desc,
-                        COLUMN_SAMP_FAILNOTES to samp_failnotes,
-                        COLUMN_SAMP_LAT to samp_lat,
-                        COLUMN_SAMP_LNG to samp_lng,
-                        COLUMN_SAMP_SAMPLE_ID to samp_sample_id,
-                        COLUMN_SAMP_LOCATION to samp_location,
-                        COLUMN_SAMP_OTHER_INFO to samp_other_info,
-                        COLUMN_SAMP_PHOTO to samp_photo,
-                        COLUMN_SAMP_TEST_STATUS to samp_test_status,
+                        COLUMN_PROCESS_ID to sampl_process_id,
+                        COLUMN_SAMP_CHLOR_FREE to sampl_chlor_free,
+                        COLUMN_SAMP_CHLOR_TOTAL to sampl_chlor_total,
+                        COLUMN_SAMP_DESC to sampl_desc,
+                        COLUMN_SAMP_FAILNOTES to sampl_failnotes,
+                        COLUMN_SAMP_LAT to sampl_lat,
+                        COLUMN_SAMP_LNG to sampl_long,
+                        COLUMN_SAMP_SAMPLE_ID to sampl_sample_id,
+                        COLUMN_SAMP_LOCATION to sampl_location,
+                        COLUMN_SAMP_OTHER_INFO to sampl_other_info,
+                        COLUMN_SAMP_PHOTO to sampl_photo,
+                        COLUMN_SAMP_TEST_STATUS to sampl_test_status,
                         COLUMN_SAMP_TIMESTAMP to today,
-                        COLUMN_SAMP_TURBIDITY to samp_turbidity,
-                        COLUMN_SAMP_WATER_TEMP to samp_water_temp)
-                _id = saveId
+                        COLUMN_SAMP_TURBIDITY to sampl_turbidity,
+                        COLUMN_SAMP_WATER_TEMP to sampl_water_temp)
+                sampl_id = saveId
             }
         }
         else
         {
             ctx.database.use {
-                update(TABLE_NAME,COLUMN_SAMP_CHLOR_FREE to samp_chlor_free,
-                        COLUMN_SAMP_CHLOR_TOTAL to samp_chlor_total,
-                        COLUMN_SAMP_DESC to samp_desc,
-                        COLUMN_SAMP_FAILNOTES to samp_failnotes,
-                        COLUMN_SAMP_LAT to samp_lat,
-                        COLUMN_SAMP_LNG to samp_lng,
-                        COLUMN_SAMP_SAMPLE_ID to samp_sample_id,
-                        COLUMN_SAMP_LOCATION to samp_location,
-                        COLUMN_SAMP_OTHER_INFO to samp_other_info,
-                        COLUMN_SAMP_PHOTO to samp_photo,
-                        COLUMN_SAMP_TEST_STATUS to samp_test_status,
+                update(TABLE_NAME,COLUMN_SAMP_CHLOR_FREE to sampl_chlor_free,
+                        COLUMN_SAMP_CHLOR_TOTAL to sampl_chlor_total,
+                        COLUMN_SAMP_DESC to sampl_desc,
+                        COLUMN_SAMP_FAILNOTES to sampl_failnotes,
+                        COLUMN_SAMP_LAT to sampl_lat,
+                        COLUMN_SAMP_LNG to sampl_long,
+                        COLUMN_SAMP_SAMPLE_ID to sampl_sample_id,
+                        COLUMN_SAMP_LOCATION to sampl_location,
+                        COLUMN_SAMP_OTHER_INFO to sampl_other_info,
+                        COLUMN_SAMP_PHOTO to sampl_photo,
+                        COLUMN_SAMP_TEST_STATUS to sampl_test_status,
                         COLUMN_SAMP_TIMESTAMP to today,
-                        COLUMN_SAMP_TURBIDITY to samp_turbidity,
-                        COLUMN_SAMP_WATER_TEMP to samp_water_temp)
-                        .whereArgs("${EXLDSamplingData.COLUMN_SAMP_ID} == $_id").exec()
+                        COLUMN_SAMP_TURBIDITY to sampl_turbidity,
+                        COLUMN_SAMP_WATER_TEMP to sampl_water_temp)
+                        .whereArgs("${EXLDSamplingData.COLUMN_SAMP_ID} == $sampl_id").exec()
             }
         }
 

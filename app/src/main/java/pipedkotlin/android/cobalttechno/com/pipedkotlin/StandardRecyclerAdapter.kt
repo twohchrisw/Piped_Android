@@ -2,7 +2,6 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +11,7 @@ import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.parseList
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.runOnUiThread
-import java.nio.channels.Pipe
-import java.nio.file.Files.delete
 import java.util.*
-import kotlin.math.E
 
 class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var lastLat: Double, var lastLng: Double,
                               var delegate: StandardRecyclerAdapterInterface?,
@@ -947,11 +943,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 PipedTask.Sampling -> {
                     val flowrates = EXLDSamplingData.getSamplingFlowrates(ctx, p.columnId)
                     val flowrate = flowrates[isFlowratePosition(position).second]
-                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.samp_timestamp)
+                    dateString = DateHelper.dbDateStringFormattedWithSeconds(flowrate.sampl_timestamp)
 
                     val viewHolder = holder as ViewHolderFlowrate
                     viewHolder.titleText?.text = dateString
-                    viewHolder.valueText?.text = flowrate.samp_sample_id
+                    viewHolder.valueText?.text = flowrate.sampl_sample_id
                     viewHolder.itemView.setOnClickListener {
                         delegate?.didRequestFlowrate(isFlowratePosition(position).second)
                     }
@@ -1102,7 +1098,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                         EXLDSamplingData.COLUMN_SAMP_PHOTO -> {
                             val fr = AppGlobals.instance.drillSamplFlorwate!!
-                            if (fr.samp_photo.length < 2)
+                            if (fr.sampl_photo.length < 2)
                             {
                                 // No picture
                                 viewHolder.picture?.visibility = View.GONE
@@ -1114,7 +1110,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                                 viewHolder.valueText?.visibility = View.GONE
                                 viewHolder.picture?.visibility = View.VISIBLE
 
-                                val imageUri = AppGlobals.uriForSavedImage(fr.samp_photo)
+                                val imageUri = AppGlobals.uriForSavedImage(fr.sampl_photo)
                                 viewHolder.picture?.setImageURI(imageUri)
                             }
 
@@ -1143,17 +1139,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         /* Sample Flowrate Details */
 
                         EXLDSamplingData.COLUMN_SAMP_SAMPLE_ID -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id.length < 1)
+                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sample ID", AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.samp_sample_id = it
+                                alert.dialogForTextInput("Sample ID", AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id = it
                                     AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
@@ -1161,17 +1157,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_DESC -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_desc
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_desc
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_desc.length < 1)
+                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_desc.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sample Description", AppGlobals.instance.drillSamplFlorwate!!.samp_desc, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.samp_desc = it
+                                alert.dialogForTextInput("Sample Description", AppGlobals.instance.drillSamplFlorwate!!.sampl_desc, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_desc = it
                                     AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
@@ -1179,17 +1175,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_LOCATION -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_location
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_location
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_location.length < 1)
+                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_location.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Location", AppGlobals.instance.drillSamplFlorwate!!.samp_location, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.samp_location = it
+                                alert.dialogForTextInput("Location", AppGlobals.instance.drillSamplFlorwate!!.sampl_location, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_location = it
                                     AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
@@ -1197,16 +1193,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_CHLOR_FREE -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free.formatForDecPlaces(2), {
+                                alert.dialogForTextInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_free = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free = theValue
                                         AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
@@ -1216,16 +1212,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_CHLOR_TOTAL -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total.formatForDecPlaces(2), {
+                                alert.dialogForTextInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.samp_chlor_total = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total = theValue
                                         AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
@@ -1235,16 +1231,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_TURBIDITY -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity.formatForDecPlaces(2), {
+                                alert.dialogForTextInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.samp_turbidity = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity = theValue
                                         AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
@@ -1254,16 +1250,16 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_WATER_TEMP -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp.toString()
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString()
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp.toString(), {
+                                alert.dialogForTextInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString(), {
 
                                     val theValue = it.toIntOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.samp_water_temp = theValue
+                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp = theValue
                                         AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
@@ -1272,17 +1268,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_OTHER_INFO -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.samp_other_info
+                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.samp_other_info.length < 1)
+                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Other Info", AppGlobals.instance.drillSamplFlorwate!!.samp_other_info, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.samp_other_info = it
+                                alert.dialogForTextInput("Other Info", AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info, {
+                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info = it
                                     AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
@@ -1823,11 +1819,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             return
                         }
                         EXLDSamplingData.COLUMN_SAMP_LAT -> {
-                            viewHolder.tvValue?.text = NumbersHelper.latLongString(AppGlobals.instance.drillSamplFlorwate!!.samp_lat, AppGlobals.instance.drillSamplFlorwate!!.samp_lng)
+                            viewHolder.tvValue?.text = NumbersHelper.latLongString(AppGlobals.instance.drillSamplFlorwate!!.sampl_lat, AppGlobals.instance.drillSamplFlorwate!!.sampl_long)
                             viewHolder.btnSet?.text = "Set"
                             viewHolder.btnSet?.setOnClickListener {
-                                AppGlobals.instance.drillSamplFlorwate!!.samp_lat = AppGlobals.instance.lastLat
-                                AppGlobals.instance.drillSamplFlorwate!!.samp_lng = AppGlobals.instance.lastLng
+                                AppGlobals.instance.drillSamplFlorwate!!.sampl_lat = AppGlobals.instance.lastLat
+                                AppGlobals.instance.drillSamplFlorwate!!.sampl_long = AppGlobals.instance.lastLng
                                 AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
                                 notifyDataSetChanged()
                             }
@@ -1878,22 +1874,22 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     viewHolder.rdPass?.isChecked = false
                     viewHolder.tvFailMessage?.visibility = View.GONE
 
-                    viewHolder.tvFailMessage?.text = fr.samp_failnotes
-                    if (fr.samp_failnotes.length < 1)
+                    viewHolder.tvFailMessage?.text = fr.sampl_failnotes
+                    if (fr.sampl_failnotes.length < 1)
                     {
                         viewHolder.tvFailMessage?.text = "[Tap to enter fail notes]"
                     }
 
                     viewHolder.tvFailMessage?.setOnClickListener {
                         val alert = AlertHelper(ctx)
-                        alert.dialogForTextInput("Fail Notes", fr.samp_failnotes, {
+                        alert.dialogForTextInput("Fail Notes", fr.sampl_failnotes, {
 
-                            fr.samp_failnotes = it
+                            fr.sampl_failnotes = it
                             fr.save(ctx)
 
                             ctx.runOnUiThread {
-                                if (fr.samp_failnotes.length > 0) {
-                                    viewHolder.tvFailMessage?.text = fr.samp_failnotes
+                                if (fr.sampl_failnotes.length > 0) {
+                                    viewHolder.tvFailMessage?.text = fr.sampl_failnotes
                                 }
                                 else
                                 {
@@ -1903,18 +1899,18 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         })
                     }
 
-                    if (fr.samp_test_status == TEST_STATUS_FAIL)
+                    if (fr.sampl_test_status == TEST_STATUS_FAIL)
                     {
                         viewHolder.rdFail?.isChecked = true
                         viewHolder.tvFailMessage?.visibility = View.VISIBLE
                     }
 
-                    if (fr.samp_test_status == TEST_STAUTS_PASS)
+                    if (fr.sampl_test_status == TEST_STAUTS_PASS)
                     {
                         viewHolder.rdPass?.isChecked = true
                     }
 
-                    if (fr.samp_test_status == TEST_STATUS_NOT_SET)
+                    if (fr.sampl_test_status == TEST_STATUS_NOT_SET)
                     {
                         viewHolder.rdNotSet?.isChecked = true
                     }
@@ -1924,21 +1920,21 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         when (checkedId)
                         {
                             viewHolder.rdPass!!.id -> {
-                                fr.samp_test_status = TEST_STAUTS_PASS
+                                fr.sampl_test_status = TEST_STAUTS_PASS
                                 ctx.runOnUiThread {
                                     viewHolder.tvFailMessage?.visibility = View.GONE
                                 }
                             }
 
                             viewHolder.rdNotSet!!.id -> {
-                                fr.samp_test_status = TEST_STATUS_NOT_SET
+                                fr.sampl_test_status = TEST_STATUS_NOT_SET
                                 ctx.runOnUiThread {
                                     viewHolder.tvFailMessage?.visibility = View.GONE
                                 }
                             }
 
                             viewHolder.rdFail!!.id -> {
-                                fr.samp_test_status = TEST_STATUS_FAIL
+                                fr.sampl_test_status = TEST_STATUS_FAIL
                                 ctx.runOnUiThread {
                                     viewHolder.tvFailMessage?.visibility = View.VISIBLE
                                 }

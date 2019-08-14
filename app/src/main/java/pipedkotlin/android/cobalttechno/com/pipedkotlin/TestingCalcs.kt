@@ -65,6 +65,18 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
             calcResult = n2 / n1
         }
 
+        // Check the values are not infinity or null
+        if (log_pa_t1 == null || log_pa_t2 == null || log_pa_t3 == null || log_t1 == null || log_t2 == null || log_t3 == null
+                || log_pa_t1 == Double.NEGATIVE_INFINITY || log_pa_t2 == Double.NEGATIVE_INFINITY || log_pa_t3 == Double.NEGATIVE_INFINITY
+                || log_t1 == Double.NEGATIVE_INFINITY || log_t2 == Double.NEGATIVE_INFINITY || log_t3 == Double.NEGATIVE_INFINITY
+        )
+        {
+            // These are bad values likely from a 0 pressure test
+            // skip saving calculations
+
+            return
+        }
+
         // Save the values to the process
         process.pe_pdf_log_pa_t1 = log_pa_t1
         process.pe_pdf_log_pa_t2 = log_pa_t2

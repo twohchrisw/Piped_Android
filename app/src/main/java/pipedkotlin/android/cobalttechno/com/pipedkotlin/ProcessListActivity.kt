@@ -42,6 +42,10 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         addListeners()
         supportActionBar?.setTitle("Process List")
         //TODO: Ensure processes refresh after adding new and returning to this view
+
+        //val readings = EXLDTibiisReading.getAllTibiisReadings(this)
+        //Log.d("cobsync", "All tibiis readings count = ${readings.size}")
+        //val x = 1
     }
 
     public fun updateRecycler()

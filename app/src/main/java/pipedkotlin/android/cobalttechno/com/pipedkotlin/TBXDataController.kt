@@ -632,7 +632,7 @@ class LogReading(val data: ArrayList<Int>) {
 
     constructor(data: ArrayList<Int>, tibiisReading: EXLDTibiisReading): this(data)
     {
-        logNumber = tibiisReading.logNumber
+        logNumber = tibiisReading.lognumber
         pressure = tibiisReading.pressure
         flowRate = tibiisReading.flowRate
         battery = tibiisReading.battery

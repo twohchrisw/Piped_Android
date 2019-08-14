@@ -331,7 +331,7 @@ class TibiisSessionData {
 
         var tibiisReading = EXLDTibiisReading()
         tibiisReading.battery = logReading.battery
-        tibiisReading.logNumber = logReading.logNumber
+        tibiisReading.lognumber = logReading.logNumber
         tibiisReading.pressure = logReading.pressure
         tibiisReading.flowRate = logReading.flowRate
         tibiisReading.readingType = typeDescription

@@ -39,6 +39,7 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickList
         else
         {
             viewHolder.syncMessage.visibility = View.GONE
+            viewHolder.syncMessage.text = ""
         }
 
         Log.d("cobsync", "process sync: ${process.last_sync_millis}, update: ${process.last_update_millis}")

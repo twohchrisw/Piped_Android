@@ -221,9 +221,13 @@ data class EXLDProcess(val columnId: Long = -1,
     var swabFlowrates = ArrayList<EXLDSwabFlowrates>()
     var surveyNotes = ArrayList<EXLDSurveyNotes>()
     var tibiisReadings = ArrayList<EXLDTibiisReading>()
+    var tibiisReadingsDI = ArrayList<EXLDTibiisReading>()
     var prevDITests = ArrayList<String>()
     var prevPETests = ArrayList<String>()
 
+    var tibiisReading1 = EXLDTibiisReading()
+    var tibiisReading2 = EXLDTibiisReading()
+    var tibiisReading3 = EXLDTibiisReading()
 
     companion object {
         val TABLE_NAME = "EXLDProcess"

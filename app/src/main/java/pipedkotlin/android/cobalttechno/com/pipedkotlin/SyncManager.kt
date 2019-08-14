@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -15,11 +16,13 @@ import kotlin.collections.ArrayList
 class SyncManager: FileUploadManager.FileUploadManagerDelegate {
 
     var processBeingSynced: EXLDProcess?  = null
+    var currentTibiisReadings = ArrayList<EXLDTibiisReading>()
     var startLog = 0
     var totalLogs = 0
     var currentFilename = ""
     var isFirst = 0
     var isLast = 0
+    val MAX_PE_UPLOAD_RECORDS = 5000
 
     interface SyncManagerDelegate
     {
@@ -38,6 +41,9 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         Log.d("cobsync", "Syncing Process")
         processBeingSynced = process
         processBeingSynced!!.company_user_id = AppGlobals.instance.userId
+
+        // Update the process list to show the new sync status of the process
+        AppGlobals.instance.processListActivity?.updateRecycler()
 
         syncProcessHeader()
     }
@@ -59,13 +65,62 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         processBeingSynced!!.samplingData = ArrayList(EXLDSamplingData.getSamplingFlowrates(MainApplication.applicationContext(), processBeingSynced!!.columnId))
         processBeingSynced!!.swabFlowrates = ArrayList(EXLDSwabFlowrates.getSwabbingFlowrates(MainApplication.applicationContext(), processBeingSynced!!.columnId))
         processBeingSynced!!.surveyNotes = ArrayList(EXLDSurveyNotes.getSurveyNotes(MainApplication.applicationContext(), processBeingSynced!!.columnId))
+        processBeingSynced!!.tibiisReadingsDI = ArrayList(EXLDTibiisReading.getTibiisReadingsForUpload(MainApplication.applicationContext(), processBeingSynced!!.columnId, "DI"))
+
+        // Tibiis Readings
+        val logNumberForReading1 = processBeingSynced!!.tibsessLogNumberForReading1
+        val logNumberForReading2 = processBeingSynced!!.tibsessLogNumberForReading2
+        val logNumberForReading3 = processBeingSynced!!.tibsessLogNumberForReading3
+
+        Log.d("cobsync", "Log Numbers for PE Test: 1:$logNumberForReading1 2:$logNumberForReading2 3:$logNumberForReading3")
+
+        val log1 = EXLDTibiisReading.getTibiisReadingForLogNumber(MainApplication.applicationContext(), processBeingSynced!!.columnId, logNumberForReading1, "PE")
+        val log2 = EXLDTibiisReading.getTibiisReadingForLogNumber(MainApplication.applicationContext(), processBeingSynced!!.columnId, logNumberForReading2, "PE")
+        val log3 = EXLDTibiisReading.getTibiisReadingForLogNumber(MainApplication.applicationContext(), processBeingSynced!!.columnId, logNumberForReading3, "PE")
+
+        if (log1 != null)
+        {
+            Log.d("cobsync", "Log 1 is NOT null")
+            processBeingSynced!!.tibiisReading1 = log1!!
+        }
+
+        if (log2 != null)
+        {
+            Log.d("cobsync", "Log 2 is NOT null")
+            processBeingSynced!!.tibiisReading2 = log2!!
+        }
+
+        if (log3 != null)
+        {
+            Log.d("cobsync", "Log 1 is NOT null")
+            processBeingSynced!!.tibiisReading3 = log3!!
+        }
 
 
-        //TODO: Get the count of tibiis readings, see iOS
         startLog = 0
         totalLogs = 0
         isFirst = 1
         isLast = 1
+
+
+        currentTibiisReadings = ArrayList(EXLDTibiisReading.getTibiisReadingsForUpload(MainApplication.applicationContext(), processBeingSynced!!.columnId, "PE"))
+        Log.d("cobsync", "Readings Count = ${currentTibiisReadings.size}")
+        val originalBatchSize = currentTibiisReadings.size
+
+        if (currentTibiisReadings.size > 0) {
+
+            if (currentTibiisReadings.size <= MAX_PE_UPLOAD_RECORDS) {
+                processBeingSynced!!.tibiisReadings = currentTibiisReadings
+                currentTibiisReadings = ArrayList<EXLDTibiisReading>()
+                Log.d("cobsync", "Single batch upload of ${processBeingSynced!!.tibiisReadings.size}")
+            } else {
+                processBeingSynced!!.tibiisReadings = ArrayList(currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS))
+                isLast = 0
+                currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS).clear()
+                Log.d("cobsync", "Multi batch upload of ${processBeingSynced!!.tibiisReadings.size} with ${currentTibiisReadings.size} remaining from total of $originalBatchSize")
+            }
+
+        }
 
         syncBatch(startLog, isFirst, isLast)
     }
@@ -102,9 +157,35 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
                 uploadProcessImages()
             }
 
+            markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadings)
+            markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadingsDI)
+
             if (isLast == 1)
             {
+
                 updateForSuccess()
+            }
+            else
+            {
+                val originalBatchSize = currentTibiisReadings.size
+                if (currentTibiisReadings.size <= MAX_PE_UPLOAD_RECORDS)
+                {
+                    processBeingSynced!!.tibiisReadings = currentTibiisReadings
+                    currentTibiisReadings = ArrayList<EXLDTibiisReading>()
+                    Log.d("cobsync", "Last batch upload of ${processBeingSynced!!.tibiisReadings.size}")
+                    isLast = 1
+                    isFirst = 0
+                    syncBatch(0, 0, 1)
+                }
+                else
+                {
+                    processBeingSynced!!.tibiisReadings = ArrayList(currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS))
+                    isLast = 0
+                    isFirst = 0
+                    currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS).clear()
+                    Log.d("cobsync", "In Process Multi batch upload of ${processBeingSynced!!.tibiisReadings.size} with ${currentTibiisReadings.size} remaining from total of $originalBatchSize")
+                    syncBatch(0, 0, 0)
+                }
             }
 
         }, Response.ErrorListener {
@@ -112,7 +193,18 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
             updateForFailure("message")
         })
 
+        stringRequest.setRetryPolicy(DefaultRetryPolicy(60000, 3, 2.0f))
+
         queue.add(stringRequest)
+    }
+
+    fun markTibiisRecordsAsUploaded(readings: ArrayList<EXLDTibiisReading>)
+    {
+        for (r in readings)
+        {
+            r.uploaded = 1
+            r.save(MainApplication.applicationContext())
+        }
     }
 
     override fun uploadFailed() {

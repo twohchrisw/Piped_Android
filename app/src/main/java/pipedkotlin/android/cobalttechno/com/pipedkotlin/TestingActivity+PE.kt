@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.content.Intent
 import android.util.Log
 import java.util.*
+import kotlin.concurrent.schedule
 
 fun TestingActivity.loadCheckPE()
 {
@@ -245,6 +246,7 @@ fun TestingActivity.startPressurisingButtonPressed()
     if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         tibiisStartPressurising()
+        saveCalibrationDetails()
     }
     else
     {
@@ -395,6 +397,14 @@ fun TestingActivity.calculatePEButtonPressed()
         saveCalibrationDetails()
         loadData()
         loadPEGraph()
+
+        tibiisStopPressurising()
+
+        Timer("stopTest", false).schedule(1000) {
+            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+                AppGlobals.instance.tibiisController.disconnectTibiis()
+            }
+        }
         /*
         runOnUiThread {
             val alert = AlertHelper(this)
@@ -424,8 +434,390 @@ fun TestingActivity.loadPEGraph()
 
 fun TestingActivity.saveCalibrationDetails()
 {
-    //TODO: Not Implemented
-    Log.d("Cobalt", "saveCalibrationDetails not implemented")
+    val tc = AppGlobals.instance.tibiisController
+    val p = AppGlobals.instance.activeProcess
+
+    Log.d("cobcalib", "saveCalibrationDetails()")
+    Log.d("cobcalib", p.calibDetailsDescription())
+
+    if (tc.connectStatus == TibiisController.ConnectionStatus.connected) {
+
+        if (p.calib_name.length == 0) {
+            Log.d("cobcalib", "Requesting Calib name")
+            runOnUiThread {
+                tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+            }
+        }
+
+        if (p.calib_name.length == 0) {
+            Timer("calib11", false).schedule(125) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+                }
+            }
+        }
+
+        if (p.calib_name.length == 0) {
+            Timer("calib111", false).schedule(250) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+                }
+            }
+        }
+
+        if (p.calib_name.length == 0) {
+            Timer("calib111", false).schedule(325) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+                }
+            }
+        }
+
+        if (p.calib_temp.length == 0) {
+            Timer("calib1a", false).schedule(450) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
+                }
+            }
+        }
+
+        if (p.calib_temp.length == 0) {
+            Timer("calib1b", false).schedule(525) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
+                }
+            }
+        }
+
+        if (p.calib_temp.length == 0) {
+            Timer("calib1b", false).schedule(650) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
+                }
+            }
+        }
+
+        if (p.calib_temp.length == 0) {
+            Timer("calib1c", false).schedule(725) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib temp")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2", false).schedule(850) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2a", false).schedule(925) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2b", false).schedule(1050) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2b", false).schedule(1300) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2b", false).schedule(1450) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_date.length == 0) {
+            Timer("calib2b", false).schedule(1600) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib date")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
+                }
+            }
+        }
+
+        if (p.calib_time.length == 0) {
+            Timer("calib3", false).schedule(1725) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib time")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
+                }
+            }
+        }
+
+        if (p.calib_time.length == 0) {
+            Timer("calib3", false).schedule(1850) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib time")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
+                }
+            }
+        }
+
+        if (p.calib_time.length == 0) {
+            Timer("calib3", false).schedule(2025) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib time")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
+                }
+            }
+        }
+
+        if (p.calib_time.length == 0) {
+            Timer("calib3", false).schedule(2200) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib time")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Time)
+                }
+            }
+        }
+
+        if (p.calib_p1.length == 0) {
+            Timer("calib4", false).schedule(2325) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p1")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
+                }
+            }
+        }
+
+        if (p.calib_p1.length == 0) {
+            Timer("calib5", false).schedule(2450) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p1")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
+                }
+            }
+        }
+
+        if (p.calib_p1.length == 0) {
+            Timer("calib5", false).schedule(2600) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p1")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
+                }
+            }
+        }
+
+        if (p.calib_p1.length == 0) {
+            Timer("calib5", false).schedule(2725) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p1")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure1)
+                }
+            }
+        }
+
+        if (p.calib_p2.length == 0) {
+            Timer("calib6", false).schedule(2975) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p2")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
+                }
+            }
+        }
+
+        if (p.calib_p2.length == 0) {
+            Timer("calib6", false).schedule(3130) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p2")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
+                }
+            }
+        }
+
+        if (p.calib_p2.length == 0) {
+            Timer("calib6", false).schedule(3220) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p2")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
+                }
+            }
+        }
+
+        if (p.calib_p2.length == 0) {
+            Timer("calib6", false).schedule(3390) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p2")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure2)
+                }
+            }
+        }
+
+        if (p.calib_p3.length == 0) {
+            Timer("calib7", false).schedule(3510) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p3")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
+                }
+            }
+        }
+
+        if (p.calib_p3.length == 0) {
+            Timer("calib7", false).schedule(3690) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p3")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
+                }
+            }
+        }
+
+        if (p.calib_p3.length == 0) {
+            Timer("calib7", false).schedule(3810) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p3")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
+                }
+            }
+        }
+
+        if (p.calib_p3.length == 0) {
+            Timer("calib7", false).schedule(3990) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p3")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure3)
+                }
+            }
+        }
+
+        if (p.calib_p4.length == 0) {
+            Timer("calib8", false).schedule(4125) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p4")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
+                }
+            }
+        }
+
+        if (p.calib_p4.length == 0) {
+            Timer("calib8", false).schedule(4250) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p4")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
+                }
+            }
+        }
+
+        if (p.calib_p4.length == 0) {
+            Timer("calib8", false).schedule(4400) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p4")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
+                }
+            }
+        }
+
+        if (p.calib_p4.length == 0) {
+            Timer("calib8", false).schedule(4590) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p4")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure4)
+                }
+            }
+        }
+
+        if (p.calib_p5.length == 0) {
+            Timer("calib5", false).schedule(4710) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p5")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
+                }
+            }
+        }
+
+        if (p.calib_p5.length == 0) {
+            Timer("calib5", false).schedule(4890) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p5")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
+                }
+            }
+        }
+
+        if (p.calib_p5.length == 0) {
+            Timer("calib5", false).schedule(5125) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p5")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
+                }
+            }
+        }
+
+        if (p.calib_p5.length == 0) {
+            Timer("calib5", false).schedule(5290) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p5")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure5)
+                }
+            }
+        }
+
+        if (p.calib_p6.length == 0) {
+            Timer("calib6", false).schedule(5430) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p6")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
+                }
+            }
+        }
+
+        if (p.calib_p6.length == 0) {
+            Timer("calib6", false).schedule(5590) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p6")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
+                }
+            }
+        }
+
+        if (p.calib_p6.length == 0) {
+            Timer("calib6", false).schedule(5710) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p6")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
+                }
+            }
+        }
+
+        if (p.calib_p6.length == 0) {
+            Timer("calib6", false).schedule(5890) {
+                runOnUiThread {
+                    Log.d("cobcalib", "Requesting Calib p6")
+                    tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Pressure6)
+                }
+            }
+        }
+    }
 }
 
 fun TestingActivity.loadTestResultsView()

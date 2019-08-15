@@ -1014,18 +1014,70 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
             TBXDataController.Command.GetCalibrationData -> {
                 val calibResult = packet.parseAsCalibrationData()
-                //TODO: Needs completing properly
+                val p = AppGlobals.instance.activeProcess
+                val result = calibResult.dataString
+
                 when (calibResult.calibrationByte)
                 {
-                    TBXDataController.CalibrationData.Name -> { Log.d("Cobalt", "Name: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure1 -> { Log.d("Cobalt", "P1: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure2 -> { Log.d("Cobalt", "P2: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure3 -> { Log.d("Cobalt", "P3: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure4 -> { Log.d("Cobalt", "P4: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure5 -> { Log.d("Cobalt", "P5: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Pressure6 -> { Log.d("Cobalt", "P6: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Date -> { Log.d("Cobalt", "Date: ${calibResult.dataString}") }
-                    TBXDataController.CalibrationData.Time -> { Log.d("Cobalt", "Time: ${calibResult.dataString}") }
+                    TBXDataController.CalibrationData.Name -> {
+                        Log.d("cobcalib", "Saving calib name: $result")
+                        p.calib_name = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Temp -> {
+                        Log.d("cobcalib", "Saving calib temp: $result")
+                        p.calib_temp = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Date -> {
+                        Log.d("cobcalib", "Saving calib date: $result")
+                        p.calib_date = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Time -> {
+                        Log.d("cobcalib", "Saving calib time: $result")
+                        p.calib_time = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure1 -> {
+                        Log.d("cobcalib", "Saving calib p1: $result")
+                        p.calib_p1 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure2 -> {
+                        Log.d("cobcalib", "Saving calib p2: $result")
+                        p.calib_p2 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure3 -> {
+                        Log.d("cobcalib", "Saving calib p3: $result")
+                        p.calib_p3 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure4 -> {
+                        Log.d("cobcalib", "Saving calib p4: $result")
+                        p.calib_p4 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure5 -> {
+                        Log.d("cobcalib", "Saving calib p5: $result")
+                        p.calib_p5 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
+
+                    TBXDataController.CalibrationData.Pressure6 -> {
+                        Log.d("cobcalib", "Saving calib p6: $result")
+                        p.calib_p6 = result
+                        p.saveCalibDetails(MainApplication.applicationContext())
+                    }
                 }
             }
 

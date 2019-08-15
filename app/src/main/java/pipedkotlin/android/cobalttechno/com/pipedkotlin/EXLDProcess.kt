@@ -229,6 +229,19 @@ data class EXLDProcess(val columnId: Long = -1,
     var tibiisReading2 = EXLDTibiisReading()
     var tibiisReading3 = EXLDTibiisReading()
 
+    // We have too many properties in the constructor, so we have to load these seperately
+    // Add also we save them using methods
+    var calib_name: String = ""
+    var calib_temp: String = ""
+    var calib_date: String = ""
+    var calib_time: String = ""
+    var calib_p1: String = ""
+    var calib_p2: String = ""
+    var calib_p3: String = ""
+    var calib_p4: String = ""
+    var calib_p5: String = ""
+    var calib_p6: String = ""
+
     companion object {
         val TABLE_NAME = "EXLDProcess"
         val COLUMN_ID = "ID"
@@ -420,6 +433,16 @@ data class EXLDProcess(val columnId: Long = -1,
         val c_last_sync_millis = "last_sync_millis"
         val c_last_update_millis = "last_update_millis"
         val c_pe_water_volume = "pe_water_volume"
+        val c_calib_name = "calib_name"
+        val c_calib_temp = "calib_temp"
+        val c_calib_date = "calib_date"
+        val c_calib_time = "calib_time"
+        val c_calib_p1 = "calib_p1"
+        val c_calib_p2 = "calib_p2"
+        val c_calib_p3 = "calib_p3"
+        val c_calib_p4 = "calib_p4"
+        val c_calib_p5 = "calib_p5"
+        val c_calib_p6 = "calib_p6"
 
         fun allProcesses(context: Context):List<EXLDProcess>
         {
@@ -449,6 +472,64 @@ data class EXLDProcess(val columnId: Long = -1,
             }
         }
 
+    }
+
+    init {
+        loadCalibDetails(MainApplication.applicationContext())
+    }
+
+    /* We have run out of constructors so we have to save the calib details in a different way
+       We're using tiny db to save the data with methods to load in init and save in save
+     */
+
+    fun calibDetailsDescription(): String
+    {
+        return "Process: $columnId Name: $calib_name, Temp: $calib_temp, Date: $calib_date, Time: $calib_time, p1: $calib_p1, p2: $calib_p2, p3: $calib_p3, p4: $calib_p4, p5: $calib_p5, p6: $calib_p6"
+    }
+
+    fun saveCalibDetails(ctx: Context)
+    {
+        var calibDetails = ArrayList<String>()
+        calibDetails.add(calib_name)
+        calibDetails.add(calib_temp)
+        calibDetails.add(calib_date)
+        calibDetails.add(calib_time)
+        calibDetails.add(calib_p1)
+        calibDetails.add(calib_p2)
+        calibDetails.add(calib_p3)
+        calibDetails.add(calib_p4)
+        calibDetails.add(calib_p5)
+        calibDetails.add(calib_p6)
+
+        val tinyDB = TinyDB(ctx)
+        tinyDB.putListString("calib_$columnId", calibDetails)
+        //Log.d("cobcalib", "Saving Calib Details")
+    }
+
+    fun loadCalibDetails(ctx: Context)
+    {
+        val tinyDB = TinyDB(ctx)
+        val calibDetails = tinyDB.getListString("calib_$columnId")
+
+        if (calibDetails != null && calibDetails.size == 10)
+        {
+            calib_name = calibDetails[0]
+            calib_temp = calibDetails[1]
+            calib_date = calibDetails[2]
+            calib_time = calibDetails[3]
+            calib_p1 = calibDetails[4]
+            calib_p2 = calibDetails[5]
+            calib_p3 = calibDetails[6]
+            calib_p4 = calibDetails[7]
+            calib_p5 = calibDetails[8]
+            calib_p6 = calibDetails[9]
+
+            Log.d("cobcalib", "Loading Calib Details Successfully")
+        }
+        else
+        {
+            Log.d("cobcalib", "Did not load calib details")
+        }
     }
 
     // Save the process
@@ -481,11 +562,13 @@ data class EXLDProcess(val columnId: Long = -1,
                         EXLDProcess.c_pt_chlor_start_lat to defaultCoordinate,
                         EXLDProcess.c_pt_chlor_start_long to defaultCoordinate,
                         EXLDProcess.c_last_update_millis to Date().time)
+
             }
         }
         else
         {
             // Update
+            saveCalibDetails(context)
             context.database.use {
                 update(EXLDProcess.TABLE_NAME, EXLDProcess.c_address to address,
                         EXLDProcess.c_client to client,

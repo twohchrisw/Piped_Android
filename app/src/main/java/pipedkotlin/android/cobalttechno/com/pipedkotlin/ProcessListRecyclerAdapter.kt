@@ -26,7 +26,7 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickList
         viewHolder.clientName.text = process.client
         viewHolder.createdOn.text = process.create_timestamp
 
-        if (AppGlobals.instance.syncManager.processBeingSynced?.internalId == process.internalId)
+        if (AppGlobals.instance.syncManager.processBeingSynced?.columnId == process.columnId)
         {
             viewHolder.syncMessage.visibility = View.VISIBLE
             viewHolder.syncMessage.text = "[Sync in Progress]"
@@ -43,6 +43,7 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickList
         }
 
         Log.d("cobsync", "process sync: ${process.last_sync_millis}, update: ${process.last_update_millis}")
+        Log.d("cobcalib", process.calibDetailsDescription())
 
         // Add the click listener
         viewHolder.itemView.setOnClickListener({

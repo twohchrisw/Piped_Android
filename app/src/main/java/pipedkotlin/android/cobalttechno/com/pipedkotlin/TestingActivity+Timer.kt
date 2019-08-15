@@ -21,6 +21,8 @@ fun TestingActivity.saveReading1(pr: LogReading)
         loadData()
     }
 
+    saveCalibrationDetails()
+
 }
 
 fun TestingActivity.saveReading2(pr: LogReading)
@@ -41,6 +43,7 @@ fun TestingActivity.saveReading2(pr: LogReading)
         loadData()
     }
 
+    saveCalibrationDetails()
 }
 
 fun TestingActivity.saveReading3(pr: LogReading)
@@ -58,6 +61,8 @@ fun TestingActivity.saveReading3(pr: LogReading)
     p.save(this)
     Log.d("petest", "saveReading3 $press (R1: ${p.pt_reading_1} R2: ${p.pt_reading_3})")
     loadData()
+
+    saveCalibrationDetails()
 }
 
 

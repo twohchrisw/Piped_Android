@@ -202,7 +202,7 @@ fun TestingActivity.arePEReadingsComplete(): Boolean
 
 fun TestingActivity.archivePETest()
 {
-    //TODO: Needs completing
+    AppGlobals.instance.activeProcess.archivePETest(this)
 }
 
 fun TestingActivity.clearPEData()
@@ -393,6 +393,11 @@ fun TestingActivity.calculatePEButtonPressed()
     if (DateHelper.dateIsValid(p.pt_reading1_time) && DateHelper.dateIsValid(p.pt_reading2_time) && DateHelper.dateIsValid(p.pt_reading3_time))
     {
         tibiisSession.hasCalculated = true
+
+        timer.cancel()
+        timer = Timer()
+        liveLogTimer = Timer()
+
         calculatePETestResults()
         saveCalibrationDetails()
         loadData()

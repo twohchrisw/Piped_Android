@@ -110,6 +110,13 @@ class TestingSessionData {
         conditioningData = DIConditioningData()
         isPressurisingDI = false
         isAutoPumpAutomaticStopDIEnabled = false
+        startLoggingTime = null
+        lastLoggingTime = null
+
+        AppGlobals.instance.activeProcess.testsessFirstLogReadingDate = ""
+        AppGlobals.instance.activeProcess.testsessLastLoggingTime = ""
+        AppGlobals.instance.activeProcess.testsessStartLoggingTime = ""
+        AppGlobals.instance.activeProcess.save(MainApplication.applicationContext())
     }
 
 

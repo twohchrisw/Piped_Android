@@ -66,6 +66,7 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         processBeingSynced!!.swabFlowrates = ArrayList(EXLDSwabFlowrates.getSwabbingFlowrates(MainApplication.applicationContext(), processBeingSynced!!.columnId))
         processBeingSynced!!.surveyNotes = ArrayList(EXLDSurveyNotes.getSurveyNotes(MainApplication.applicationContext(), processBeingSynced!!.columnId))
         processBeingSynced!!.tibiisReadingsDI = ArrayList(EXLDTibiisReading.getTibiisReadingsForUpload(MainApplication.applicationContext(), processBeingSynced!!.columnId, "DI"))
+        processBeingSynced!!.prevPETests = ArrayList(EXLDPrevPE.getPrevPETests(MainApplication.applicationContext(), processBeingSynced!!.columnId))
 
         // Tibiis Readings
         val logNumberForReading1 = processBeingSynced!!.tibsessLogNumberForReading1

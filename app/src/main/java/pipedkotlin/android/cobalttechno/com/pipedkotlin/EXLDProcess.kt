@@ -223,7 +223,7 @@ data class EXLDProcess(val columnId: Long = -1,
     var tibiisReadings = ArrayList<EXLDTibiisReading>()
     var tibiisReadingsDI = ArrayList<EXLDTibiisReading>()
     var prevDITests = ArrayList<String>()
-    var prevPETests = ArrayList<String>()
+    var prevPETests = ArrayList<EXLDPrevPE>()
 
     var tibiisReading1 = EXLDTibiisReading()
     var tibiisReading2 = EXLDTibiisReading()
@@ -530,6 +530,60 @@ data class EXLDProcess(val columnId: Long = -1,
         {
             Log.d("cobcalib", "Did not load calib details")
         }
+    }
+
+    fun archivePETest(context: Context)
+    {
+        val p = EXLDPrevPE()
+        p.processId = columnId
+        p.start_pressure = pt_start_pressure
+        p.system_test_pressure = pt_system_test_pressure
+        p.pe_test_aborted = pe_test_aborted
+        p.peWaterVolume = peWaterVolume
+        p.pressurising_start = pt_pressurising_start
+        p.pressurising_finish = pt_pressurising_finish
+        p.reading_1 = pt_reading_1
+        p.reading_2 = pt_reading_2
+        p.reading_3 = pt_reading_3
+        p.reading_4 = pt_reading_4
+        p.reading_5 = pt_reading_5
+        p.reading_time_1 = pt_reading1_time
+        p.reading_time_2 = pt_reading2_time
+        p.reading_time_3 = pt_reading3_time
+        p.reading_time_4 = pt_reading4_time
+        p.reading_time_5 = pt_reading5_time
+        p.calc_result = pt_calc_result
+        p.lat = pt_lat
+        p.longitude = pt_long
+        p.pass = pt_pass
+        p.notes = pt_pe_notes
+        p.pdf_log_pa_t1 = pe_pdf_log_pa_t1
+        p.pdf_log_pa_t2 = pe_pdf_log_pa_t2
+        p.pdf_log_pa_t3 = pe_pdf_log_pa_t3
+        p.pdf_log_pa_t4 = pe_pdf_log_pa_t4
+        p.pdf_log_pa_t5 = pe_pdf_log_pa_t5
+        p.pdf_log_t1 = pe_pdf_log_t1
+        p.pdf_log_t2 = pe_pdf_log_t2
+        p.pdf_log_t3 = pe_pdf_log_t3
+        p.pdf_log_t4 = pe_pdf_log_t4
+        p.pdf_log_t5 = pe_pdf_log_t5
+        p.pdf_calc_result = pe_pdf_calc_result
+        p.pdf_pass = pe_pdf_pass
+        p.pdf_n1 = pe_pdf_n1
+        p.pdf_n2 = pe_pdf_n2
+        p.pdf_n3 = pe_pdf_n3
+        p.pdf_n4 = pe_pdf_n4
+        p.pipe_diameter = pt_pe_pipe_diameter
+        p.pipe_length = pt_pe_pipe_length
+        p.pump_size = pt_pe_pump_size
+        p.installation_tech = pt_pe_it
+        p.logger_details = pt_pe_logger_details
+        p.pt_pe_readings_count = pt_pe_readings_count
+
+        p.save(context)
+
+        val tests = EXLDPrevPE.getPrevPETests(context, columnId)
+        Log.d("cobprev", "Archive Test: Count is: ${tests.size}")
     }
 
     // Save the process

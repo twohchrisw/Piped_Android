@@ -146,7 +146,7 @@ open class BaseActivity: AppCompatActivity() {
 
         try {
             val stream: OutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             stream.flush()
             stream.close()
             Log.d("cobswab", "image saved successfully!!")

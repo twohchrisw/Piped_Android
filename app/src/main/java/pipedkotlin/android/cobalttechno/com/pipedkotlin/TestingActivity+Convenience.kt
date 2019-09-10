@@ -36,6 +36,72 @@ fun TestingActivity.updatePressurisingDataFromTibiisSession()
     }
 }
 
+fun TestingActivity.turnOutputPumpOff()
+{
+    val tc = AppGlobals.instance.tibiisController
+
+    Timer("outputControlOn4", false).schedule(100) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(false)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(200) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(false)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(300) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(false)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(400) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(false)
+
+        }
+    }
+}
+
+fun TestingActivity.turnOutputPumpOn()
+{
+    val tc = AppGlobals.instance.tibiisController
+
+    Timer("outputControlOn4", false).schedule(100) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(true)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(200) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(true)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(300) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(true)
+
+        }
+    }
+
+    Timer("outputControlOn4", false).schedule(400) {
+        runOnUiThread {
+            tc.tbxDataController.sendCommandOutputControl(true)
+
+        }
+    }
+}
+
 fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
 {
 
@@ -44,35 +110,7 @@ fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
 
     if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
-        val tc = AppGlobals.instance.tibiisController
-
-        Timer("outputControlOn4", false).schedule(100) {
-            runOnUiThread {
-                tc.tbxDataController.sendCommandOutputControl(false)
-
-            }
-        }
-
-        Timer("outputControlOn4", false).schedule(200) {
-            runOnUiThread {
-                tc.tbxDataController.sendCommandOutputControl(false)
-
-            }
-        }
-
-        Timer("outputControlOn4", false).schedule(300) {
-            runOnUiThread {
-                tc.tbxDataController.sendCommandOutputControl(false)
-
-            }
-        }
-
-        Timer("outputControlOn4", false).schedule(400) {
-            runOnUiThread {
-                tc.tbxDataController.sendCommandOutputControl(false)
-
-            }
-        }
+        turnOutputPumpOff()
     }
 
     tibiisStartLogging()

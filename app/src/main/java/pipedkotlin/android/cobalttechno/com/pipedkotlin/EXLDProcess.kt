@@ -1090,4 +1090,29 @@ data class EXLDProcess(val columnId: Long = -1,
         return false
     }
 
+    fun isDITestRunning(): Boolean
+    {
+        if (DateHelper.dateIsValid(pt_di_pressurising_started) && DateHelper.dateIsValid(pt_di_r60_time))
+        {
+            return true
+        }
+
+        return false
+    }
+
+    fun getDIR15CalcResult(): Double
+    {
+        val diff = pt_di_stp - pt_di_r15_value
+        return diff
+    }
+
+    fun getDIR60CalcResult(): Double
+    {
+        val diff = pt_di_stp - pt_di_r60_value
+        return diff
+    }
+
+
+
+
 }

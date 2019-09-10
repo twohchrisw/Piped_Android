@@ -885,11 +885,15 @@ fun TestingActivity.resumePETimerWithoutSettingStage()
 
 fun TestingActivity.cancelPETimer()
 {
+    Log.d("ditest", "cancelPETimer()")
+    turnOutputPumpOff()
     timer.cancel()
     timer = Timer()
     formatActionPanelForCalculate()
     loadData()
+    formatActionPanelForCalculate()
 }
+
 
 
 

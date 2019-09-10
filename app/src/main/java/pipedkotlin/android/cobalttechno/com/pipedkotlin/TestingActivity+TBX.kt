@@ -44,6 +44,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
     {
         // Live Log Mode - Not Logging
         updatePressureGauge(logReading.pressure, false, logReading.battery)
+        Log.d("ditest", "Log recevied but not logging")
 
         //TODO: DI Auto Pressurisation needed here
         if (testingSession.isPressurisingDI)

@@ -95,7 +95,7 @@ class ProcessMenuRecyclerAdapter(val menuMode: Int, val clickListener: ProcessMe
                 TaskMenuItems.swabbing.value -> mainText?.text = "Swabbing"
                 TaskMenuItems.filling.value -> mainText?.text = "Filling Only"
                 TaskMenuItems.peTest.value -> mainText?.text = "Pressure Testing PE"
-                TaskMenuItems.diTest.value -> mainText?.text = "Pressure Testing DI"
+                TaskMenuItems.diTest.value -> mainText?.text = "Metallic Test"
                 TaskMenuItems.chlor.value -> mainText?.text = "Chlorination"
                 TaskMenuItems.dechlor.value -> mainText?.text = "Dechlorination"
                 TaskMenuItems.flushing.value -> mainText?.text = "Flushing"

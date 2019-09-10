@@ -179,7 +179,22 @@ fun TestingActivity.tibiisStartPressurising()
 fun TestingActivity.tibiisStopPressurising()
 {
     try {
-        AppGlobals.instance.tibiisController.commandStopLogger()
+        runOnUiThread {
+            AppGlobals.instance.tibiisController.commandStopLogger()
+        }
+
+        Timer("startTest1", false).schedule(100) {
+            AppGlobals.instance.tibiisController.commandStopLogger()
+        }
+
+        Timer("startTest1", false).schedule(200) {
+            AppGlobals.instance.tibiisController.commandStopLogger()
+        }
+
+        Timer("startTest1", false).schedule(300) {
+            AppGlobals.instance.tibiisController.commandStopLogger()
+        }
+
     }
     catch (e: Exception)
     {

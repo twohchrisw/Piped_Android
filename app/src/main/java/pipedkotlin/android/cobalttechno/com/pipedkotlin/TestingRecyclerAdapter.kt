@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import java.text.SimpleDateFormat
 import java.util.*
@@ -450,11 +451,104 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         val viewHolder = holder as ViewHolderReadingsFooter
         val p = AppGlobals.instance.activeProcess
 
-        viewHolder.pressurisingStarted?.text = "Pressurising Started:"
-        viewHolder.pressureReaced?.text = "Pressure Reached: "
-        viewHolder.calcResult?.text = "Calc Result:"
-        viewHolder.testStatus?.text = "[Section needs completing]"
+        viewHolder.pressurisingStarted?.text = "Test Started: N/A"
+        viewHolder.pressureReaced?.text = ""
+        viewHolder.calcResult?.text = "Calc Result: N/A"
+        viewHolder.testStatus?.text = "Test Status: N/A"
         viewHolder.headerText?.text = "NOTES"
+        viewHolder.pressureReaced?.visibility = View.GONE
+        viewHolder.testLabel?.visibility = View.GONE
+
+        if (!DateHelper.dateIsValid(p.pt_di_pressurising_started))
+        {
+            return
+        }
+
+        viewHolder.pressurisingStarted?.text = "Test Started: ${DateHelper.dbDateStringFormattedWithSeconds(p.pt_di_pressurising_started)}"
+
+        if (p.isDITestRunning())
+        {
+            val now = Date()
+            val r60Time = DateHelper.dbStringToDate(p.pt_di_r60_time, Date())
+            val r15Time = DateHelper.dbStringToDate(p.pt_di_r15_time, Date())
+
+            if (now.time < r60Time.time)
+            {
+                viewHolder.testStatus?.text = "In Progress"
+
+                if (testingSession.timerStage > 0)
+                {
+                    if (p.pt_di_r15_value > 0.0)
+                    {
+                        if (p.di_is_zero_loss == 0)
+                        {
+                            if (p.getDIR15CalcResult() < AppGlobals.instance.DI_15_MIN_MAXIMUM)
+                            {
+                                viewHolder.testStatus?.text = "Passing . . ."
+                            }
+                            else
+                            {
+                                viewHolder.testStatus?.text = "Failing . . ."
+                            }
+                        }
+
+                        if (p.di_is_zero_loss == 1)
+                        {
+                            if (p.getDIR15CalcResult() < AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                            {
+                                viewHolder.testStatus?.text = "Passing . . ."
+                            }
+                            else
+                            {
+                                viewHolder.testStatus?.text = "Failing . . ."
+                            }
+                        }
+
+                        viewHolder.calcResult?.text = "Calc Result (15m): ${p.getDIR15CalcResult().formatForDecPlaces(4)}"
+                    }
+                    else
+                    {
+                        viewHolder.testStatus?.text = "Waiting for Data"
+                    }
+                }
+            }
+            else
+            {
+                if (p.pt_di_r15_value == 0.0 || p.pt_di_r60_value == 0.0)
+                {
+                    viewHolder.testStatus?.text = "Waiting for Data"
+                }
+                else
+                {
+                    if (p.di_is_zero_loss == 0)
+                    {
+                        if (p.getDIR60CalcResult() < AppGlobals.instance.DI_TESTING_VALUE)
+                        {
+                            viewHolder.testStatus?.text = "TEST PASSED!"
+                        }
+                        else
+                        {
+                            viewHolder.testStatus?.text = "TEST FAILED!"
+                        }
+                    }
+
+                    if (p.di_is_zero_loss == 1)
+                    {
+                        if (p.getDIR60CalcResult() < AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                        {
+                            viewHolder.testStatus?.text = "TEST PASSED!"
+                        }
+                        else
+                        {
+                            viewHolder.testStatus?.text = "TEST FAILED!"
+                        }
+                    }
+
+                    viewHolder.calcResult?.text = "Calc Result (60m): ${p.getDIR60CalcResult().formatForDecPlaces(4)}"
+                }
+            }
+        }
+
     }
 
     fun cellForOneLineText(holder: RecyclerView.ViewHolder?, position: Int)

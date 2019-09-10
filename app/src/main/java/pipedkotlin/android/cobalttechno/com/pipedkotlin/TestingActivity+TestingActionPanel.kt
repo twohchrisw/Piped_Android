@@ -60,6 +60,7 @@ fun TestingActivity.formatForReadyToPressurise()
         btnAction.alpha = 1.0f
         btnAction.text = "$BUTTON_TEXT_START_PRESS"
         btnConnect.isEnabled = true
+        linPressurising.visibility = View.VISIBLE
         tvPressurisingLabel.alpha = 1.0f
         tvPressurisingLabel.text = ""
     }
@@ -75,6 +76,7 @@ fun TestingActivity.formatActionPanelForPressurising()
         btnConnect.isEnabled = true
         btnAction.setText(BUTTON_TEXT_STOP_PRESS)
         linPressurising.alpha = 1.0f
+        linPressurising.visibility = View.VISIBLE
         tvPressurisingLabel.alpha = 1.0f
         tvPressurisingLabel.text = "Pressurising . . ."
         linWaitingForReading.alpha = 0.0f
@@ -90,9 +92,10 @@ fun TestingActivity.formatActionPanelForCountdown(readingTime: Date, earlierTime
 
     runOnUiThread {
         btnAction.alpha = 0.0f
+        linPressurising.visibility = View.VISIBLE
         linPressurising.alpha = 1.0f
         tvPressurisingLabel.alpha = 0.0f
-        tvPressurisingLabel.text = "countdown test"
+        tvPressurisingLabel.text = ""
 
         linWaitingForReading.alpha = 1.0f
         tvWaiting.text = progressText
@@ -164,9 +167,12 @@ fun TestingActivity.formatActionPanelForCalculate()
         btnAction.alpha = 1.0f
         btnAction.setText(BUTTON_TEXT_CALCULATE)
         linPressurising.alpha = 0.0f
+        tvPressurisingLabel.alpha = 0.0f
+        pvActivity.alpha = 0.0f
         linWaitingForReading.alpha = 0.0f
         linCountdown.visibility = View.GONE
         tvPressureValueLabel.alpha = 0.0f
+        //linPressurising.visibility = View.GONE
     }
 }
 

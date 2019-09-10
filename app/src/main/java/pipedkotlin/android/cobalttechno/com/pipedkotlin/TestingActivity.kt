@@ -119,7 +119,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         if (testingContext == "DI")
         {
             testingSession.testingContext = TestingSessionData.TestingContext.di
-            supportActionBar?.title = "DI Testing"
+            supportActionBar?.title = "Metallic Test"
         }
         else
         {
@@ -491,26 +491,35 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     fun requestDILossValue()
     {
         val choiceDialog = AlertDialog.Builder(this)
-        choiceDialog.setTitle("Metallic Test Loss")
-        choiceDialog.setMessage("Please select the allowed pressure loss value for this test")
+        choiceDialog.setTitle("Metallic Test Loss: Please select the allowed pressure loss value for this test")
+        //choiceDialog.setMessage("Please select the allowed pressure loss value for this test")
         val choiceDialogItems = arrayOf("0.2 bar", "Zero Loss")
         choiceDialog.setItems(choiceDialogItems) { dialog, which ->
             when (which) {
                 0 -> {
                     runOnUiThread {
                         AppGlobals.instance.activeProcess.di_is_zero_loss = 0
+                        AppGlobals.instance.activeProcess.save(this)
+                        loadData()
                     }
                 }
                 1 -> {
                     runOnUiThread {
                         AppGlobals.instance.activeProcess.di_is_zero_loss = 1
+                        AppGlobals.instance.activeProcess.save(this)
+                        loadData()
                     }
                 }
             }
         }
-        choiceDialog.setNegativeButton("Cancel") { dialog, which ->
-        }
-        choiceDialog.show()
+
+        //choiceDialog.setNegativeButton("Cancel") { dialog, which ->
+        //}
+
+        val dialog = choiceDialog.create()
+        dialog.show()
+
+        //choiceDialog.create().show()
     }
 
 
@@ -696,6 +705,113 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
     }
 
+    class DITimerTask(val a: TestingActivity, val r15Time: Date, val r60Time: Date): TimerTask()
+    {
+        override fun run() {
+            val now = Date()
+            val p = AppGlobals.instance.activeProcess
+
+            //Log.d("ditest", "DITimerTask TimerStage: ${a.testingSession.timerStage}")
+
+            if (a.testingSession.timerStage == 0)
+            {
+                if (now.time < r15Time.time)
+                {
+                    waitingFor15mReading(now)
+                }
+                else
+                {
+                    Log.d("ditest", "HIT R15 Reading")
+
+                    if (a.tibiisSession.lastReading != null)
+                    {
+                        Log.d("ditest", "SAVE R15 Tibiis Reading")
+                        a.saveReading15(a.tibiisSession.lastReading!!)
+                    }
+
+                    // Are we conditioning
+                    if (a.testingSession.getIsDITestConditioning())
+                    {
+                        // Is the test failing
+                        Log.d("ditest", "Testing for conditioning fail")
+                        var isFailing = false
+                        val loss = p.getDIR15CalcResult()
+                        if (p.di_is_zero_loss == 0)
+                        {
+                            if (loss > AppGlobals.instance.DI_15_MIN_MAXIMUM)
+                            {
+                                isFailing = true
+                            }
+                        }
+
+                        if (p.di_is_zero_loss == 1)
+                        {
+                            if (loss > AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                            {
+                                isFailing = true
+                            }
+                        }
+
+                        if (isFailing)
+                        {
+                            Log.d("ditest", "DI TEST IS FAILING FOR CONDITIONING")
+                            a.testingSession.timerStage = -1
+                            //TODO: Work with pressure timer for DI Conditioning
+                        }
+                    }
+
+                    a.testingSession.timerStage = 1
+                    a.loadData()
+                }
+            }
+
+
+            if (a.testingSession.timerStage == 1)
+            {
+                if (now.time < r60Time.time)
+                {
+                    waitingFor60mReading(now)
+                }
+                else
+                {
+                    Log.d("ditest", "HIT R60 Reading")
+                    if (a.tibiisSession.lastReading != null)
+                    {
+                        Log.d("ditest", "Calling save for R60 reading")
+                        a.saveReading60(a.tibiisSession.lastReading!!)
+                    }
+
+                    a.testingSession.timerStage = 2
+                    a.loadData()
+                }
+            }
+
+            if (a.testingSession.timerStage == 2)
+            {
+                //Log.d("ditest", "Formatting for Calculate")
+                a.loadData()
+                a.cancelPETimer()
+                a.testingSession.timerStage = 99
+            }
+
+        }
+
+        fun waitingFor15mReading(now: Date)
+        {
+            Log.d("ditest", "Waiting for 15m")
+            val millisDiff = r15Time.time - now.time
+            val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
+            a.formatActionPanelForCountdown(r15Time, DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_di_pressurising_started, Date()), countdownString, "Waiting for 15m Reading")
+        }
+
+        fun waitingFor60mReading(now: Date)
+        {
+            Log.d("ditest", "Waiting for 60m")
+            val millisDiff = r60Time.time - now.time
+            val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
+            a.formatActionPanelForCountdown(r60Time, r15Time, countdownString, "Waiting for 60m Reading")
+        }
+    }
 
     class PETimerTask(val a: TestingActivity, val r1Time: Date, val r2Time: Date, val r3Time: Date): TimerTask()
     {

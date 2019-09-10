@@ -72,7 +72,7 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "PipedDatabase", nul
                 EXLDProcess.c_consum_swabs_size to REAL + DEFAULT("0"),
                 EXLDProcess.c_create_device to TEXT + DEFAULT("''"),
                 EXLDProcess.c_create_timestamp to TEXT + DEFAULT("''"),
-                EXLDProcess.c_di_is_zero_loss to INTEGER + DEFAULT("0"),
+                EXLDProcess.c_di_is_zero_loss to INTEGER + DEFAULT("-1"),
                 EXLDProcess.c_di_lat to REAL + DEFAULT("0"),
                 EXLDProcess.c_di_long to REAL + DEFAULT("0"),
                 EXLDProcess.c_di_test_has_calculated to INTEGER + DEFAULT("0"),

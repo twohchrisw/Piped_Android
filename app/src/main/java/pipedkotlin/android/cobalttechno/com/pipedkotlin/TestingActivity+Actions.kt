@@ -56,6 +56,14 @@ fun TestingActivity.didPressActionButton(menuId: Int)
         }
 
         R.id.mnuZeroTibiisSensors -> {
+
+            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            {
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
+                return
+            }
+
             AppGlobals.instance.tibiisController.commandZeroPressureSensors()
 
             val alert = AlertHelper(this)
@@ -99,19 +107,36 @@ fun TestingActivity.didPressActionButton(menuId: Int)
         }
 
         R.id.mnuEnableAutoPump -> {
+            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            {
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
+                return
+            }
+
             //TODO: Needs completing
         }
 
         R.id.mnuEnableAutoPumpConditioning -> {
+            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            {
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
+                return
+            }
+
             //TODO: Needs completing
         }
 
         R.id.mnuDisableAutoPump -> {
-            //TODO: Needs completing
-        }
+            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            {
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
+                return
+            }
 
-        R.id.mnuLoadData -> {
-            loadData()
+            //TODO: Needs completing
         }
 
     }

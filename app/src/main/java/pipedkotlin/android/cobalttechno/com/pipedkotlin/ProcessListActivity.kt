@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_process_list.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivityForResult
 import java.util.*
 
@@ -74,14 +75,24 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         when (item?.itemId)
         {
             R.id.mnuSyncWithServer -> {
-                val alert = AlertHelper(this)
-                alert.dialogForOKAlertNoAction("Sync With Server", "In development")
+                syncOutstandingProcesses()
             }
 
             R.id.mnuSignout -> {
                 //TODO: Ensure all processes have synced before allowing this, see ProcessListViewController.signOutOfCompany #549
+
                 val alert = AlertHelper(this)
-                alert.dialogForOKAlertNoAction("Signout", "In development")
+
+                if (doAnyProcessesNeedSync())
+                {
+                    alert.dialogForOKAlertNoAction("Signout", "Please sync all processes before signing out")
+                }
+                else
+                {
+                    // Reset the login data
+                    EXLDSettings.resetLoginToDefault(this)
+                    this.finish()
+                }
             }
 
             R.id.mnuAbout -> {
@@ -99,6 +110,21 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     override fun onBackPressed() {
         return
     }
+
+    fun syncOutstandingProcesses()
+    {
+        for (p in processes)
+        {
+            if (p.needsSync())
+            {
+                val a = this
+                doAsync {
+                    AppGlobals.instance.syncManager.syncProcess(p)
+                }
+            }
+        }
+    }
+
 
     fun assignOutlets()
     {
@@ -169,4 +195,18 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     override fun processFailedToSync(process: EXLDProcess, errorMessage: String) {
 
     }
+
+    fun doAnyProcessesNeedSync(): Boolean
+    {
+        for (p in processes)
+        {
+            if (p.needsSync())
+            {
+                return true
+            }
+        }
+
+        return false
+    }
+
 }

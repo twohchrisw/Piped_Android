@@ -18,6 +18,9 @@
         android:id="@+id/mnuEnableAutoPump"
         android:title="Enable Auto Pump" />
     <item
+        android:id="@+id/mnuEnableAutoPumpConditioning"
+        android:title="Enable Auto Pump Conditioning" />
+    <item
         android:id="@+id/mnuDisableAutoPump"
         android:title="Disable Auto Pump" />
 </menu>

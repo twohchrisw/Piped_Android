@@ -4,6 +4,7 @@ import android.content.Context
 import android.provider.SyncStateContract.Helpers.insert
 import android.provider.SyncStateContract.Helpers.update
 import org.jetbrains.anko.db.*
+import java.nio.file.Files.delete
 
 data class EXLDSettings(val settingsID: Int,
                         val alertEmailAddress: String?,
@@ -129,5 +130,14 @@ data class EXLDSettings(val settingsID: Int,
                         EXLDSettings.COLUMN_ALLOW_AUDITING to auditing).whereArgs(EXLDSettings.COLUMN_ID + " = 1").exec()
             }
         }
+
+        // Deletes the settings record and effectively signs the user out
+        fun resetLoginToDefault(context: Context)
+        {
+            context.database.use {
+                delete(EXLDSettings.TABLE_NAME, "${EXLDSettings.COLUMN_ID} = 1")
+            }
+        }
+
     }
 }

@@ -72,6 +72,7 @@
         <activity
             android:name=".TestingActivity"
             android:parentActivityName=".ProcessMenuActivity" />
+
     </application>
 
 </manifest>

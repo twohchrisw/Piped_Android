@@ -111,6 +111,8 @@ class GetAddressActivity : BaseActivity() {
     {
         if (lat != NULL_COORDINATE && lng != NULL_COORDINATE)
         {
+            AppGlobals.instance.lastLat = lat
+            AppGlobals.instance.lastLng = lng
             currentLat = lat
             currentLng = lng
             tvLocation.text = "Lat: " + currentLat + " Lng: " + currentLng

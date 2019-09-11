@@ -31,7 +31,12 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        startUp()
+    }
 
+    fun startUp()
+    {
+        Log.d("ditest", "Start Up")
         checkPermissions()
         progressBar = findViewById(R.id.progressBar) as ProgressBar
         progressBar.visibility = View.GONE
@@ -47,34 +52,32 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
             shouldLoadProcessListAfterParsing = true
             loadListItems()
-/*
-            Timer("loadlistTimer", false).schedule(1000) {
-                runOnUiThread {
-                    loadMainProcessList()
-                }
-            }
 
-            Timer("loadClients", false).schedule(2000) {
-                doAsync {
-                    loadListItems()
-                }
-            }
-            */
         }
         else {
-            // Wait for the user to provide a company id
-            btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
-            btnEnterCompanyId.visibility = View.VISIBLE
-            btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
-            supportActionBar?.hide()
-            shouldLoadProcessListAfterParsing = true
+            formatForEnterCompanyID()
         }
     }
+
+    fun formatForEnterCompanyID()
+    {
+        // Wait for the user to provide a company id
+        btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
+        btnEnterCompanyId.visibility = View.VISIBLE
+        btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
+        supportActionBar?.hide()
+        shouldLoadProcessListAfterParsing = true
+        progressBar.visibility = View.GONE
+    }
+
 
     fun checkPermissions()
     {
         val permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
-        if (permission != PackageManager.PERMISSION_GRANTED)
+        val p1 = ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+        val p2 = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        val p3 = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE)
+        if (permission != PackageManager.PERMISSION_GRANTED || p1 != PackageManager.PERMISSION_GRANTED || p2 != PackageManager.PERMISSION_GRANTED || p3 != PackageManager.PERMISSION_GRANTED)
         {
             val perms = arrayOf(android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.INTERNET, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE)
             ActivityCompat.requestPermissions(this, perms, TestingActivity.ActivityRequestCodes.permissions.value)
@@ -134,7 +137,9 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         val processListIntent = Intent(this, ProcessListActivity::class.java)
         startActivity(processListIntent)
+        formatForEnterCompanyID()
     }
+
 
     // MARK: Comms Manager Delegate
 

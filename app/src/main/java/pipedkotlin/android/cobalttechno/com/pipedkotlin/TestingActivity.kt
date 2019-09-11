@@ -179,14 +179,21 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
-        inflater.inflate(R.menu.testing_menu, menu)
 
-        menuZeroTibiis = menu!!.findItem(R.id.mnuZeroTibiisSensors)
-        menuEnableAutoPump = menu!!.findItem(R.id.mnuEnableAutoPump)
-        menuDisableAutoPump = menu!!.findItem(R.id.mnuDisableAutoPump)
-        menuEnableConditioning = menu!!.findItem(R.id.mnuEnableAutoPumpConditioning)
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            inflater.inflate(R.menu.testing_menu_di, menu)
+        }
+        else {
+            inflater.inflate(R.menu.testing_menu, menu)
+        }
 
-        formatOptionsMenuForContext(false)
+        //menuZeroTibiis = menu!!.findItem(R.id.mnuZeroTibiisSensors)
+        //menuEnableAutoPump = menu!!.findItem(R.id.mnuEnableAutoPump)
+        //menuDisableAutoPump = menu!!.findItem(R.id.mnuDisableAutoPump)
+        //menuEnableConditioning = menu!!.findItem(R.id.mnuEnableAutoPumpConditioning)
+
+        //formatOptionsMenuForContext(false)
 
         return true
     }

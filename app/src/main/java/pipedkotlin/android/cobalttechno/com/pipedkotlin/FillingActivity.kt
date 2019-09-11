@@ -57,7 +57,9 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            val myAdapter = recyclerView.adapter as StandardRecyclerAdapter
+            myAdapter.updateTotalWater()
+            myAdapter.notifyDataSetChanged()
         }
     }
 }

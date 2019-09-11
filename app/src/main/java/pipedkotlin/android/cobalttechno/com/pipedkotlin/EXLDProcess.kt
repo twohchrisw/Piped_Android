@@ -1112,6 +1112,35 @@ data class EXLDProcess(val columnId: Long = -1,
         return diff
     }
 
+    fun pauseTimeForTask(task: String, context: Context): Long
+    {
+        var totalSeconds: Long = 0
+        val pauses = EXLDPauseSessions.pauseSessions(context, columnId, task)
+        for (p in pauses)
+        {
+            totalSeconds = totalSeconds + p.totalPauseSeconds()
+        }
+
+        return totalSeconds
+    }
+
+    fun pauseTimeForTaskFormatted(task: String, context: Context): String
+    {
+        val totalSeconds = pauseTimeForTask(task, context)
+
+        if (totalSeconds == 0.toLong())
+        {
+            return ""
+        }
+
+        val secondsAsDate = Date()
+        secondsAsDate.time = totalSeconds * 1000
+        val hours = secondsAsDate.hours - 1
+        val minutes = secondsAsDate.minutes
+        val seconds = secondsAsDate.seconds
+
+        return " (Paused for ${hours}H:${minutes}M:${seconds}S)"
+    }
 
 
 

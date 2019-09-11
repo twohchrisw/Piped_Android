@@ -97,18 +97,17 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         {
             val uuid = UUID.randomUUID().toString()
             val fileName = "chlor_${uuid}.jpg"
-
-            if (data != null)
-            {
-                val bitmap = data!!.extras.get("data") as Bitmap
-                saveImageToExternalStorage(bitmap, fileName)
-                p.pt_chlor_end_photo = fileName
-                p.save(this)
-            }
+            saveImageToExternalStorage(fileName)
+            p.pt_chlor_end_photo = fileName
+            p.save(this)
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            val myAdapter = recyclerView.adapter as StandardRecyclerAdapter
+            myAdapter.updateTotalWater()
+            myAdapter.notifyDataSetChanged()
+
+            //recyclerView.adapter.notifyDataSetChanged()
         }
     }
 }

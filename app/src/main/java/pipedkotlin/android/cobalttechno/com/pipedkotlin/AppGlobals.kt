@@ -59,7 +59,7 @@ public class AppGlobals private constructor() {
     var lastLat: Double = 0.0
     var lastLng: Double = 0.0
 
-    val DI_TEST_MODE = true
+    val DI_TEST_MODE = false
     val DI_TESTING_ZERO_LOSS_VALUE = 0.00999
     val DI_TESTING_VALUE = 0.201
     val DI_15_MIN_MAXIMUM = 0.051

@@ -60,11 +60,13 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
     override fun didRequestNote(note: EXLDSurveyNotes) {
         currentSurveyNote = note
         setNotes(currentSurveyNote!!.sn_note)
+        AppGlobals.instance.activeProcess.save(this)    // The updates forces a sync
     }
 
     override fun didRequestImage(note: EXLDSurveyNotes) {
         currentSurveyNote = note
         requestCameraPermissions()
+        AppGlobals.instance.activeProcess.save(this)    // The updates forces a sync
     }
 
 
@@ -106,14 +108,9 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         {
             val uuid = UUID.randomUUID().toString()
             val fileName = "survey_${uuid}.jpg"
-
-            if (data != null)
-            {
-                val bitmap = data!!.extras.get("data") as Bitmap
-                saveImageToExternalStorage(bitmap, fileName)
-                currentSurveyNote!!.sn_photo = fileName
-                currentSurveyNote!!.save(this)
-            }
+            saveImageToExternalStorage(fileName)
+            currentSurveyNote!!.sn_photo = fileName
+            currentSurveyNote!!.save(this)
         }
 
         runOnUiThread {

@@ -308,12 +308,19 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     fun setSectionLength(value: String)
     {
         val p = AppGlobals.instance.activeProcess
+
+        val intValue = value.toIntOrNull()
+        if (intValue == null)
+        {
+            return
+        }
+
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
-            p.pt_section_length = value;
+            p.pt_section_length = intValue.toString()
         }
         else
         {
-            p.pt_di_section_length = value;
+            p.pt_di_section_length = intValue.toString()
         }
         p.save(this)
         loadData()

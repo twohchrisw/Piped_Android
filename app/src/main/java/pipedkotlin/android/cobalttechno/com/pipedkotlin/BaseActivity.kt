@@ -5,11 +5,14 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.PersistableBundle
+import android.os.StrictMode
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AlertDialog
@@ -19,12 +22,14 @@ import android.util.Log
 import android.widget.EditText
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.android.synthetic.main.activity_testing_acitivty.*
 import org.jetbrains.anko.act
 import org.jetbrains.anko.db.NULL
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.logging.LogRecord
 
@@ -40,6 +45,7 @@ open class BaseActivity: AppCompatActivity() {
     val CAMERA_REQUEST_CAMERA = 1
     val CAMERA_REQUEST_GALLERY = 2
     val NOTES_REQUEST = 3
+    var TEMP_IMAGE_LOCATION = "/sdcard/temppic.jpg"
 
     // MARK: Location
 
@@ -135,18 +141,29 @@ open class BaseActivity: AppCompatActivity() {
 
     fun choosePicFromCamera()
     {
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        val outfile = File(TEMP_IMAGE_LOCATION)
+        val outuri = Uri.fromFile(outfile)
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outuri)
         startActivityForResult(cameraIntent, CAMERA_REQUEST_CAMERA)
     }
 
+    /*
     fun saveImageToExternalStorage(bitmap: Bitmap, filename: String)
     {
+        val options = BitmapFactory.Options()
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888
+        val internalBitmap = BitmapFactory.decodeFile(TEMP_IMAGE_LOCATION, options) // The bitmap in the parameter is the thumbnail
+
         val path = Environment.getExternalStorageDirectory().toString()
         val file = File(path, filename)
 
         try {
             val stream: OutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            internalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             stream.flush()
             stream.close()
             Log.d("cobswab", "image saved successfully!!")
@@ -155,6 +172,38 @@ open class BaseActivity: AppCompatActivity() {
         {
             Log.d("cobswab", "Error saving image: ${e.localizedMessage}")
         }
+    }
+    */
+
+
+    fun saveImageToExternalStorage(filename: String)
+    {
+        val options = BitmapFactory.Options()
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888
+        //options.inJustDecodeBounds = true
+        val internalBitmap = BitmapFactory.decodeFile(TEMP_IMAGE_LOCATION, options) // The bitmap in the parameter is the thumbnail
+
+        //val inWidth = options.outWidth
+        //val inHeight = options.outHeight
+
+        val path = Environment.getExternalStorageDirectory().toString()
+        val file = File(path, filename)
+
+        try {
+            val stream: OutputStream = FileOutputStream(file)
+
+            val reducedBitmp = Bitmap.createScaledBitmap(internalBitmap, 1000, 1000, false)
+            reducedBitmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+            Log.d("cobswab", "image saved successfully!!")
+            AppGlobals.instance.activeProcess.save(this)    // To force an update check
+        }
+        catch (e: IOException)
+        {
+            Log.d("cobswab", "Error saving image: ${e.localizedMessage}")
+        }
+
     }
 
     fun setNotes(defaultValue: String)

@@ -975,6 +975,47 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 PipedTableRow.PipedTableRowType.SectionHeader -> {
                     val viewHolder = holder as ViewHolderStandardHeader
                     viewHolder.headerText?.text = tableRow.title
+
+
+                    // Pause duration added to the header
+                    if (position == 0)
+                    {
+                        val title = tableRow.title
+                        when (pipedTask)
+                        {
+                            PipedTask.Swabbing -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_SWABBING, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                            PipedTask.Chlorination -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_CHLOR, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                            PipedTask.DeChlorination -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_DECHLOR, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                            PipedTask.Filling -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_FILLING, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                            PipedTask.Flushing -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_FLUSH, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                            PipedTask.Flushing2 -> {
+                                val pauseText = p.pauseTimeForTaskFormatted(EXLDPauseSessions.PAUSE_TYPE_FLUSH2, ctx)
+                                viewHolder.headerText?.text = "$title$pauseText"
+                            }
+
+                        }
+
+                    }
                 }
 
                 /* Notes */
@@ -1782,29 +1823,31 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     when (tableRow.field)
                     {
                         EXLDProcess.c_swab_run_started -> theDate = p.swab_run_started
+
                         EXLDProcess.c_swab_home -> {
                             theDate = p.swab_home
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
+
                         EXLDProcess.c_filling_stopped -> {
                             theDate = p.filling_stopped
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
                         EXLDProcess.c_pt_flush_completed -> {
                             theDate = p.pt_flush_completed
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
                         EXLDProcess.c_pt_flush_completed2 -> {
                             theDate = p.pt_flush_completed2
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
                         EXLDProcess.c_pt_chlor_main_chlorinated -> {
                             theDate = p.pt_chlor_main_chlorinated
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
                         EXLDProcess.c_pt_dec_dechlorinated -> {
                             theDate = p.pt_dec_dechlorinated
-                            closePauseSessions()
+                            //closePauseSessions()
                         }
                         EXLDProcess.c_pt_sampl_given_time -> {
                             theDate = p.pt_sampl_given_time
@@ -1848,12 +1891,70 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         when (tableRow.field)
                         {
                             EXLDProcess.c_swab_run_started -> p.swab_run_started = now
-                            EXLDProcess.c_swab_home -> p.swab_home = now
-                            EXLDProcess.c_filling_stopped -> p.filling_stopped = now
-                            EXLDProcess.c_pt_flush_completed -> p.pt_flush_completed = now
-                            EXLDProcess.c_pt_flush_completed2 -> p.pt_flush_completed2 = now
-                            EXLDProcess.c_pt_chlor_main_chlorinated -> p.pt_chlor_main_chlorinated = now
-                            EXLDProcess.c_pt_dec_dechlorinated -> p.pt_dec_dechlorinated = now
+                            EXLDProcess.c_swab_home ->  {
+
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.swab_home = now
+                                    closePauseSessions()
+                                    updateTotalWater()
+                                }
+                                else
+                                {
+                                    p.swab_home = ""
+                                    updateTotalWater()
+                                }
+                            }
+
+                            EXLDProcess.c_filling_stopped -> {
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.filling_stopped = now
+                                }
+                                else
+                                {
+                                    p.filling_stopped = ""
+                                }
+                                updateTotalWater()
+                            }
+                            EXLDProcess.c_pt_flush_completed -> {
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.pt_flush_completed = now
+                                }
+                                else
+                                {
+                                    p.pt_flush_completed = ""
+                                }
+                                updateTotalWater()
+                            }
+                            EXLDProcess.c_pt_flush_completed2 ->{
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.pt_flush_completed2 = now
+                                }
+                                else
+                                {
+                                    p.pt_flush_completed2 = ""
+                                }
+                                updateTotalWater()
+                            }
+                            EXLDProcess.c_pt_chlor_main_chlorinated ->  {
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.pt_chlor_main_chlorinated = now
+                                }
+                                else
+                                {
+                                    p.pt_chlor_main_chlorinated = ""
+                                }
+                                updateTotalWater()
+                            }
+                            EXLDProcess.c_pt_dec_dechlorinated -> {
+                                if (viewHolder.btnSet?.text == "Set") {
+                                    p.pt_dec_dechlorinated = now
+                                }
+                                else
+                                {
+                                    p.pt_dec_dechlorinated = ""
+                                }
+                                updateTotalWater()
+                            }
                         }
 
                         p.save(ctx)
@@ -2253,6 +2354,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             viewHolder.tvLocation?.visibility = View.GONE
         }
     }
+
 
     fun formatSwabRemoved(viewHolder: ViewHolderDateSet)
     {

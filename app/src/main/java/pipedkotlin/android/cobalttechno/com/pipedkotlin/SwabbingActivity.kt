@@ -81,14 +81,9 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         {
             val uuid = UUID.randomUUID().toString()
             val fileName = "survey_${uuid}.jpg"
-
-            if (data != null)
-            {
-                val bitmap = data!!.extras.get("data") as Bitmap
-                saveImageToExternalStorage(bitmap, fileName)
-                p.swab_photo = fileName
-                p.save(this)
-            }
+            saveImageToExternalStorage(fileName)
+            p.swab_photo = fileName
+            p.save(this)
         }
 
         if (requestCode == NOTES_REQUEST && data != null)
@@ -97,7 +92,9 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            val myAdapter = recyclerView.adapter as StandardRecyclerAdapter
+            myAdapter.updateTotalWater()
+            myAdapter.notifyDataSetChanged()
         }
     }
 

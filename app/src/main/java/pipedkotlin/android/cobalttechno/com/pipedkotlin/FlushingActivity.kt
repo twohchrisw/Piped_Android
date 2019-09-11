@@ -86,7 +86,9 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            val myAdapter = recyclerView.adapter as StandardRecyclerAdapter
+            myAdapter.updateTotalWater()
+            myAdapter.notifyDataSetChanged()
         }
     }
 }

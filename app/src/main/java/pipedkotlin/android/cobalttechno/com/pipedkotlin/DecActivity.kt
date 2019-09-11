@@ -68,7 +68,9 @@ class DecActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdap
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            val myAdapter = recyclerView.adapter as StandardRecyclerAdapter
+            myAdapter.updateTotalWater()
+            myAdapter.notifyDataSetChanged()
         }
     }
 }

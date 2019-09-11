@@ -171,35 +171,23 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
             {
                 AppGlobals.Companion.FlowrateViewType.Chlor -> {
                     val fileName = "chlor_${uuid}.jpg"
-                    if (data != null)
-                    {
-                        val bitmap = data!!.extras.get("data") as Bitmap
-                        saveImageToExternalStorage(bitmap, fileName)
-                        chlorFlowrate!!.chlor_photo = fileName
-                        chlorFlowrate!!.save(this)
-                    }
+                    saveImageToExternalStorage(fileName)
+                    chlorFlowrate!!.chlor_photo = fileName
+                    chlorFlowrate!!.save(this)
                 }
 
                 AppGlobals.Companion.FlowrateViewType.DeChlor -> {
                     val fileName = "dechlor_${uuid}.jpg"
-                    if (data != null)
-                    {
-                        val bitmap = data!!.extras.get("data") as Bitmap
-                        saveImageToExternalStorage(bitmap, fileName)
-                        decFlowrate!!.dec_photo = fileName
-                        decFlowrate!!.save(this)
-                    }
+                    saveImageToExternalStorage(fileName)
+                    decFlowrate!!.dec_photo = fileName
+                    decFlowrate!!.save(this)
                 }
 
                 AppGlobals.Companion.FlowrateViewType.Sampling -> {
                     val fileName = "sample${uuid}.jpg"
-                    if (data != null)
-                    {
-                        val bitmap = data!!.extras.get("data") as Bitmap
-                        saveImageToExternalStorage(bitmap, fileName)
-                        samplFlowrate!!.sampl_photo = fileName
-                        samplFlowrate!!.save(this)
-                    }
+                    saveImageToExternalStorage(fileName)
+                    samplFlowrate!!.sampl_photo = fileName
+                    samplFlowrate!!.save(this)
                 }
             }
         }

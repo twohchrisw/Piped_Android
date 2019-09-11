@@ -392,7 +392,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
             val airPercentage = p.pt_reading_5.toInt()
             if (airPercentage > 0)
             {
-                viewHolder.testLabel?.text = "Pipe has $airPercentage air"
+                viewHolder.testLabel?.text = "Pipe has $airPercentage% air"
             }
         }
 

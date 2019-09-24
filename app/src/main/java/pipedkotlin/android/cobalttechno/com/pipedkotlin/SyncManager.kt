@@ -38,6 +38,7 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
             return
         }
 
+
         Log.d("cobsync", "Syncing Process")
         processBeingSynced = process
         processBeingSynced!!.company_user_id = AppGlobals.instance.userId

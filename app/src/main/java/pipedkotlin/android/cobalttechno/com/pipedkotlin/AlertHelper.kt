@@ -3,6 +3,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.app.AlertDialog
 import android.content.Context
 import android.text.InputType
+import android.util.Log
 import android.widget.EditText
 
 open class AlertHelper(context: Context) {
@@ -22,6 +23,50 @@ open class AlertHelper(context: Context) {
 
         builder.setPositiveButton("OK", { dialog, i ->
             textResult = dialogEditText.text.toString()
+            positiveAction.invoke(textResult)
+            dialog.dismiss()
+        })
+
+        builder.setNegativeButton("Cancel", { dialog, i ->
+            dialog.dismiss()
+        })
+
+        builder.create().show()
+    }
+
+    public fun dialogForDecimalInput(title: String, defaultValue: String, positiveAction: (value: String) -> Unit)
+    {
+        dialogEditText.inputType = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
+        dialogEditText.setText(defaultValue)
+        dialogEditText.setSelectAllOnFocus(true)
+        builder.setTitle(title)
+        builder.setView(dialogEditText)
+
+        builder.setPositiveButton("OK", { dialog, i ->
+            textResult = dialogEditText.text.toString()
+            Log.d("cobcalib", "Entered text was $textResult")
+            positiveAction.invoke(textResult)
+            dialog.dismiss()
+        })
+
+        builder.setNegativeButton("Cancel", { dialog, i ->
+            dialog.dismiss()
+        })
+
+        builder.create().show()
+    }
+
+    public fun dialogForIntegerInput(title: String, defaultValue: String, positiveAction: (value: String) -> Unit)
+    {
+        dialogEditText.inputType = InputType.TYPE_CLASS_NUMBER
+        dialogEditText.setText(defaultValue)
+        dialogEditText.setSelectAllOnFocus(true)
+        builder.setTitle(title)
+        builder.setView(dialogEditText)
+
+        builder.setPositiveButton("OK", { dialog, i ->
+            textResult = dialogEditText.text.toString()
+            Log.d("cobcalib", "Entered text was $textResult")
             positiveAction.invoke(textResult)
             dialog.dismiss()
         })

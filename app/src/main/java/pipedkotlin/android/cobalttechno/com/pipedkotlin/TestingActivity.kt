@@ -67,7 +67,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var shouldTurnScreenOffWithNextLog = false
     var isScreenOn = false
     val WATER_LITRES_PER_PULSE = 0.25
-    val MAX_PREVIOUS_LOGS: Int = 10
+    val MAX_PREVIOUS_LOGS: Int = 16
     var lastPreviousLogRequired = -1
     var lastMaxLogNumber = 0
     var isDownloadingPreviousData = false
@@ -80,7 +80,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     // From TestingActionPanel
     var lastPreviousReading = Date()
     var isPressurisingDI = false
-    var previousReadingTimer: Timer? = null
+    var previousReadingTimer = Timer()
 
     // Constants
     val BUTTON_TEXT_START_PRESS = "Start Pressurising"
@@ -547,15 +547,15 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             TestingRecyclerAdapter.PERows.sectionName.value -> alert.dialogForTextInput("Test Section Name", p.pt_section_name, ::setSectionName)
             TestingRecyclerAdapter.PERows.sectionLength.value -> alert.dialogForTextInput("Section Length", p.pt_section_length.toString(), ::setSectionLength)
-            TestingRecyclerAdapter.PERows.pipeDiameter.value -> alert.dialogForTextInput("Pipe Diameter", p.pt_pe_pipe_diameter.toString(), ::setPipeDiameter)
+            TestingRecyclerAdapter.PERows.pipeDiameter.value -> alert.dialogForIntegerInput("Pipe Diameter", p.pt_pe_pipe_diameter.toString(), ::setPipeDiameter)
             TestingRecyclerAdapter.PERows.installTech.value -> setInstallTech()
             TestingRecyclerAdapter.PERows.pumpSize.value -> setPumpSize()
             TestingRecyclerAdapter.PERows.loggerDetails.value -> alert.dialogForTextInput("Logger Details", p.pt_pe_logger_details, ::setLoggerDetails)
-            TestingRecyclerAdapter.PERows.startPressure.value -> alert.dialogForTextInput("Start Pressure", p.pt_start_pressure.toString(), ::setStartPressure)
-            TestingRecyclerAdapter.PERows.stp.value -> alert.dialogForTextInput("System Test Pressure", p.pt_system_test_pressure.toString(), ::setSTP)
-            TestingRecyclerAdapter.PERows.reading1.value -> alert.dialogForTextInput("Reading 1", p.pt_reading_1.toString(), ::setReading1)
-            TestingRecyclerAdapter.PERows.reading2.value -> alert.dialogForTextInput("Reading 2", p.pt_reading_2.toString(), ::setReading2)
-            TestingRecyclerAdapter.PERows.reading3.value -> alert.dialogForTextInput("Reading 3", p.pt_reading_3.toString(), ::setReading3)
+            TestingRecyclerAdapter.PERows.startPressure.value -> alert.dialogForDecimalInput("Start Pressure", p.pt_start_pressure.toString(), ::setStartPressure)
+            TestingRecyclerAdapter.PERows.stp.value -> alert.dialogForDecimalInput("System Test Pressure", p.pt_system_test_pressure.toString(), ::setSTP)
+            TestingRecyclerAdapter.PERows.reading1.value -> alert.dialogForDecimalInput("Reading 1", p.pt_reading_1.toString(), ::setReading1)
+            TestingRecyclerAdapter.PERows.reading2.value -> alert.dialogForDecimalInput("Reading 2", p.pt_reading_2.toString(), ::setReading2)
+            TestingRecyclerAdapter.PERows.reading3.value -> alert.dialogForDecimalInput("Reading 3", p.pt_reading_3.toString(), ::setReading3)
             TestingRecyclerAdapter.PERows.notes.value -> setNotes()
         }
     }
@@ -567,14 +567,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         when (row)
         {
             TestingRecyclerAdapter.DIRows.sectionName.value -> alert.dialogForTextInput("Test Section Name", p.pt_di_section_name, ::setSectionName)
-            TestingRecyclerAdapter.DIRows.sectionLength.value -> alert.dialogForTextInput("Section Length", p.pt_di_section_length.toString(), ::setSectionLength)
-            TestingRecyclerAdapter.DIRows.pipeDiameter.value -> alert.dialogForTextInput("Pipe Diameter", p.pt_di_pipe_diameter.toString(), ::setPipeDiameter)
+            TestingRecyclerAdapter.DIRows.sectionLength.value -> alert.dialogForIntegerInput("Section Length", p.pt_di_section_length.toString(), ::setSectionLength)
+            TestingRecyclerAdapter.DIRows.pipeDiameter.value -> alert.dialogForIntegerInput("Pipe Diameter", p.pt_di_pipe_diameter.toString(), ::setPipeDiameter)
             TestingRecyclerAdapter.DIRows.pumpSize.value -> setPumpSize()
             TestingRecyclerAdapter.DIRows.loggerDetails.value -> alert.dialogForTextInput("Logger Details", p.pt_di_logger_details, ::setLoggerDetails)
-            TestingRecyclerAdapter.DIRows.startPressure.value -> alert.dialogForTextInput("Start Pressure", p.pt_di_start_pressure.toString(), ::setStartPressure)
-            TestingRecyclerAdapter.DIRows.stp.value -> alert.dialogForTextInput("System Test Pressure", p.pt_di_stp.toString(), ::setSTP)
-            TestingRecyclerAdapter.DIRows.reading15.value -> alert.dialogForTextInput("Reading 15m", p.pt_di_r15_value.toString(), ::setReading15)
-            TestingRecyclerAdapter.DIRows.reading60.value -> alert.dialogForTextInput("Reading 60m", p.pt_di_r60_value.toString(), ::setReading60)
+            TestingRecyclerAdapter.DIRows.startPressure.value -> alert.dialogForDecimalInput("Start Pressure", p.pt_di_start_pressure.toString(), ::setStartPressure)
+            TestingRecyclerAdapter.DIRows.stp.value -> alert.dialogForDecimalInput("System Test Pressure", p.pt_di_stp.toString(), ::setSTP)
+            TestingRecyclerAdapter.DIRows.reading15.value -> alert.dialogForDecimalInput("Reading 15m", p.pt_di_r15_value.toString(), ::setReading15)
+            TestingRecyclerAdapter.DIRows.reading60.value -> alert.dialogForDecimalInput("Reading 60m", p.pt_di_r60_value.toString(), ::setReading60)
             TestingRecyclerAdapter.DIRows.notes.value -> setNotes()
         }
     }
@@ -645,6 +645,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                     a.cancelAirPercentageTimer()
                 }
             }
+        }
+    }
+
+    class TurnOffPreviousTask(val a: TestingActivity): TimerTask() {
+        override fun run() {
+            a.turnOffPreviousReadings()
         }
     }
 

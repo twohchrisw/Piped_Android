@@ -48,9 +48,18 @@ fun TestingActivity.formatTibiisForConnected()
     // Start the live log request loop after a 100ms delay
     Timer("LiveLogRequestLoop", false).schedule(100) {
         startTibiisLiveLogRequestLoop()
+
     }
 
-    saveCalibrationDetails()
+    Timer("SaveCalib1", false).schedule(300) {
+        saveCalibrationDetails()
+    }
+
+    Timer("SveCalib2", false).schedule(700) {
+        saveCalibrationDetails()
+    }
+
+    //saveCalibrationDetails()
 }
 
 fun TestingActivity.reconnectTibiis()

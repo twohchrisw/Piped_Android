@@ -75,7 +75,14 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         when (item?.itemId)
         {
             R.id.mnuSyncWithServer -> {
-                syncOutstandingProcesses()
+                if (AppGlobals.isOnline(this)) {
+                    syncOutstandingProcesses()
+                }
+                else
+                {
+                    val alert = AlertHelper(this)
+                    alert.dialogForOKAlertNoAction("Sync with Server", "Unable to Sync as your device is currently not connected to the internet!")
+                }
             }
 
             R.id.mnuSignout -> {

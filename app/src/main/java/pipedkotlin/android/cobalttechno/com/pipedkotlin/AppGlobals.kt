@@ -1,5 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -33,6 +35,12 @@ public class AppGlobals private constructor() {
 
         enum class FlowrateViewType {
             None, Chlor, DeChlor, Sampling
+        }
+
+        fun isOnline(context: Context): Boolean {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val networkInfo = connectivityManager.activeNetworkInfo
+            return networkInfo != null && networkInfo.isConnected
         }
     }
 

@@ -51,7 +51,16 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             progressBar.visibility = View.VISIBLE
 
             shouldLoadProcessListAfterParsing = true
-            loadListItems()
+
+            if (AppGlobals.isOnline(this))
+            {
+                loadListItems()
+            }
+            else
+            {
+                Log.d("coboffline", "Network is offline")
+                loadMainProcessList()
+            }
 
         }
         else {

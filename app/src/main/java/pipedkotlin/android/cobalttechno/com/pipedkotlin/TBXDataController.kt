@@ -474,6 +474,8 @@ class TBXDataController(val tibiisController: TibiisController) {
         tibiisController.writeCharacteristic(tibiisController.mDataMDLP!!)
     }
 
+
+
     /*
     fun resetIncomingData()
     {

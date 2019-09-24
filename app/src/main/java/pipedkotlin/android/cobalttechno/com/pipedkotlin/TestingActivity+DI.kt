@@ -134,7 +134,7 @@ fun TestingActivity.calculateDIButtonPressed()
                 testingSession.hasCalculatedPETest = true
                 tibiisSession.hasCalculated = true
                 formatActionPanelForCalculate()
-                saveCalibrationDetails()
+                //saveCalibrationDetails()
                 tibiisStopPressurising()
 
                 Timer("stopTest", false).schedule(1000) {
@@ -262,7 +262,7 @@ fun TestingActivity.saveReading15(pr: LogReading)
     AppGlobals.instance.activeProcess.save(this)
     tibiisSession.setLogDIReading15(pr)
     loadData()
-    saveCalibrationDetails()
+    //saveCalibrationDetails()
 }
 
 fun TestingActivity.saveReading60(pr: LogReading)
@@ -273,7 +273,7 @@ fun TestingActivity.saveReading60(pr: LogReading)
     Log.d("ditest", "Saving reading 60 as $press")
     AppGlobals.instance.activeProcess.save(this)
     loadData()
-    saveCalibrationDetails()
+    //saveCalibrationDetails()
 }
 
 fun TestingActivity.resetDITest()

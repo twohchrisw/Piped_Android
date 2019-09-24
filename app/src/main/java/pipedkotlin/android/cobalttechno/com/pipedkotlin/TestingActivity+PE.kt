@@ -399,7 +399,7 @@ fun TestingActivity.calculatePEButtonPressed()
         liveLogTimer = Timer()
 
         calculatePETestResults()
-        saveCalibrationDetails()
+        //saveCalibrationDetails()
         loadData()
         loadPEGraph()
 
@@ -447,6 +447,7 @@ fun TestingActivity.saveCalibrationDetails()
 
     if (tc.connectStatus == TibiisController.ConnectionStatus.connected) {
 
+
         if (p.calib_name.length == 0) {
             Log.d("cobcalib", "Requesting Calib name")
             runOnUiThread {
@@ -473,7 +474,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_name.length == 0) {
-            Timer("calib111", false).schedule(325) {
+            Timer("calib111", false).schedule(375) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib temp")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
@@ -482,7 +483,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_temp.length == 0) {
-            Timer("calib1a", false).schedule(450) {
+            Timer("calib1a", false).schedule(525) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib temp")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
@@ -491,7 +492,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_temp.length == 0) {
-            Timer("calib1b", false).schedule(525) {
+            Timer("calib1b", false).schedule(675) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib temp")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
@@ -500,7 +501,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_temp.length == 0) {
-            Timer("calib1b", false).schedule(650) {
+            Timer("calib1b", false).schedule(900) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib temp")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
@@ -509,7 +510,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_temp.length == 0) {
-            Timer("calib1c", false).schedule(725) {
+            Timer("calib1c", false).schedule(1025) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib temp")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Temp)
@@ -518,7 +519,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_date.length == 0) {
-            Timer("calib2", false).schedule(850) {
+            Timer("calib2", false).schedule(1175) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib date")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
@@ -527,7 +528,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_date.length == 0) {
-            Timer("calib2a", false).schedule(925) {
+            Timer("calib2a", false).schedule(1325) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib date")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
@@ -536,7 +537,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_date.length == 0) {
-            Timer("calib2b", false).schedule(1050) {
+            Timer("calib2b", false).schedule(1475) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib date")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)
@@ -545,7 +546,7 @@ fun TestingActivity.saveCalibrationDetails()
         }
 
         if (p.calib_date.length == 0) {
-            Timer("calib2b", false).schedule(1300) {
+            Timer("calib2b", false).schedule(1675) {
                 runOnUiThread {
                     Log.d("cobcalib", "Requesting Calib date")
                     tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Date)

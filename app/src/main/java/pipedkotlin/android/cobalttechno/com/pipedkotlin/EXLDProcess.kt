@@ -622,7 +622,7 @@ data class EXLDProcess(val columnId: Long = -1,
         else
         {
             // Update
-            saveCalibDetails(context)
+            //saveCalibDetails(context)
             context.database.use {
                 update(EXLDProcess.TABLE_NAME, EXLDProcess.c_address to address,
                         EXLDProcess.c_client to client,

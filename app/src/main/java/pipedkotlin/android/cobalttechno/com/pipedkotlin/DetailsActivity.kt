@@ -141,11 +141,11 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
             }
             DetailsRecyclerAdapter.MenuItems.pipeLength.value -> {
                 val alertHelper = AlertHelper(this)
-                alertHelper.dialogForTextInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_length.toString(), ::savePipeLength)
+                alertHelper.dialogForIntegerInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_length.toString(), ::savePipeLength)
             }
             DetailsRecyclerAdapter.MenuItems.pipeDiameter.value -> {
                 val alertHelper = AlertHelper(this)
-                alertHelper.dialogForTextInput("Pipe Diameter", AppGlobals.instance.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
+                alertHelper.dialogForIntegerInput("Pipe Diameter", AppGlobals.instance.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
             }
             DetailsRecyclerAdapter.MenuItems.notes.value -> {
                 val notesIntent = Intent(this, NotesActivity::class.java)

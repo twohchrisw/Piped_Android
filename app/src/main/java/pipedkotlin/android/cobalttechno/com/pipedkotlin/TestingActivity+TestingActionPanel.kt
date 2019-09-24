@@ -190,9 +190,16 @@ fun TestingActivity.formatForCheckingIntegrity()
 fun TestingActivity.displayPreviousReadingData(message: String)
 {
     Log.d("cobpr", "displayPreviousReadingData: $message")
-    Timer("previousReadings", false).schedule(2000) {
+    /*
+    Timer("previousReadings", false).schedule(3000) {
         turnOffPreviousReadings()
     }
+    */
+
+    //liveLogTimer.scheduleAtFixedRate(TestingActivity.LiveLogTimerTask(this), 0, 1000)
+    previousReadingTimer.cancel()
+    previousReadingTimer = Timer()
+    previousReadingTimer.schedule(TestingActivity.TurnOffPreviousTask(this), 3000)
 
     runOnUiThread {
         tvWaiting.alpha = 0.0f
@@ -201,6 +208,8 @@ fun TestingActivity.displayPreviousReadingData(message: String)
         tvDownloading.text = message
     }
 }
+
+
 
 fun TestingActivity.turnOffPreviousReadings()
 {

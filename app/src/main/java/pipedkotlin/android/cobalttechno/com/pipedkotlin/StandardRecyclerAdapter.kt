@@ -1238,7 +1238,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
@@ -1257,7 +1257,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
@@ -1276,7 +1276,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
@@ -1295,7 +1295,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString(), {
+                                alert.dialogForIntegerInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString(), {
 
                                     val theValue = it.toIntOrNull()
                                     if (theValue != null)
@@ -1353,7 +1353,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_sodium_hypoclorite.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sodium Hypoclorite (Ltrs)", p.consum_sodium_hypoclorite.toString(), {
+                                alert.dialogForIntegerInput("Sodium Hypoclorite (Ltrs)", p.consum_sodium_hypoclorite.toString(), {
                                     val inputValue = it.toIntOrNull()
                                     if (inputValue != null)
                                     {
@@ -1369,7 +1369,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_sodium_bisulphate.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sodium Bisulphate (Ltrs)", p.consum_sodium_bisulphate.toString(), {
+                                alert.dialogForIntegerInput("Sodium Bisulphate (Ltrs)", p.consum_sodium_bisulphate.toString(), {
                                     val inputValue = it.toIntOrNull()
                                     if (inputValue != null)
                                     {
@@ -1385,7 +1385,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_swabs_qty.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Swabs Qty", p.consum_swabs_qty.toString(), {
+                                alert.dialogForIntegerInput("Swabs Qty", p.consum_swabs_qty.toString(), {
                                     val inputValue = it.toIntOrNull()
                                     if (inputValue != null)
                                     {
@@ -1401,7 +1401,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_swabs_size.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Swabs Size", p.consum_swabs_size.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Swabs Size", p.consum_swabs_size.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -1417,7 +1417,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_flanges_qty.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Flanges Qty", p.consum_flanges_qty.toString(), {
+                                alert.dialogForIntegerInput("Flanges Qty", p.consum_flanges_qty.toString(), {
                                     val inputValue = it.toIntOrNull()
                                     if (inputValue != null)
                                     {
@@ -1433,7 +1433,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_flanges_size.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Flanges Size", p.consum_flanges_size.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Flanges Size", p.consum_flanges_size.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -1449,7 +1449,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = p.consum_additional_fire_hose_qty.toString()
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Additional Fire Hose", p.consum_additional_fire_hose_qty.toString(), {
+                                alert.dialogForIntegerInput("Additional Fire Hose", p.consum_additional_fire_hose_qty.toString(), {
                                     val inputValue = it.toIntOrNull()
                                     if (inputValue != null)
                                     {
@@ -1472,7 +1472,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Flowrate", AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Flowrate", AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -1488,7 +1488,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Chlorine End Strength", AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine End Strength", AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -1510,7 +1510,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Flowrate", AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Flowrate", AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -1526,7 +1526,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2)
                         viewHolder.itemView.setOnClickListener {
                             val alert = AlertHelper(ctx)
-                            alert.dialogForTextInput("Chlorine Strength", AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2), {
+                            alert.dialogForDecimalInput("Chlorine Strength", AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2), {
                                 val inputValue = it.toDoubleOrNull()
                                 if (inputValue != null)
                                 {
@@ -1542,7 +1542,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Level at Discharge", AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Level at Discharge", AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
@@ -2731,7 +2731,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
 
         val alert = AlertHelper(ctx)
-        alert.dialogForTextInput("Enter Flowrate", "0", {
+        alert.dialogForDecimalInput("Enter Flowrate", "0", {
             val doubleValue = it.toDoubleOrNull()
             if (doubleValue != null)
             {

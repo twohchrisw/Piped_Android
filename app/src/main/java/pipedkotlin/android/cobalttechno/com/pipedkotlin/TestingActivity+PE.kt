@@ -215,6 +215,7 @@ fun TestingActivity.clearPEData()
 fun TestingActivity.startPressurisingButtonPressed()
 {
     val p = AppGlobals.instance.activeProcess
+    isPressurisingPE = true
 
     if (p.tibsessLogNumberForReading1 > 0)
     {
@@ -295,6 +296,7 @@ fun TestingActivity.stopPressurisingButtonPressed()
     if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
     {
         cancelCountupTimer()
+        isPressurisingPE = false
 
         if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_pressurising_start))
         {

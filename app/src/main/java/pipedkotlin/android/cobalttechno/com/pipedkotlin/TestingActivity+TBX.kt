@@ -57,6 +57,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
             }
         }
 
+        AppGlobals.instance.activeProcess.save(this)
         return
     }
 
@@ -82,6 +83,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
     if (process.pt_pressurising_start == "")
     {
         process.pt_pressurising_start = DateHelper.dateToDBString(logReceivedDate)
+        process.save(this)
         loadData()
     }
 

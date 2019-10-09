@@ -38,6 +38,11 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        recyclerView.adapter.notifyDataSetChanged()
+    }
+
     fun locationReceived(lat: Double, lng: Double) {
         AppGlobals.instance.lastLat = lat
         AppGlobals.instance.lastLng = lng

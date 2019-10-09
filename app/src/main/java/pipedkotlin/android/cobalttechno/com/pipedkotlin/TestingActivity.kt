@@ -76,6 +76,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var preventDIAskingForLossValue = false
     var recyclerViewHasBeenSetup = false
     var adapter: TestingRecyclerAdapter? = null
+    var isPressurisingPE = false
 
     // From TestingActionPanel
     var lastPreviousReading = Date()
@@ -109,6 +110,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_testing_acitivty)
+
+        Log.d("cobtimer", "onCreate isPressurisingPE: $isPressurisingPE")
 
         // Set the context for the tbxDataController so we can run commands on the main thread
         AppGlobals.instance.tibiisController.tbxDataController.context = this
@@ -146,6 +149,44 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             //TODO: createDiBackButton - to prevent the user exiting a test
         }
 
+        Log.d("cobalt4", "Process ID: ${AppGlobals.instance.activeProcess.internalId}")
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("cobtimer", "onResume isPressurisingPE: $isPressurisingPE")
+        recyclerView.adapter.notifyDataSetChanged()
+
+        if (isPressurisingPE)
+        {
+            ///formatActionPanelForPressurising()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        Log.d("cobtimer", "onDestroy isPressurisingPE: $isPressurisingPE")
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        Log.d("cobtimer", "onStart isPressurisingPE: $isPressurisingPE")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        Log.d("cobtimer", "onRestart isPressurisingPE: $isPressurisingPE")
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        Log.d("cobtimer", "onStop isPressurisingPE: $isPressurisingPE")
     }
 
     fun loadData(scrollToReading: Int = 0)

@@ -19,60 +19,60 @@
         android:supportsRtl="true"
         android:name=".MainApplication"
         android:theme="@style/AppTheme">
-        <activity android:name=".SamplingActivity" android:parentActivityName=".ProcessMenuActivity"></activity>
+        <activity android:name=".SamplingActivity" android:parentActivityName=".ProcessMenuActivity" android:configChanges="orientation" android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ConsumablesActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".EquipmentActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
-        <activity android:name=".FlowrateActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
+        <activity android:name=".FlowrateActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".SurveyNotesActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".DecActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".ChlorActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".FlushingActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".FillingActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".SwabbingActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".PEGraphActivity"
-            android:parentActivityName=".TestingActivity" />
-        <activity android:name=".LoginActivity">
+            android:parentActivityName=".TestingActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
+        <activity android:name=".LoginActivity"  android:configChanges="orientation" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProcessListActivity" />
+        <activity android:name=".ProcessListActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".ProcessMenuActivity"
-            android:parentActivityName=".ProcessListActivity" />
+            android:parentActivityName=".ProcessListActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".DetailsActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".ListSelectionActivity"
-            android:parentActivityName=".DetailsActivity" />
+            android:parentActivityName=".DetailsActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity
             android:name=".GetAddressActivity"
-            android:parentActivityName=".DetailsActivity" />
+            android:parentActivityName=".DetailsActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
         <activity android:name=".NotesActivity" />
         <activity android:name=".DateTimeActivity" />
         <activity
             android:name=".TestingActivity"
-            android:parentActivityName=".ProcessMenuActivity" />
+            android:parentActivityName=".ProcessMenuActivity"  android:configChanges="orientation" android:screenOrientation="portrait"/>
 
 
 

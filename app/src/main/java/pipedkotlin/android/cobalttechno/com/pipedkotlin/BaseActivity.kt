@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.util.Log
+import android.view.WindowManager
 import android.widget.EditText
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -46,6 +47,11 @@ open class BaseActivity: AppCompatActivity() {
     val CAMERA_REQUEST_GALLERY = 2
     val NOTES_REQUEST = 3
     var TEMP_IMAGE_LOCATION = "/sdcard/temppic.jpg"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
 
     // MARK: Location
 

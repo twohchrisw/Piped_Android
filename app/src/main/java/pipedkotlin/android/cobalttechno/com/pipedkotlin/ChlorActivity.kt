@@ -27,6 +27,11 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        recyclerView.adapter.notifyDataSetChanged()
+    }
+
     fun locationReceived(lat: Double, lng: Double) {
         AppGlobals.instance.lastLat = lat
         AppGlobals.instance.lastLng = lng

@@ -25,6 +25,11 @@ class DecActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdap
         recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DeChlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        recyclerView.adapter.notifyDataSetChanged()
+    }
+
     fun locationReceived(lat: Double, lng: Double) {
         AppGlobals.instance.lastLat = lat
         AppGlobals.instance.lastLng = lng

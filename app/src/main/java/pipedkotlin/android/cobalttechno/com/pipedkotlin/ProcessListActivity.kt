@@ -144,7 +144,14 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     {
         // FAB Button
         fab.setOnClickListener { view ->
-            addNewProcess()
+
+            val alert = AlertHelper(this)
+            alert.dialogForOKAlert("Create new Process?", "", {
+                runOnUiThread {
+                    addNewProcess()
+                }
+            })
+
         }
     }
 

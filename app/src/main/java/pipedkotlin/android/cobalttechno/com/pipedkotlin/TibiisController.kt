@@ -117,14 +117,14 @@ class TibiisController() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
-                //Log.d("cobalt", "GATT Connected")
+                Log.d("cobalt", "GATT Connected")
                 mBluetoothGatt!!.discoverServices()
 
                 delegate.tibiisConnected()
             }
             else if (newState == BluetoothProfile.STATE_DISCONNECTED)
             {
-                //Log.d("cobalt", "GATT DISConnected")
+                Log.d("cobalt", "GATT DISConnected")
                 mBluetoothGatt!!.close()
                 mBluetoothGatt = null
                 delegate.tibiisDisconnected()
@@ -304,15 +304,16 @@ class TibiisController() {
         Log.d("cobalt", "Stopping Scanner")
         if (mBluetoothAdapter != null) {
 
-
-            mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
-            mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
+            //mBluetoothAdapter!!.bluetoothLeScanner.stopScan(bleScannerCallback)
+            //mBluetoothAdapter!!.bluetoothLeScanner.flushPendingScanResults(bleScannerCallback)
 
             if (mBluetoothGatt != null)
             {
                 mBluetoothGatt!!.disconnect()
             }
         }
+
+        connectStatus = ConnectionStatus.notConnected
         //mBluetoothGatt!!.close()
         //mBluetoothGatt = null
     }

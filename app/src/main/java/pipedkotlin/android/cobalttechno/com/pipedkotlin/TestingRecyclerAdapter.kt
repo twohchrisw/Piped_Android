@@ -1,5 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -136,6 +137,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         val viewHolder = holder as ViewHolderTitleValue
         val title = viewHolder.titleText
         val value = viewHolder.valueText
+        value?.setTextColor(Color.parseColor("#1c3d92"));
         val p = AppGlobals.instance.activeProcess
 
         if (testingContext == TestingSessionData.TestingContext.pe)
@@ -182,6 +184,15 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                     val reading1 = p.pt_reading_1
                     Log.d("cob2", "REFRESH TABLE: READING 1 IS $reading1")
                     value?.text = p.pt_reading_1.formatForDecPlaces(3)
+
+                    val r1AsDate = DateHelper.dbStringToDateOrNull(reading1Date)
+                    if (r1AsDate != null)
+                    {
+                        if (r1AsDate.time < Date().time && reading1 == 0.0)
+                        {
+                            value?.setTextColor(Color.parseColor("#ff0000"))
+                        }
+                    }
                 }
                 PERows.reading2.value -> {
                     val readingDate = p.pt_reading2_time
@@ -190,12 +201,30 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                     val reading2 = p.pt_reading_2
                     Log.d("cob2", "REFRESH TABLE: READING 2 IS $reading2")
                     value?.text = p.pt_reading_2.formatForDecPlaces(3)
+
+                    val r1AsDate = DateHelper.dbStringToDateOrNull(readingDate)
+                    if (r1AsDate != null)
+                    {
+                        if (r1AsDate.time < Date().time && reading2 == 0.0)
+                        {
+                            value?.setTextColor(Color.parseColor("#ff0000"))
+                        }
+                    }
                 }
                 PERows.reading3.value -> {
                     val readingDate = p.pt_reading3_time
                     val rTime = DateHelper.dbDateStringFormattedWithSeconds(readingDate)
                     title?.text = "Reading 3: " + rTime.valueOrNone()
                     value?.text = p.pt_reading_3.formatForDecPlaces(3)
+
+                    val r1AsDate = DateHelper.dbStringToDateOrNull(readingDate)
+                    if (r1AsDate != null)
+                    {
+                        if (r1AsDate.time < Date().time && p.pt_reading_3 == 0.0)
+                        {
+                            value?.setTextColor(Color.parseColor("#ff0000"))
+                        }
+                    }
                 }
             }
         }

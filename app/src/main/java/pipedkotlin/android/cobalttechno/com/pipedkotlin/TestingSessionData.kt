@@ -96,6 +96,7 @@ class TestingSessionData {
 
     fun resetTestingSession()
     {
+
         hasCalculatedPETest = false
         timerStage = 0
         startLoggingTime = null
@@ -112,6 +113,7 @@ class TestingSessionData {
         isAutoPumpAutomaticStopDIEnabled = false
         startLoggingTime = null
         lastLoggingTime = null
+        loggingMode = TestingSessionData.LoggingMode.waiting
 
         AppGlobals.instance.activeProcess.testsessFirstLogReadingDate = ""
         AppGlobals.instance.activeProcess.testsessLastLoggingTime = ""

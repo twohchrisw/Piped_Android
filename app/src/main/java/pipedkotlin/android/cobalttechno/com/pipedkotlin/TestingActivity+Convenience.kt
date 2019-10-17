@@ -39,6 +39,10 @@ fun TestingActivity.updatePressurisingDataFromTibiisSession()
 fun TestingActivity.turnOutputPumpOff()
 {
     val tc = AppGlobals.instance.tibiisController
+    if (tc.connectStatus != TibiisController.ConnectionStatus.connected)
+    {
+        return
+    }
 
     Timer("outputControlOn4", false).schedule(100) {
         runOnUiThread {
@@ -72,6 +76,10 @@ fun TestingActivity.turnOutputPumpOff()
 fun TestingActivity.turnOutputPumpOn()
 {
     val tc = AppGlobals.instance.tibiisController
+    if (tc.connectStatus != TibiisController.ConnectionStatus.connected)
+    {
+        return
+    }
 
     Timer("outputControlOn4", false).schedule(100) {
         runOnUiThread {

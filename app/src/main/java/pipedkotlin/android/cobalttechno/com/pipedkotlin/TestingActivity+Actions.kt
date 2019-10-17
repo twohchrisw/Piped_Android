@@ -45,7 +45,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
     when(menuId)
     {
         R.id.mnuAddNote -> {
-
+            //AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(1, 20)
             setNotes()
         }
 
@@ -168,8 +168,27 @@ fun TestingActivity.connectButtonTapped()
     // Disconnect
     if (t.connectStatus == TibiisController.ConnectionStatus.connected || t.connectStatus == TibiisController.ConnectionStatus.connecting)
     {
-        t.disconnectTibiis()
-        //formatTibiisForNotConnected()
+        //tibiisStopPressurising()
+        //timer.cancel()
+        //timer = Timer()
+        //liveLogTimer.cancel()
+        //liveLogTimer = Timer()
+
+
+        Timer("stopTest", false).schedule(200) {
+            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+                AppGlobals.instance.tibiisController.disconnectTibiis()
+            }
+        }
+
+        //AppGlobals.instance.activeProcess.needs_server_sync = 1
+        AppGlobals.instance.activeProcess.save(this)
+
+        //timer.cancel()
+        //timer = Timer()
+        //liveLogTimer.cancel()
+        //liveLogTimer = Timer()
+
         return
     }
 
@@ -178,7 +197,10 @@ fun TestingActivity.connectButtonTapped()
     {
         formatTibiisForConnecting()
 
-        t.connectToTibiis()
+        runOnUiThread {
+            AppGlobals.instance.tibiisController.connectToTibiis()
+        }
+
         return
     }
 }
@@ -212,10 +234,28 @@ fun TestingActivity.abortPETest()
     tibiisStopPressurising()
     resetPETest()
 
-    Timer("stopTest", false).schedule(1000) {
-        if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+    Timer("stopTest", false).schedule(100) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
             AppGlobals.instance.tibiisController.disconnectTibiis()
-        }
+        //}
+    }
+
+    Timer("stopTest1", false).schedule(400) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+            AppGlobals.instance.tibiisController.disconnectTibiis()
+        //}
+    }
+
+    Timer("stopTest2", false).schedule(700) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+            AppGlobals.instance.tibiisController.disconnectTibiis()
+        //}
+    }
+
+    Timer("stopTes3", false).schedule(1000) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+            AppGlobals.instance.tibiisController.disconnectTibiis()
+        //}
     }
 
     AppGlobals.instance.activeProcess.needs_server_sync = 1

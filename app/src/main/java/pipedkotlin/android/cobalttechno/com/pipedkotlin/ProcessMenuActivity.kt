@@ -69,7 +69,15 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         {
             Log.d("cobsync","Resume needs sync is false: Sync: ${AppGlobals.instance.activeProcess.last_sync_millis}  Update: ${AppGlobals.instance.activeProcess.last_update_millis}")
         }
+
+        if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+        {
+            Log.d("Cobalt", "TIBIIS IS CONNECTED")
+        }
+
     }
+
+
 
     fun syncCompleted()
     {
@@ -170,7 +178,17 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         // To ensure we go back to the previous menu (i.e. we're in tasks mode, since we have a parent set for the main menu)
         if (item?.itemId == android.R.id.home)
         {
-            finish()
+            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected && menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
+            {
+                // Prevent the user leaving the process if Tibiis is connected
+                val alert = AlertHelper(this)
+                alert.dialogForOKAlertNoAction("Tibiis Connected!!", "You cannot leave the current process whilst the Tibiis is still connected.")
+            }
+            else
+            {
+                finish()
+            }
+
             return true
         }
 

@@ -69,6 +69,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     val WATER_LITRES_PER_PULSE = 0.25
     val MAX_PREVIOUS_LOGS: Int = 16
     var lastPreviousLogRequired = -1
+    var previousDownloadStartLog = -1
     var lastMaxLogNumber = 0
     var isDownloadingPreviousData = false
     var isCheckingIntegrity = false
@@ -89,6 +90,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     val BUTTON_TEXT_CALCULATE = "Calculate"
     val BUTTON_TEXT_VIEW_CHART = "View Results"
     val BUTTON_TEXT_START_TEST = "Start Test"
+
+    // For dev testing
+    var prev_download_cycle_start: Long = 0
+    var prev_cycle_marker1: Long = 0
+    var prev_cycle_marker2: Long = 0
+    var prev_cycle_marker3: Long = 0
+    var prev_cycle_marker4: Long = 0
 
     val REQUEST_ADD_NOTES = 1
 
@@ -158,11 +166,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         Log.d("cobtimer", "onResume isPressurisingPE: $isPressurisingPE")
         recyclerView.adapter.notifyDataSetChanged()
-
-        if (isPressurisingPE)
-        {
-            ///formatActionPanelForPressurising()
-        }
+        formatForViewWillAppear()
     }
 
     override fun onDestroy() {
@@ -186,7 +190,15 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onStop() {
         super.onStop()
 
+        AppGlobals.instance.activeProcess.save(this)
         Log.d("cobtimer", "onStop isPressurisingPE: $isPressurisingPE")
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        AppGlobals.instance.activeProcess.save(this)
+        Log.d("cobtimer", "onPause isPressurisingPE: $isPressurisingPE")
     }
 
     fun loadData(scrollToReading: Int = 0)
@@ -1090,11 +1102,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     }
 
     override fun tibiisDisconnected() {
-        val abortPressurising = testingSession.isPressurisingWithTibiis
+        //val abortPressurising = testingSession.isPressurisingWithTibiis
         formatTibiisForNotConnected()
         formatOptionsMenuForContext(false)
         updatePressureGuageForZero()
 
+        /*
         if (abortPressurising)
         {
             if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
@@ -1106,6 +1119,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 }
             }
         }
+
+         */
     }
 
     override fun tibiisFailedToConnect() {
@@ -1140,27 +1155,29 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 if (packet.parseAsLogReading() != null)
                 {
                     val logReading = packet.parseAsLogReading()!!
-                    Log.d("Cobalt", logReading.description())
+                    Log.d("LogReading", logReading.description())
+                    saveLiveLog(logReading)
+
                     if (AppGlobals.instance.tibiisController.shouldCheckForMissingLogs)
                     {
-                        Log.d("cobpr", "shouldCheckForMissingLogs is true")
+                        Log.d("zzz", "shouldCheckForMissingLogs is true")
                         AppGlobals.instance.tibiisController.shouldCheckForMissingLogs = false
                         this.isDownloadingPreviousData= true
-                        Log.d("Cobalt", "Downloading previous logs for lognumber: ${logReading.logNumber}")
+                        Log.d("zzz", "Downloading previous logs for lognumber: ${logReading.logNumber}")
                         downloadPreviousReadings(logReading.logNumber)
                     }
-
-                    saveLiveLog(logReading)
                 }
             }
 
             TBXDataController.Command.FetchOldLogs -> {
 
+                prev_cycle_marker1 = Date().time
                 val previousLogData = packet.parseDataAsPreviousLogReadings()
+                prev_cycle_marker2 = Date().time
                 if (previousLogData != null)
                 {
                     val message = "Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
-                    Log.d("cobpr", message)
+                    Log.d("zzz", message)
                     for (log in previousLogData.logs)
                     {
                         Log.d("cobpr","Previous log: ${log.description()}")
@@ -1168,6 +1185,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                     }
 
                     saveLiveLog(previousLogData!!.liveLog)
+                    prev_cycle_marker3 = Date().time
                     lastMaxLogNumber = previousLogData!!.maxLogNumber
 
                     if (lastMaxLogNumber == -1)
@@ -1176,6 +1194,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                         lastMaxLogNumber = 1
                     }
 
+                    Log.d("zzz", "Cycle: request start: $prev_download_cycle_start data back: $prev_cycle_marker1 data parsed: $prev_cycle_marker2 logs saved: $prev_cycle_marker3 number of logs: ${previousLogData.logs.size}")
                     continueProcessingPreviousLogs()
 
                 }

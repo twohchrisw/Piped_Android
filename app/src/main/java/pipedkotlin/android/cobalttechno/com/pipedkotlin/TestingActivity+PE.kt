@@ -54,13 +54,14 @@ fun TestingActivity.loadCheckPE()
         return
     }
 
-    if (DateHelper.dateIsValid(p.pt_pressurising_start) && !DateHelper.dateIsValid(p.pt_pressurising_finish))
+    if (p.pt_pressurising_start != "" && DateHelper.dateIsValid(p.pt_pressurising_start) && !DateHelper.dateIsValid(p.pt_pressurising_finish))
     {
         // In the middle of pressurising
         testingSession.loggingMode = TestingSessionData.LoggingMode.pressurising
         testingSession.isPressurisingWithTibiis = true
         testingSession.isLoggingWithTibiis = false
         formatActionPanelForPressurising()
+        beginCountupTimer()
         return
     }
 
@@ -246,6 +247,14 @@ fun TestingActivity.startPressurisingButtonPressed()
 
     if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
+        if (tibiisSession.startPressureReading != null)
+        {
+            val press = tibiisSession.startPressureReading!!.pressure / 1000.0
+            p.pt_start_pressure = press
+            p.save(this)
+            recyclerView.adapter.notifyDataSetChanged()
+        }
+
         tibiisStartPressurising()
         saveCalibrationDetails()
     }

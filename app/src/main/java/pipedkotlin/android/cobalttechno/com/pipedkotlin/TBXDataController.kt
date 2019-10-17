@@ -237,6 +237,7 @@ class TBXDataController(val tibiisController: TibiisController) {
             val startLogByte3 = startLogNumber and 0xFF
             val data = arrayOf(startLogByte1, startLogByte2, startLogByte3, numberOfLogs)
             sendPacket(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
+            //sendPacketBytes(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
         }
         else
         {
@@ -432,6 +433,49 @@ class TBXDataController(val tibiisController: TibiisController) {
     /* Send Packet */
 
     fun sendPacket(command: Int, length: Int, data: Array<Int>, optionByteFlag: OptionBytes = OptionBytes.None, calibrationFlag: CalibrationData = CalibrationData.None)
+    {
+        val this_bsn = incrementBsn()
+        var checksum = command
+        checksum += this_bsn
+        checksum += length
+
+        if (optionByteFlag != OptionBytes.None)
+        {
+            this.optionByteData = OptionByteData(this_bsn, optionByteFlag)
+        }
+
+        if (calibrationFlag != CalibrationData.None)
+        {
+            this.calibrationByteData = CalibrationByteData(this_bsn, calibrationFlag)
+        }
+
+        for (dataByte in data)
+        {
+            checksum += dataByte
+        }
+
+        val lowerChecksum = checksum and 0xff
+        val upperChecksim = checksum shr 8
+
+        var commandData = ArrayList<Byte>()
+        commandData.add(0x02)
+        commandData.add(command.toByte())
+        commandData.add(this_bsn.toByte())
+        commandData.add(length.toByte())
+        for (dataByte in data)
+        {
+            commandData.add(dataByte.toByte())
+        }
+        commandData.add(lowerChecksum.toByte())
+        commandData.add(upperChecksim.toByte())
+
+        this.commandWaiting = true
+
+        tibiisController.mDataMDLP!!.setValue(commandData.toByteArray())
+        tibiisController.writeCharacteristic(tibiisController.mDataMDLP!!)
+    }
+
+    fun sendPacketBytes(command: Int, length: Int, data: Array<Byte>, optionByteFlag: OptionBytes = OptionBytes.None, calibrationFlag: CalibrationData = CalibrationData.None)
     {
         val this_bsn = incrementBsn()
         var checksum = command

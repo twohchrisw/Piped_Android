@@ -1,5 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
@@ -23,6 +24,7 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
     var isFirst = 0
     var isLast = 0
     val MAX_PE_UPLOAD_RECORDS = 5000
+    var ctx: Context? = null
 
     interface SyncManagerDelegate
     {
@@ -30,14 +32,21 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         fun processFailedToSync(process: EXLDProcess, errorMessage: String)
     }
 
-    fun syncProcess(process: EXLDProcess)
+    fun syncProcess(process: EXLDProcess, context: Context)
     {
+        ctx = context
+
         if (processBeingSynced != null)
         {
             Log.d("cobsync", "Sync manager busy syncing, sync request ignored")
             return
         }
 
+        if (!AppGlobals.isOnline(context))
+        {
+            Log.d("oct23", "App is not online, sync aborted")
+            return
+        }
 
         Log.d("cobsync", "Syncing Process")
         processBeingSynced = process
@@ -134,6 +143,10 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         currentFilename = "k_${processBeingSynced!!.server_process_id}_${Date().time}.json"
         val uploadUrl = AppGlobals.FILE_UPLOAD_URL
 
+        if (processBeingSynced != null && ctx != null) {
+            processBeingSynced!!.save(ctx!!)
+        }
+
         val uploadManager = FileUploadManager()
         Log.d("cobsync", "uploading ${currentFilename} to ${uploadUrl}")
         uploadManager.uploadTextFile(processJson.toString(), uploadUrl, currentFilename, MainApplication.applicationContext(), this)
@@ -154,7 +167,11 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
                 val serverProcessId = getServerProcessIdFromXml(response.toString())
                 Log.d("cobsync", "Server Process ID: $serverProcessId")
                 processBeingSynced!!.server_process_id = serverProcessId
-                processBeingSynced!!.save(MainApplication.applicationContext())
+                //processBeingSynced!!.save(MainApplication.applicationContext())
+
+                if (processBeingSynced != null && ctx != null) {
+                    processBeingSynced!!.save(ctx!!)
+                }
 
                 uploadProcessImages()
             }
@@ -347,9 +364,14 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
             processBeingSynced!!.save(MainApplication.applicationContext())
         }
 
+        if (processBeingSynced != null && ctx != null) {
+            processBeingSynced!!.save(ctx!!)
+        }
+
         Log.d("cobsync", "Process being synced is now set to null")
         AppGlobals.instance.processListActivity?.updateRecycler()
         AppGlobals.instance.processMenuActivity?.syncCompleted()
+
         processBeingSynced = null
 
     }
@@ -360,6 +382,10 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         {
             Log.d("cobsync", "process is nulll on updateDelegatesForFailure")
             return
+        }
+
+        if (processBeingSynced != null && ctx != null) {
+            processBeingSynced!!.save(ctx!!)
         }
 
     }

@@ -36,18 +36,18 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     fun startUp()
     {
-        Log.d("ditest", "Start Up")
+        Log.d("oct23", "Start Up")
         checkPermissions()
         progressBar = findViewById(R.id.progressBar) as ProgressBar
         progressBar.visibility = View.GONE
         val existingCompanyId = EXLDSettings.getExistingCompanyId(this)
 
-        if (existingCompanyId.length > 1)
+        if (existingCompanyId.length > 2)
         {
             // We have an existing company id, download list items, prefs and clients
             AppGlobals.instance.companyId = existingCompanyId
             AppGlobals.instance.userId = EXLDSettings.getExistingUserId(this)
-            Log.d("cobalt", "List sets company id as " + AppGlobals.instance.companyId)
+            Log.d("oct23", "List sets company id as " + AppGlobals.instance.companyId)
             progressBar.visibility = View.VISIBLE
 
             shouldLoadProcessListAfterParsing = true
@@ -58,7 +58,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
             }
             else
             {
-                Log.d("coboffline", "Network is offline")
+                Log.d("oct23", "Network is offline")
                 loadMainProcessList()
             }
 

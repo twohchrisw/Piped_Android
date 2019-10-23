@@ -120,13 +120,14 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
 
     fun syncOutstandingProcesses()
     {
+        val ctx = this
         for (p in processes)
         {
             if (p.needsSync())
             {
                 val a = this
                 doAsync {
-                    AppGlobals.instance.syncManager.syncProcess(p)
+                    AppGlobals.instance.syncManager.syncProcess(p, ctx)
                 }
             }
         }

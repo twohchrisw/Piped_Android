@@ -96,8 +96,10 @@ fun TestingActivity.startTibiisLiveLogRequestLoop()
 
 fun TestingActivity.tibiisStartPressurising()
 {
-
     val tc = AppGlobals.instance.tibiisController
+
+    // Get the logger name
+
     if (tc.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         Log.d("Cobalt", "[Start Pressurising]")

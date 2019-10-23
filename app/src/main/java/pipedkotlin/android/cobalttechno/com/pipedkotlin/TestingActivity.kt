@@ -98,6 +98,9 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var prev_cycle_marker3: Long = 0
     var prev_cycle_marker4: Long = 0
 
+    var PREVIOUS_LOG_REQUEST_START_LOG = -1
+    var PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
+
     val REQUEST_ADD_NOTES = 1
 
     // Menu Items
@@ -707,6 +710,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
     }
 
+
     class LiveLogTimerTask(val a: TestingActivity): TimerTask()
     {
         var hasStarted = false
@@ -1176,7 +1180,10 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 prev_cycle_marker2 = Date().time
                 if (previousLogData != null)
                 {
-                    val message = "Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
+                    PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
+                    PREVIOUS_LOG_REQUEST_START_LOG = -1
+
+                    val message = "Received Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
                     Log.d("zzz", message)
                     for (log in previousLogData.logs)
                     {

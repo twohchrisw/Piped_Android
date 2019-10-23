@@ -85,6 +85,14 @@ class TibiisController() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
 
+            /*
+            if (result?.scanRecord != null) {
+                val deviceName = result!!.scanRecord!!.deviceName
+                Log.d("zzz", "Device name = $deviceName")
+            }
+             */
+
+
             //Log.d("cobalt", "Scanner callback type ${callbackType}")
             val tibiisUUID = ParcelUuid.fromString(MICROCHIP_SERVICE_ID)
             if (result?.scanRecord?.serviceUuids != null)

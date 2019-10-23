@@ -294,6 +294,7 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
         val numberOfLogs = currentLogNumber - startLogNumber
         previousDownloadStartLog = startLogNumber
 
+
         Log.d("zzz", "[Previous Download Start Log: $startLogNumber Current Log: $currentLogNumber Count: $numberOfLogs")
         if (numberOfLogs > MAX_PREVIOUS_LOGS)
         {
@@ -301,7 +302,10 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
             runOnUiThread {
                 Log.d("cobpr", "About to send first command for logs [multiple commands necessary]")
                 prev_download_cycle_start = Date().time
+                PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
+                PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
                 AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+
             }
         }
         else
@@ -311,6 +315,8 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
                 runOnUiThread {
                     Log.d("cobpr", "About to send first command for logs single request only")
                     prev_download_cycle_start = Date().time
+                    PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
+                    PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogs
                     AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, numberOfLogs)
                 }
             }
@@ -319,6 +325,35 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
                 isDownloadingPreviousData = false
             }
         }
+
+        // Timers to check that the command returned values and if not to refire it
+        if (PREVIOUS_LOG_REQUEST_START_LOG > -1 && PREVIOUS_LOG_REQUEST_NUMBER_LOGS > -1)
+        Timer("checkPrevLogs1", false).schedule(2000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == startLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+        Timer("checkPrevLogs2", false).schedule(4000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == startLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+        Timer("checkPrevLogs1", false).schedule(6000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == startLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+
+
     }
     else
     {
@@ -345,10 +380,13 @@ fun TestingActivity.continueProcessingPreviousLogs()
     {
         Log.d("zzz", "Last max: $lastMaxLogNumber Last Previous Log: $lastPreviousLogRequired")
         val numberOfLogsRemaining = lastPreviousLogRequired - lastMaxLogNumber + 1
+
         if (numberOfLogsRemaining > MAX_PREVIOUS_LOGS)
         {
             Log.d("zzz", "Requesting previous logs from $lastMaxLogNumber Number: $MAX_PREVIOUS_LOGS")
             prev_download_cycle_start = Date().time
+            PREVIOUS_LOG_REQUEST_START_LOG = lastMaxLogNumber
+            PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
             AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
             /*
             Timer("prevLog1", false).schedule(100) {
@@ -362,6 +400,8 @@ fun TestingActivity.continueProcessingPreviousLogs()
         else
         {
             Log.d("zzz", "Requesting previous logs from $lastMaxLogNumber Number: $numberOfLogsRemaining is last")
+            PREVIOUS_LOG_REQUEST_START_LOG = lastMaxLogNumber
+            PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogsRemaining
             Timer("prevLog2", false).schedule(100) {
                 runOnUiThread {
                     prev_download_cycle_start = Date().time
@@ -370,6 +410,42 @@ fun TestingActivity.continueProcessingPreviousLogs()
             }
             lastPreviousLogRequired = -1
         }
+
+        // Timers to ensure that we refire the command in case it faults
+        if (PREVIOUS_LOG_REQUEST_START_LOG > -1 && PREVIOUS_LOG_REQUEST_NUMBER_LOGS > -1)
+            Timer("checkPrevLogs1", false).schedule(2000) {
+                runOnUiThread {
+                    if (PREVIOUS_LOG_REQUEST_START_LOG == lastMaxLogNumber) {
+                        Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                        AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                    }
+                }
+            }
+        Timer("checkPrevLogs2", false).schedule(4000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == lastMaxLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+        Timer("checkPrevLogs3", false).schedule(6000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == lastMaxLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+        Timer("checkPrevLogs4", false).schedule(8000) {
+            runOnUiThread {
+                if (PREVIOUS_LOG_REQUEST_START_LOG == lastMaxLogNumber) {
+                    Log.d("zzz", "Refiring prev logs command for start log: $PREVIOUS_LOG_REQUEST_START_LOG")
+                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(PREVIOUS_LOG_REQUEST_START_LOG, PREVIOUS_LOG_REQUEST_NUMBER_LOGS)
+                }
+            }
+        }
+
     }
     else
     {

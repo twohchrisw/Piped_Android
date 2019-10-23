@@ -62,7 +62,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
             Log.d("cobsync", "initiating sync")
             val a = this
             doAsync {
-                AppGlobals.instance.syncManager.syncProcess(AppGlobals.instance.activeProcess)
+                AppGlobals.instance.syncManager.syncProcess(AppGlobals.instance.activeProcess, a)
             }
         }
         else

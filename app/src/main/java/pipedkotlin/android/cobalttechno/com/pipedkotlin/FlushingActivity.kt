@@ -87,7 +87,10 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                 p.pt_flush_notes2 = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
             }
 
-            p.save(this)
+            runOnUiThread {
+                p.save(this)
+            }
+
         }
 
         runOnUiThread {

@@ -70,7 +70,11 @@ class GetAddressActivity : BaseActivity() {
                 AppGlobals.instance.activeProcess.address = etAddress.text.toString()
                 AppGlobals.instance.activeProcess.location_lat = currentLat
                 AppGlobals.instance.activeProcess.location_long = currentLng
-                AppGlobals.instance.activeProcess.save(myContext)
+
+                runOnUiThread {
+                    AppGlobals.instance.activeProcess.save(myContext)
+                }
+
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

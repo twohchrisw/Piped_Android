@@ -230,24 +230,26 @@ class TBXDataController(val tibiisController: TibiisController) {
 
     fun sendCommandFetchOldLogs(startLogNumber: Int, numberOfLogs: Int)
     {
-        if (startLogNumber < 65535)
-        {
+        //if (startLogNumber < 65535)
+        //{
             val startLogByte1 = (startLogNumber shr 16) and 0xFF
             val startLogByte2 = (startLogNumber shr 8) and 0xFF
             val startLogByte3 = startLogNumber and 0xFF
             val data = arrayOf(startLogByte1, startLogByte2, startLogByte3, numberOfLogs)
             sendPacket(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
             //sendPacketBytes(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
-        }
-        else
-        {
+        //}
+        //else
+        //{
+            /*
             val startLogByte1 = (startLogNumber shr 16) and 0xFF
             val b2Prior = (startLogNumber shr 8) and 0xFF
             val startLogByte2 = b2Prior
             val startLogByte3 = startLogNumber and 0xFF
             val data = arrayOf(startLogByte1, startLogByte2, startLogByte3, numberOfLogs)
             sendPacket(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
-        }
+            */
+        //}
     }
 
     fun sendCommandInactivityTimeout(seconds: Int)
@@ -268,7 +270,7 @@ class TBXDataController(val tibiisController: TibiisController) {
         sendPacket(Command.StopTest.value.sendCommand, Command.StopTest.value.sendLength, arrayOf())
     }
 
-    fun sendCommandGetOptionBytes(optionByte: OptionBytes)
+    fun sendCommandGetOptionBytes(optionByte: TBXDataController.OptionBytes)
     {
        var data = arrayOf(0x00, 0x00)
         when (optionByte)

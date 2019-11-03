@@ -85,7 +85,10 @@ fun TestingActivity.beginStartDITest()
     p.di_long = AppGlobals.instance.lastLng
     p.needs_server_sync = 1
     reloadTable()
-    p.save(this)
+    runOnUiThread {
+        p.save(this)
+    }
+
 
     timer.cancel()
     timer = Timer()
@@ -175,7 +178,11 @@ fun TestingActivity.calculateDIButtonPressed()
     }
 
     p.needs_server_sync = 1
-    p.save(this)
+
+    runOnUiThread {
+        p.save(this)
+    }
+
 }
 
 fun TestingActivity.loadCheckDI()
@@ -259,7 +266,11 @@ fun TestingActivity.saveReading15(pr: LogReading)
     val press = pr.pressure / 1000.0
     AppGlobals.instance.activeProcess.pt_di_r15_value = press
     Log.d("ditest", "Saving reading 15 as $press")
-    AppGlobals.instance.activeProcess.save(this)
+
+    runOnUiThread {
+        AppGlobals.instance.activeProcess.save(this)
+    }
+
     tibiisSession.setLogDIReading15(pr)
     loadData()
     //saveCalibrationDetails()
@@ -271,7 +282,11 @@ fun TestingActivity.saveReading60(pr: LogReading)
     AppGlobals.instance.activeProcess.pt_di_r60_value = press
     tibiisSession.setLogDIReading60(pr)
     Log.d("ditest", "Saving reading 60 as $press")
-    AppGlobals.instance.activeProcess.save(this)
+
+    runOnUiThread {
+        AppGlobals.instance.activeProcess.save(this)
+    }
+
     loadData()
     //saveCalibrationDetails()
 }

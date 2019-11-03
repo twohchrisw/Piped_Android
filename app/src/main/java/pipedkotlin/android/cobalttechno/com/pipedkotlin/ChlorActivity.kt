@@ -80,8 +80,9 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
             val alert = AlertHelper(this)
             alert.dialogForOKAlert("Delete Image", "Do you want to delete this image?", {
                 p.pt_chlor_end_photo = ""
-                p.save(this)
+
                 runOnUiThread {
+                    p.save(this)
                     recyclerView.adapter.notifyDataSetChanged()
                 }
             })
@@ -95,7 +96,10 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         if (requestCode == NOTES_REQUEST && data != null)
         {
             p.pt_chlor_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
-            p.save(this)
+            runOnUiThread {
+                p.save(this)
+            }
+
         }
 
         if (requestCode == CAMERA_REQUEST_CAMERA)
@@ -104,7 +108,11 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
             val fileName = "chlor_${uuid}.jpg"
             saveImageToExternalStorage(fileName)
             p.pt_chlor_end_photo = fileName
-            p.save(this)
+
+            runOnUiThread {
+                p.save(this)
+            }
+
         }
 
         runOnUiThread {

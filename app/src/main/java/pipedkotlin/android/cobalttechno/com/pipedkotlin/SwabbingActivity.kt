@@ -70,8 +70,9 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
             val alert = AlertHelper(this)
             alert.dialogForOKAlert("Delete Image", "Do you want to delete this image?", {
                 p.swab_photo = ""
-                p.save(this)
+
                 runOnUiThread {
+                    p.save(this)
                     recyclerView.adapter.notifyDataSetChanged()
                 }
             })
@@ -88,7 +89,10 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
             val fileName = "survey_${uuid}.jpg"
             saveImageToExternalStorage(fileName)
             p.swab_photo = fileName
-            p.save(this)
+
+            runOnUiThread {
+                p.save(this)
+            }
         }
 
         if (requestCode == NOTES_REQUEST && data != null)

@@ -70,7 +70,9 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         if (requestCode == NOTES_REQUEST && data != null)
         {
             p.pt_sampl_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
-            p.save(this)
+            runOnUiThread {
+                p.save(this)
+            }
         }
 
         runOnUiThread {

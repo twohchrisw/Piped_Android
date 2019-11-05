@@ -237,19 +237,21 @@ class TBXDataController(val tibiisController: TibiisController) {
             val startLogByte3 = startLogNumber and 0xFF
             val data = arrayOf(startLogByte1, startLogByte2, startLogByte3, numberOfLogs)
             sendPacket(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
-            //sendPacketBytes(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
         //}
-        //else
-        //{
-            /*
+        /*
+        else
+        {
             val startLogByte1 = (startLogNumber shr 16) and 0xFF
             val b2Prior = (startLogNumber shr 8) and 0xFF
             val startLogByte2 = b2Prior
             val startLogByte3 = startLogNumber and 0xFF
-            val data = arrayOf(startLogByte1, startLogByte2, startLogByte3, numberOfLogs)
+
+            //val data = arrayOf(startLogByte1.toByte(), startLogByte2.toByte(), startLogByte3.toByte())
+            //sendPacketBytes(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
+            val data = arrayOf(startLogByte1, startLogByte2.toInt(), startLogByte3, numberOfLogs)
             sendPacket(Command.FetchOldLogs.value.sendCommand, Command.FetchOldLogs.value.sendLength, data)
-            */
-        //}
+        }
+         */
     }
 
     fun sendCommandInactivityTimeout(seconds: Int)
@@ -600,7 +602,9 @@ class TBXDataController(val tibiisController: TibiisController) {
                 return null
             }
 
-            val startLogNumber = data[0] shl 16 or data[1] shl 8 or data[2]
+            //val int1 = (data[0] shl 16)
+            //val int2 = (data[1] shl 8)
+            val startLogNumber = (data[0] shl 16) or (data[1] shl 8) or data[2]
             val numberOfLogs = data[3]
             Log.d("cobpr", "Number of returned previous logs = $numberOfLogs size of data = ${data.size}")
 
@@ -691,7 +695,11 @@ class LogReading(val data: ArrayList<Int>) {
         if (data.size == 10)
         {
             val controlByte = data[9].toInt().absoluteValue
-            logNumber = data[0].toInt() shl 16 or data[1].toInt() shl 8 or data[2].toInt()
+
+            val int1 = (data[0] shl 16)
+            val int2 = (data[1] shl 8)
+
+            logNumber = (data[0].toInt() shl 16) or (data[1].toInt() shl 8) or data[2].toInt()
             pressure = data[3].toInt() shl 8 or data[4].toInt()
             if (controlByte and 0x80 == 128) {
                 pressure = pressure * -1

@@ -83,8 +83,8 @@ open class BaseActivity: AppCompatActivity() {
         {
             fusedLocationClient.lastLocation.addOnCompleteListener {
                 if (it.result != null)
-                {   AppGlobals.instance.lastLat = it.result.latitude
-                    AppGlobals.instance.lastLng = it.result.longitude
+                {   appGlobals.lastLat = it.result.latitude
+                    appGlobals.lastLng = it.result.longitude
                     Log.d("cobalt", "Lat: " + it.result.latitude + " Lng: " + it.result.longitude)
                     action.invoke(it.result.latitude, it.result.longitude)
                 }
@@ -203,7 +203,7 @@ open class BaseActivity: AppCompatActivity() {
             stream.flush()
             stream.close()
             Log.d("cobswab", "image saved successfully!!")
-            AppGlobals.instance.activeProcess.save(this)    // To force an update check
+            appGlobals.activeProcess.save(this)    // To force an update check
         }
         catch (e: IOException)
         {

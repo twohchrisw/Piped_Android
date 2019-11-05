@@ -45,7 +45,7 @@ class ProcessMenuRecyclerAdapter(val menuMode: Int, val clickListener: ProcessMe
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
         {
-            val hasEnteredInfo = AppGlobals.instance.activeProcess.hasEnteredProcessDetails()
+            val hasEnteredInfo = appGlobals.activeProcess.hasEnteredProcessDetails()
 
             when (position) {
 

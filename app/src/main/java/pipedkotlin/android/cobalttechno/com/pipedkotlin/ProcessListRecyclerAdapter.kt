@@ -26,7 +26,7 @@ class ProcessListRecyclerAdapter(val processes: List<EXLDProcess>, val clickList
         viewHolder.clientName.text = process.client
         viewHolder.createdOn.text = process.create_timestamp
 
-        if (AppGlobals.instance.syncManager.processBeingSynced?.columnId == process.columnId)
+        if (appGlobals.syncManager.processBeingSynced?.columnId == process.columnId)
         {
             viewHolder.syncMessage.visibility = View.VISIBLE
             viewHolder.syncMessage.text = "[Sync in Progress]"

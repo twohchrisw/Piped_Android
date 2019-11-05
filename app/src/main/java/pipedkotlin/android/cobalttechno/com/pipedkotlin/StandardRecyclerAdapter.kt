@@ -440,7 +440,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     override fun getItemCount(): Int {
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         when (pipedTask)
         {
             StandardRecyclerAdapter.PipedTask.Swabbing -> return SwabbingRows.Count.value.position + EXLDSwabFlowrates.getSwabbingFlowrates(ctx, p.columnId).size
@@ -475,7 +475,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
         // Remove the flowrates count from the position if after flowrate position
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         var tableRow: PipedTableRow? = null
         if (pipedTask == PipedTask.Swabbing)
         {
@@ -660,7 +660,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun isFlowratePosition(position: Int): Pair<Boolean, Int>
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         var flowrateCount = 0
         var flowrateStartRow = 0
 
@@ -725,7 +725,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         var tableRow: PipedTableRow? = null
 
         /* Exceptions that don't follow the normal rules
@@ -1090,7 +1090,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDChlorFlowrates.COLUMN_CHLOR_PHOTO -> {
-                            val fr = AppGlobals.instance.drillChlorFlowrate!!
+                            val fr = appGlobals.drillChlorFlowrate!!
                             if (fr.chlor_photo.length < 2)
                             {
                                 // No picture
@@ -1114,7 +1114,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDDecFlowrates.COLUMN_DEC_PHOTO -> {
-                            val fr = AppGlobals.instance.drillDecFlowrate!!
+                            val fr = appGlobals.drillDecFlowrate!!
                             if (fr.dec_photo.length < 2)
                             {
                                 // No picture
@@ -1138,7 +1138,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_PHOTO -> {
-                            val fr = AppGlobals.instance.drillSamplFlorwate!!
+                            val fr = appGlobals.drillSamplFlorwate!!
                             if (fr.sampl_photo.length < 2)
                             {
                                 // No picture
@@ -1180,71 +1180,71 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         /* Sample Flowrate Details */
 
                         EXLDSamplingData.COLUMN_SAMP_SAMPLE_ID -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_sample_id
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id.length < 1)
+                            if (appGlobals.drillSamplFlorwate!!.sampl_sample_id.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sample ID", AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_sample_id = it
-                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                alert.dialogForTextInput("Sample ID", appGlobals.drillSamplFlorwate!!.sampl_sample_id, {
+                                    appGlobals.drillSamplFlorwate!!.sampl_sample_id = it
+                                    appGlobals.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
                             }
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_DESC -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_desc
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_desc
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_desc.length < 1)
+                            if (appGlobals.drillSamplFlorwate!!.sampl_desc.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Sample Description", AppGlobals.instance.drillSamplFlorwate!!.sampl_desc, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_desc = it
-                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                alert.dialogForTextInput("Sample Description", appGlobals.drillSamplFlorwate!!.sampl_desc, {
+                                    appGlobals.drillSamplFlorwate!!.sampl_desc = it
+                                    appGlobals.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
                             }
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_LOCATION -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_location
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_location
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_location.length < 1)
+                            if (appGlobals.drillSamplFlorwate!!.sampl_location.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Location", AppGlobals.instance.drillSamplFlorwate!!.sampl_location, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_location = it
-                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                alert.dialogForTextInput("Location", appGlobals.drillSamplFlorwate!!.sampl_location, {
+                                    appGlobals.drillSamplFlorwate!!.sampl_location = it
+                                    appGlobals.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
                             }
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_CHLOR_FREE -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Chlorine Free (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine Free (ppm)", appGlobals.drillSamplFlorwate!!.sampl_chlor_free.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_free = theValue
-                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        appGlobals.drillSamplFlorwate!!.sampl_chlor_free = theValue
+                                        appGlobals.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
 
@@ -1253,17 +1253,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_CHLOR_TOTAL -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Chlorine Total (ppm)", AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine Total (ppm)", appGlobals.drillSamplFlorwate!!.sampl_chlor_total.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_chlor_total = theValue
-                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        appGlobals.drillSamplFlorwate!!.sampl_chlor_total = theValue
+                                        appGlobals.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
 
@@ -1272,17 +1272,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_TURBIDITY -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2)
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Turbidity (NTU)", AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Turbidity (NTU)", appGlobals.drillSamplFlorwate!!.sampl_turbidity.formatForDecPlaces(2), {
 
                                     val theValue = it.toDoubleOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_turbidity = theValue
-                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        appGlobals.drillSamplFlorwate!!.sampl_turbidity = theValue
+                                        appGlobals.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
 
@@ -1291,17 +1291,17 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_WATER_TEMP -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString()
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_water_temp.toString()
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForIntegerInput("Water Temperature", AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp.toString(), {
+                                alert.dialogForIntegerInput("Water Temperature", appGlobals.drillSamplFlorwate!!.sampl_water_temp.toString(), {
 
                                     val theValue = it.toIntOrNull()
                                     if (theValue != null)
                                     {
-                                        AppGlobals.instance.drillSamplFlorwate!!.sampl_water_temp = theValue
-                                        AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                        appGlobals.drillSamplFlorwate!!.sampl_water_temp = theValue
+                                        appGlobals.drillSamplFlorwate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
                                 })
@@ -1309,18 +1309,18 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDSamplingData.COLUMN_SAMP_OTHER_INFO -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info
+                            viewHolder.valueText?.text = appGlobals.drillSamplFlorwate!!.sampl_other_info
 
-                            if (AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info.length < 1)
+                            if (appGlobals.drillSamplFlorwate!!.sampl_other_info.length < 1)
                             {
                                 viewHolder.valueText?.text = "(none)"
                             }
 
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForTextInput("Other Info", AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info, {
-                                    AppGlobals.instance.drillSamplFlorwate!!.sampl_other_info = it
-                                    AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                alert.dialogForTextInput("Other Info", appGlobals.drillSamplFlorwate!!.sampl_other_info, {
+                                    appGlobals.drillSamplFlorwate!!.sampl_other_info = it
+                                    appGlobals.drillSamplFlorwate!!.save(ctx)
                                     notifyDataSetChanged()
                                 })
                             }
@@ -1465,19 +1465,19 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         /* Chlor Flowrates */
 
                         EXLDChlorFlowrates.COLUMN_CHLOR_TIMESTAMP -> {
-                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(AppGlobals.instance.drillChlorFlowrate!!.chlor_timestamp)
+                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(appGlobals.drillChlorFlowrate!!.chlor_timestamp)
                         }
 
                         EXLDChlorFlowrates.COLUMN_CHLOR_FLOWRATE -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Flowrate", AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Flowrate", appGlobals.drillChlorFlowrate!!.chlor_flowrate.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
-                                        AppGlobals.instance.drillChlorFlowrate!!.chlor_flowrate = inputValue!!
-                                        AppGlobals.instance.drillChlorFlowrate!!.save(ctx)
+                                        appGlobals.drillChlorFlowrate!!.chlor_flowrate = inputValue!!
+                                        appGlobals.drillChlorFlowrate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
                                 })
@@ -1485,15 +1485,15 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDChlorFlowrates.COLUMN_CHLOR_STRENGTH -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Chlorine End Strength", AppGlobals.instance.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Chlorine End Strength", appGlobals.drillChlorFlowrate!!.chlor_strength.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
-                                        AppGlobals.instance.drillChlorFlowrate!!.chlor_strength = inputValue!!
-                                        AppGlobals.instance.drillChlorFlowrate!!.save(ctx)
+                                        appGlobals.drillChlorFlowrate!!.chlor_strength = inputValue!!
+                                        appGlobals.drillChlorFlowrate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
                                 })
@@ -1503,19 +1503,19 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         /* Dec Flowrates */
 
                         EXLDDecFlowrates.COLUMN_DEC_TIMESTAMP -> {
-                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(AppGlobals.instance.drillDecFlowrate!!.dec_timestamp)
+                            viewHolder.valueText?.text = DateHelper.dbDateStringFormattedWithSeconds(appGlobals.drillDecFlowrate!!.dec_timestamp)
                         }
 
                         EXLDDecFlowrates.COLUMN_DEC_FLOWRATE -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Flowrate", AppGlobals.instance.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Flowrate", appGlobals.drillDecFlowrate!!.dec_flowrate.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
-                                        AppGlobals.instance.drillDecFlowrate!!.dec_flowrate = inputValue!!
-                                        AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                        appGlobals.drillDecFlowrate!!.dec_flowrate = inputValue!!
+                                        appGlobals.drillDecFlowrate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
                                 })
@@ -1523,15 +1523,15 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                         }
 
                         EXLDDecFlowrates.COLUMN_DEC_STRENGTH -> {
-                        viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2)
+                        viewHolder.valueText?.text = appGlobals.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2)
                         viewHolder.itemView.setOnClickListener {
                             val alert = AlertHelper(ctx)
-                            alert.dialogForDecimalInput("Chlorine Strength", AppGlobals.instance.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2), {
+                            alert.dialogForDecimalInput("Chlorine Strength", appGlobals.drillDecFlowrate!!.dec_strength.formatForDecPlaces(2), {
                                 val inputValue = it.toDoubleOrNull()
                                 if (inputValue != null)
                                 {
-                                    AppGlobals.instance.drillDecFlowrate!!.dec_strength = inputValue!!
-                                    AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                    appGlobals.drillDecFlowrate!!.dec_strength = inputValue!!
+                                    appGlobals.drillDecFlowrate!!.save(ctx)
                                     notifyDataSetChanged()
                                 }
                             })
@@ -1539,15 +1539,15 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     }
 
                         EXLDDecFlowrates.COLUMN_DEC_DISCHARGE -> {
-                            viewHolder.valueText?.text = AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2)
+                            viewHolder.valueText?.text = appGlobals.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2)
                             viewHolder.itemView.setOnClickListener {
                                 val alert = AlertHelper(ctx)
-                                alert.dialogForDecimalInput("Level at Discharge", AppGlobals.instance.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2), {
+                                alert.dialogForDecimalInput("Level at Discharge", appGlobals.drillDecFlowrate!!.dec_discharge.formatForDecPlaces(2), {
                                     val inputValue = it.toDoubleOrNull()
                                     if (inputValue != null)
                                     {
-                                        AppGlobals.instance.drillDecFlowrate!!.dec_discharge = inputValue!!
-                                        AppGlobals.instance.drillDecFlowrate!!.save(ctx)
+                                        appGlobals.drillDecFlowrate!!.dec_discharge = inputValue!!
+                                        appGlobals.drillDecFlowrate!!.save(ctx)
                                         notifyDataSetChanged()
                                     }
                                 })
@@ -1862,12 +1862,12 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                             return
                         }
                         EXLDSamplingData.COLUMN_SAMP_LAT -> {
-                            viewHolder.tvValue?.text = NumbersHelper.latLongString(AppGlobals.instance.drillSamplFlorwate!!.sampl_lat, AppGlobals.instance.drillSamplFlorwate!!.sampl_long)
+                            viewHolder.tvValue?.text = NumbersHelper.latLongString(appGlobals.drillSamplFlorwate!!.sampl_lat, appGlobals.drillSamplFlorwate!!.sampl_long)
                             viewHolder.btnSet?.text = "Set"
                             viewHolder.btnSet?.setOnClickListener {
-                                AppGlobals.instance.drillSamplFlorwate!!.sampl_lat = AppGlobals.instance.lastLat
-                                AppGlobals.instance.drillSamplFlorwate!!.sampl_long = AppGlobals.instance.lastLng
-                                AppGlobals.instance.drillSamplFlorwate!!.save(ctx)
+                                appGlobals.drillSamplFlorwate!!.sampl_lat = appGlobals.lastLat
+                                appGlobals.drillSamplFlorwate!!.sampl_long = appGlobals.lastLng
+                                appGlobals.drillSamplFlorwate!!.save(ctx)
                                 notifyDataSetChanged()
                             }
 
@@ -1964,7 +1964,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
                 PipedTableRow.PipedTableRowType.TestStatus -> {
                     // Only relevant for sampling flowrates
-                    val fr = AppGlobals.instance.drillSamplFlorwate!!
+                    val fr = appGlobals.drillSamplFlorwate!!
                     val TEST_STATUS_NOT_SET = 0
                     val TEST_STAUTS_PASS = 1
                     val TEST_STATUS_FAIL = 2
@@ -2054,7 +2054,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatSamplingTakenTo(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val lat = p.pt_sampl_taken_to_lat
         val lng = p.pt_sampl_taken_to_long
 
@@ -2067,8 +2067,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
 
         viewHolder.btnSet?.setOnClickListener {
-            p.pt_sampl_taken_to_lat = AppGlobals.instance.lastLat
-            p.pt_sampl_taken_to_long = AppGlobals.instance.lastLng
+            p.pt_sampl_taken_to_lat = appGlobals.lastLat
+            p.pt_sampl_taken_to_long = appGlobals.lastLng
             p.save(ctx)
             notifyDataSetChanged()
         }
@@ -2085,7 +2085,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatStartDechlorinating(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.pt_dec_start
         val lat = p.pt_dec_start_lat
         val lng = p.pt_dec_start_long
@@ -2131,7 +2131,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatStartChlorinating(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.pt_chlor_start_time
         val lat = p.pt_chlor_start_lat
         val lng = p.pt_chlor_start_long
@@ -2176,7 +2176,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatFlushingStarted(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.pt_flush_started
         val lat = p.pt_flush_start_lat
         val lng = p.pt_flush_start_long
@@ -2221,7 +2221,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatFlushingStarted2(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.pt_flush_started2
         val lat = p.pt_flush_start_lat2
         val lng = p.pt_flush_start_long2
@@ -2266,7 +2266,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatFillingStarted(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.filling_started
         val lat = p.filling_lat
         val lng = p.filling_long
@@ -2312,7 +2312,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatSwabLoaded(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.swab_loaded
         val lat = p.swab_latitude
         val lng = p.swab_longitude
@@ -2358,7 +2358,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun formatSwabRemoved(viewHolder: ViewHolderDateSet)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val theDate = p.swab_removed
         val lat = p.swab_removed_lat
         val lng = p.swab_removed_long
@@ -2367,8 +2367,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             if (viewHolder.btnSet?.text == "Set")
             {
                 p.swab_removed = DateHelper.dateToDBString(Date())
-                p.swab_removed_lat = AppGlobals.instance.lastLat
-                p.swab_removed_long = AppGlobals.instance.lastLng
+                p.swab_removed_lat = appGlobals.lastLat
+                p.swab_removed_long = appGlobals.lastLng
             }
             else
             {
@@ -2407,13 +2407,13 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetChlor()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_chlor_start_time = DateHelper.dateToDBString(Date())
         p.pt_chlor_main_chlorinated = ""
         p.pt_chlor_end_strength = 0.0
         p.pt_chlor_volume = 0.0
-        p.pt_chlor_start_lat = AppGlobals.instance.lastLat
-        p.pt_chlor_start_long = AppGlobals.instance.lastLng
+        p.pt_chlor_start_lat = appGlobals.lastLat
+        p.pt_chlor_start_long = appGlobals.lastLng
         p.save(ctx)
 
         resetPauses()
@@ -2423,12 +2423,12 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetDeChlor()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_dec_start = DateHelper.dateToDBString(Date())
         p.pt_dec_dechlorinated = ""
         p.pt_dec_volume = 0.0
-        p.pt_dec_start_lat = AppGlobals.instance.lastLat
-        p.pt_dec_start_long = AppGlobals.instance.lastLng
+        p.pt_dec_start_lat = appGlobals.lastLat
+        p.pt_dec_start_long = appGlobals.lastLng
         p.save(ctx)
 
         resetPauses()
@@ -2438,26 +2438,26 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetSwabbing()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.swab_loaded = DateHelper.dateToDBString(Date())
         p.swab_run_started = ""
         p.swab_home = ""
         p.swab_removed = ""
         p.swab_total_water = 0.0
-        p.swab_latitude = AppGlobals.instance.lastLat
-        p.swab_longitude = AppGlobals.instance.lastLng
+        p.swab_latitude = appGlobals.lastLat
+        p.swab_longitude = appGlobals.lastLng
         p.swab_removed_lat = 0.0
         p.swab_removed_long = 0.0
         p.save(ctx)
 
         resetPauses()
-        EXLDSwabFlowrates.deleteFlowrates(ctx, AppGlobals.instance.activeProcess.columnId)
+        EXLDSwabFlowrates.deleteFlowrates(ctx, appGlobals.activeProcess.columnId)
         notifyDataSetChanged()
     }
 
     fun undoChlor()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_chlor_start_time = ""
         p.pt_chlor_start_lat = 0.0
         p.pt_chlor_start_long = 0.0
@@ -2471,7 +2471,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun undoDeChlor()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_dec_start = ""
         p.pt_dec_dechlorinated = ""
         p.pt_dec_start_lat = 0.0
@@ -2485,7 +2485,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun undoSwabbing()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.swab_loaded = ""
         p.swab_latitude = 0.0
         p.swab_longitude = 0.0
@@ -2496,11 +2496,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetFilling()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.filling_started = DateHelper.dateToDBString(Date())
         p.filling_stopped = ""
-        p.filling_lat = AppGlobals.instance.lastLat
-        p.filling_long = AppGlobals.instance.lastLng
+        p.filling_lat = appGlobals.lastLat
+        p.filling_long = appGlobals.lastLng
         p.filling_total_water_volume = 0.0
         p.save(ctx)
 
@@ -2511,11 +2511,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetFlushing()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_flush_started = DateHelper.dateToDBString(Date())
         p.pt_flush_completed = ""
-        p.pt_flush_start_lat = AppGlobals.instance.lastLat
-        p.pt_flush_start_long = AppGlobals.instance.lastLng
+        p.pt_flush_start_lat = appGlobals.lastLat
+        p.pt_flush_start_long = appGlobals.lastLng
         p.pt_flush_total_water = 0.0
         p.save(ctx)
 
@@ -2526,11 +2526,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun resetFlushing2()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_flush_started2 = DateHelper.dateToDBString(Date())
         p.pt_flush_completed2 = ""
-        p.pt_flush_start_lat2 = AppGlobals.instance.lastLat
-        p.pt_flush_start_long2 = AppGlobals.instance.lastLng
+        p.pt_flush_start_lat2 = appGlobals.lastLat
+        p.pt_flush_start_long2 = appGlobals.lastLng
         p.pt_flush_total_water2 = 0.0
         p.save(ctx)
 
@@ -2541,7 +2541,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun undoFilling()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.filling_started = ""
         p.filling_lat = 0.0
         p.filling_long = 0.0
@@ -2552,7 +2552,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun undoFlushing()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_flush_started = ""
         p.pt_flush_start_lat = 0.0
         p.pt_flush_start_long = 0.0
@@ -2563,7 +2563,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun undoFlushing2()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_flush_started2 = ""
         p.pt_flush_start_lat2 = 0.0
         p.pt_flush_start_long2 = 0.0
@@ -2580,7 +2580,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         {
             pauseSessions = ctx.database.use {
                 select(EXLDPauseSessions.TABLE_NAME)
-                        .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+                        .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${appGlobals.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
                         .orderBy(EXLDPauseSessions.COLUMN_ID)
                         .exec {
                             parseList<EXLDPauseSessions>(classParser())
@@ -2595,14 +2595,14 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         var pauseType = getPauseTypeString()
         val pauses = ctx.database.use {
             select(EXLDPauseSessions.TABLE_NAME)
-                    .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+                    .whereArgs("${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${appGlobals.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
                     .orderBy(EXLDPauseSessions.COLUMN_ID)
                     .exec {
                         parseList<EXLDPauseSessions>(classParser())
                     }
         }
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         for (pause in pauses)
         {
             val pauseEnd = DateHelper.dbStringToDateOrNull(pause.pause_end)
@@ -2636,7 +2636,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         if (pauseType.length > 1)
         {
             ctx.database.use {
-                delete(EXLDPauseSessions.TABLE_NAME, "${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${AppGlobals.instance.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
+                delete(EXLDPauseSessions.TABLE_NAME, "${EXLDPauseSessions.COLUMN_PAUSE_PROCESS_ID} = ${appGlobals.activeProcess.columnId} AND ${EXLDPauseSessions.COLUMN_PAUSE_TYPE} = '$pauseType'")
             }
         }
 
@@ -2647,7 +2647,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
     fun pauseButtonPressed()
     {
         currentPause = EXLDPauseSessions()
-        currentPause!!.pause_process_id = AppGlobals.instance.activeProcess.columnId
+        currentPause!!.pause_process_id = appGlobals.activeProcess.columnId
         currentPause!!.pause_type = getPauseTypeString()
         currentPause!!.pause_start = DateHelper.dateToDBString(Date())
         currentPause!!.pause_flowrate = getCurrentFlowrate()
@@ -2670,7 +2670,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         var guardLowerDate = ""
         var guardUpperDate = ""
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (pipedTask == PipedTask.Swabbing)
         {
@@ -2742,7 +2742,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun createNewFlowrate(value: Double)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         when (pipedTask)
         {
             PipedTask.Swabbing -> {
@@ -2867,7 +2867,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
     fun getCurrentFlowrate(): Double
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         when (pipedTask)
         {
             PipedTask.Swabbing -> {

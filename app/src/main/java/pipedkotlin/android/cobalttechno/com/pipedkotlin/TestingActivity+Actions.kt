@@ -45,20 +45,27 @@ fun TestingActivity.didPressActionButton(menuId: Int)
     when(menuId)
     {
         R.id.mnuAddNote -> {
-            //AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(1, 20)
+            /*
+            runOnUiThread {
+                //appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(66626, 16)
+                appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(66626, 16)
+            }
+
+             */
+
             setNotes()
         }
 
         R.id.mnuZeroTibiisSensors -> {
 
-            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            if (appGlobals.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
                 return
             }
 
-            AppGlobals.instance.tibiisController.commandZeroPressureSensors()
+            appGlobals.tibiisController.commandZeroPressureSensors()
 
             val alert = AlertHelper(this)
             runOnUiThread {
@@ -101,7 +108,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
         }
 
         R.id.mnuEnableAutoPump -> {
-            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            if (appGlobals.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
@@ -112,7 +119,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
         }
 
         R.id.mnuEnableAutoPumpConditioning -> {
-            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            if (appGlobals.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
@@ -123,7 +130,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
         }
 
         R.id.mnuDisableAutoPump -> {
-            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            if (appGlobals.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("Tibiis Not Connected", "")
@@ -147,7 +154,7 @@ fun TestingActivity.connectButtonTapped()
 {
 
     // Can we use bluetooth
-    if (!AppGlobals.instance.tibiisController.supportsBluetooth())
+    if (!appGlobals.tibiisController.supportsBluetooth())
     {
         val alert = AlertHelper(this)
         alert.dialogForOKAlertNoAction("Bluetooth Unavailable", "BLE is not supported on this device")
@@ -155,14 +162,14 @@ fun TestingActivity.connectButtonTapped()
     }
 
     // Is bluetooth enabled
-    if (!AppGlobals.instance.tibiisController.bluetoothIsEnabled())
+    if (!appGlobals.tibiisController.bluetoothIsEnabled())
     {
         val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(enableBluetoothIntent, TestingActivity.ActivityRequestCodes.enableBluetooth.value)
         return
     }
 
-    val t = AppGlobals.instance.tibiisController
+    val t = appGlobals.tibiisController
 
 
     // Disconnect
@@ -176,13 +183,13 @@ fun TestingActivity.connectButtonTapped()
 
 
         Timer("stopTest", false).schedule(200) {
-            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-                AppGlobals.instance.tibiisController.disconnectTibiis()
+            if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+                appGlobals.tibiisController.disconnectTibiis()
             }
         }
 
         //AppGlobals.instance.activeProcess.needs_server_sync = 1
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
 
         //timer.cancel()
         //timer = Timer()
@@ -198,7 +205,7 @@ fun TestingActivity.connectButtonTapped()
         formatTibiisForConnecting()
 
         runOnUiThread {
-            AppGlobals.instance.tibiisController.connectToTibiis()
+            appGlobals.tibiisController.connectToTibiis()
         }
 
         return
@@ -230,36 +237,36 @@ fun TestingActivity.actionButtonTapped()
 
 fun TestingActivity.abortPETest()
 {
-    AppGlobals.instance.activeProcess.pe_test_aborted = 1
+    appGlobals.activeProcess.pe_test_aborted = 1
     tibiisStopPressurising()
     resetPETest()
 
     Timer("stopTest", false).schedule(100) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-            AppGlobals.instance.tibiisController.disconnectTibiis()
+        appGlobals.tibiisController.disconnectTibiis()
         //}
     }
 
     Timer("stopTest1", false).schedule(400) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-            AppGlobals.instance.tibiisController.disconnectTibiis()
+        appGlobals.tibiisController.disconnectTibiis()
         //}
     }
 
     Timer("stopTest2", false).schedule(700) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-            AppGlobals.instance.tibiisController.disconnectTibiis()
+        appGlobals.tibiisController.disconnectTibiis()
         //}
     }
 
     Timer("stopTes3", false).schedule(1000) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-            AppGlobals.instance.tibiisController.disconnectTibiis()
+        appGlobals.tibiisController.disconnectTibiis()
         //}
     }
 
-    AppGlobals.instance.activeProcess.needs_server_sync = 1
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.needs_server_sync = 1
+    appGlobals.activeProcess.save(this)
 }
 
 fun TestingActivity.abortDITest()
@@ -270,9 +277,9 @@ fun TestingActivity.abortDITest()
         resetDITest()
     }
 
-    AppGlobals.instance.tibiisController.disconnectTibiis()
-    AppGlobals.instance.activeProcess.needs_server_sync = 1
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.tibiisController.disconnectTibiis()
+    appGlobals.activeProcess.needs_server_sync = 1
+    appGlobals.activeProcess.save(this)
 }
 
 

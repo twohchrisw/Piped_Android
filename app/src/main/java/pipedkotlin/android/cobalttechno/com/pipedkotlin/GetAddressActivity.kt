@@ -67,12 +67,12 @@ class GetAddressActivity : BaseActivity() {
 
         etAddress.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                AppGlobals.instance.activeProcess.address = etAddress.text.toString()
-                AppGlobals.instance.activeProcess.location_lat = currentLat
-                AppGlobals.instance.activeProcess.location_long = currentLng
+                appGlobals.activeProcess.address = etAddress.text.toString()
+                appGlobals.activeProcess.location_lat = currentLat
+                appGlobals.activeProcess.location_long = currentLng
 
                 runOnUiThread {
-                    AppGlobals.instance.activeProcess.save(myContext)
+                    appGlobals.activeProcess.save(myContext)
                 }
 
             }
@@ -89,10 +89,10 @@ class GetAddressActivity : BaseActivity() {
 
     fun loadData()
     {
-        tvProcessHeader.text = AppGlobals.instance.activeProcess.processNoDescription()
-        if (AppGlobals.instance.activeProcess.address.isNotEmpty())
+        tvProcessHeader.text = appGlobals.activeProcess.processNoDescription()
+        if (appGlobals.activeProcess.address.isNotEmpty())
         {
-            etAddress.setText(AppGlobals.instance.activeProcess.address)
+            etAddress.setText(appGlobals.activeProcess.address)
         }
 
         // Get the current location
@@ -115,8 +115,8 @@ class GetAddressActivity : BaseActivity() {
     {
         if (lat != NULL_COORDINATE && lng != NULL_COORDINATE)
         {
-            AppGlobals.instance.lastLat = lat
-            AppGlobals.instance.lastLng = lng
+            appGlobals.lastLat = lat
+            appGlobals.lastLng = lng
             currentLat = lat
             currentLng = lng
             tvLocation.text = "Lat: " + currentLat + " Lng: " + currentLng

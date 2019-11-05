@@ -51,10 +51,10 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
 
         Log.d("cobsync", "Syncing Process")
         processBeingSynced = process
-        processBeingSynced!!.company_user_id = AppGlobals.instance.userId
+        processBeingSynced!!.company_user_id = appGlobals.userId
 
         // Update the process list to show the new sync status of the process
-        AppGlobals.instance.processListActivity?.updateRecycler()
+        appGlobals.processListActivity?.updateRecycler()
 
         syncProcessHeader()
     }
@@ -370,8 +370,8 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         }
 
         Log.d("cobsync", "Process being synced is now set to null")
-        AppGlobals.instance.processListActivity?.updateRecycler()
-        AppGlobals.instance.processMenuActivity?.syncCompleted()
+        appGlobals.processListActivity?.updateRecycler()
+        appGlobals.processMenuActivity?.syncCompleted()
 
         processBeingSynced = null
 

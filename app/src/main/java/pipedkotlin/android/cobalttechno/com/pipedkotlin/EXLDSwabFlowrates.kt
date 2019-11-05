@@ -79,7 +79,7 @@ class EXLDSwabFlowrates(var swab_id: Long = -1,
                 }
             }
 
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
             val runStarted = DateHelper.dbStringToDateOrNull(p.swab_run_started)
             val swabHome = DateHelper.dbStringToDateOrNull(p.swab_home)
             if (runStarted != null)

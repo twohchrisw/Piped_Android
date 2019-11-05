@@ -93,18 +93,18 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
 
         // Now test the individual n1 values
         var hasNValueFailed = false
-        AppGlobals.instance.peFailMessage = ""
+        appGlobals.peFailMessage = ""
 
         if (n1 < LOWER_N || n2 < LOWER_N)
         {
             hasNValueFailed = true
-            AppGlobals.instance.peFailMessage = "Pipe is likely to have air in it."
+            appGlobals.peFailMessage = "Pipe is likely to have air in it."
         }
 
         if (n1 > UPPER_N || n2 > UPPER_N)
         {
             hasNValueFailed = true
-            AppGlobals.instance.peFailMessage = "Pipe is likely to be leaking."
+            appGlobals.peFailMessage = "Pipe is likely to be leaking."
         }
 
         if (calcResult >= TestingSessionData.PE_TESTING_LOWER_LIMIT && calcResult <= TestingSessionData.PE_TESTING_UPPER_LIMIT)
@@ -116,7 +116,7 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
         {
             peTestPassed = false
             process.pe_pdf_pass = 0
-            AppGlobals.instance.peFailMessageAfterSync = true
+            appGlobals.peFailMessageAfterSync = true
         }
 
         process.pe_pdf_n1 = n1
@@ -124,17 +124,17 @@ class TestingCalcs(val testingContext: TestingSessionData.TestingContext, val pr
 
         // Save the reading values to a class for use when drawing the graph
 
-        AppGlobals.instance.excelPEReadings = PEReadings()
-        AppGlobals.instance.excelPEReadings.log_pa_t1 = log_pa_t1
-        AppGlobals.instance.excelPEReadings.log_pa_t2 = log_pa_t2
-        AppGlobals.instance.excelPEReadings.log_pa_t3 = log_pa_t3
-        AppGlobals.instance.excelPEReadings.log_t1 = log_t1
-        AppGlobals.instance.excelPEReadings.log_t2 = log_t2
-        AppGlobals.instance.excelPEReadings.log_t3 = log_t3
-        AppGlobals.instance.excelPEReadings.n1 = n1
-        AppGlobals.instance.excelPEReadings.n2 = n2
-        AppGlobals.instance.excelPEReadings.calcResult = calcResult
-        AppGlobals.instance.excelPEReadings.calcPass = peTestPassed
+        appGlobals.excelPEReadings = PEReadings()
+        appGlobals.excelPEReadings.log_pa_t1 = log_pa_t1
+        appGlobals.excelPEReadings.log_pa_t2 = log_pa_t2
+        appGlobals.excelPEReadings.log_pa_t3 = log_pa_t3
+        appGlobals.excelPEReadings.log_t1 = log_t1
+        appGlobals.excelPEReadings.log_t2 = log_t2
+        appGlobals.excelPEReadings.log_t3 = log_t3
+        appGlobals.excelPEReadings.n1 = n1
+        appGlobals.excelPEReadings.n2 = n2
+        appGlobals.excelPEReadings.calcResult = calcResult
+        appGlobals.excelPEReadings.calcPass = peTestPassed
 
     }
 }

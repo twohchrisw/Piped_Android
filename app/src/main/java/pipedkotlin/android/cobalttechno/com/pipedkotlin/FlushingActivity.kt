@@ -17,7 +17,7 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_swabbing)
 
-        if (AppGlobals.instance.currentFlushType == 1) {
+        if (appGlobals.currentFlushType == 1) {
             title = "Flushing"
         }
         else {
@@ -30,11 +30,11 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        if (AppGlobals.instance.currentFlushType == 1) {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        if (appGlobals.currentFlushType == 1) {
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, appGlobals.lastLat, appGlobals.lastLng, this)
         }
         else {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, appGlobals.lastLat, appGlobals.lastLng, this)
         }
     }
 
@@ -44,14 +44,14 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
 
-        if (AppGlobals.instance.currentFlushType == 1) {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        if (appGlobals.currentFlushType == 1) {
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing, appGlobals.lastLat, appGlobals.lastLng, this)
         }
         else {
-            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+            recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, appGlobals.lastLat, appGlobals.lastLng, this)
         }
     }
 
@@ -61,11 +61,11 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     override fun didRequestNotes(fieldName: String) {
         Log.d("cobswab", "Did request notes")
 
-        if (AppGlobals.instance.currentFlushType == 1) {
-            setNotes(AppGlobals.instance.activeProcess.pt_flush_notes)
+        if (appGlobals.currentFlushType == 1) {
+            setNotes(appGlobals.activeProcess.pt_flush_notes)
         }
         else {
-            setNotes(AppGlobals.instance.activeProcess.pt_flush_notes2)
+            setNotes(appGlobals.activeProcess.pt_flush_notes2)
         }
 
     }
@@ -76,11 +76,11 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            if (AppGlobals.instance.currentFlushType == 1) {
+            if (appGlobals.currentFlushType == 1) {
                 p.pt_flush_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
             }
             else {

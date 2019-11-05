@@ -20,7 +20,7 @@ class EquipmentRecycler(val ctx: Context): RecyclerView.Adapter<RecyclerView.Vie
 
     fun createEquipmentRows()
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         equipRows = ArrayList<EquipRow>()
 
         // DOSING
@@ -200,7 +200,7 @@ class EquipmentRecycler(val ctx: Context): RecyclerView.Adapter<RecyclerView.Vie
         alert.dialogForTextInput(title, "", {
             if (it.length > 0)
             {
-                EXLDEquipmentExtra.addExtra(ctx, AppGlobals.instance.activeProcess.columnId, it, row.section)
+                EXLDEquipmentExtra.addExtra(ctx, appGlobals.activeProcess.columnId, it, row.section)
                 refresh()
             }
         })
@@ -208,7 +208,7 @@ class EquipmentRecycler(val ctx: Context): RecyclerView.Adapter<RecyclerView.Vie
 
     fun toggleChecked(row: EquipRow)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         var setValue = 1
 

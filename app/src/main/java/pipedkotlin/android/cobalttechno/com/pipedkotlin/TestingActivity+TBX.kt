@@ -51,29 +51,29 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
         if (testingSession.isPressurisingDI)
         {
             val actualReading = logReading.pressure.toDouble() / 1000.0
-            val stp = AppGlobals.instance.activeProcess.pt_di_stp
+            val stp = appGlobals.activeProcess.pt_di_stp
             if (actualReading >= stp)
             {
                 endDIPressurisation()
             }
         }
 
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         return
     }
 
-    // Is this a previous test running when it sholdn't
+    // Is this a previous test running when it shouldn't
     if (testingSession.loggingMode == TestingSessionData.LoggingMode.waiting)
     {
         runOnUiThread {
-            AppGlobals.instance.tibiisController.tbxDataController.sendCommandStopTest()
+            appGlobals.tibiisController.tbxDataController.sendCommandStopTest()
         }
         Log.d("Cobalt", "Previous test running when it shouldn't - test stopped")
     }
 
 
     val logReceivedDate = Date()
-    val process = AppGlobals.instance.activeProcess
+    val process = appGlobals.activeProcess
 
     // Set the pressurising start date
     if (process.pt_pressurising_start == "" && testingSession.loggingMode == TestingSessionData.LoggingMode.pressurising)
@@ -281,13 +281,13 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
         }
     }
 
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.save(this)
 }
 
 fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
 {
 
-    val lastLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(AppGlobals.instance.activeProcess.columnId, currentLogNumber - 1)
+    val lastLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(appGlobals.activeProcess.columnId, currentLogNumber - 1)
     var startLogNumber = lastLogButThis + 1
 
     Log.d("zzz", "downloadPreviousReadings(currentLog: $currentLogNumber startLog: $startLogNumber)")
@@ -296,21 +296,29 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
         startLogNumber = 1
     }
 
-    if (currentLogNumber > startLogNumber)
+    // We don't need to download any logs after the the R3 log
+    var lastLogToDownload = currentLogNumber
+    if (lastLogToDownload > tibiisSession.getLogNumberForReading3())
     {
-        val numberOfLogs = currentLogNumber - startLogNumber
+        lastLogToDownload = tibiisSession.getLogNumberForReading3()
+        Log.d("zzz", "Resetting max log to download from ${currentLogNumber} to R3 Log ${lastLogToDownload}")
+    }
+
+    if (lastLogToDownload > startLogNumber)
+    {
+        val numberOfLogs = lastLogToDownload - startLogNumber
         previousDownloadStartLog = startLogNumber
 
-        Log.d("zzz", "[Previous Download Start Log: $startLogNumber Current Log: $currentLogNumber Count: $numberOfLogs")
+        Log.d("zzz", "[Previous Download Start Log: $startLogNumber Max Log To Download: $lastLogToDownload Count: $numberOfLogs")
         if (numberOfLogs > MAX_PREVIOUS_LOGS)
         {
-            lastPreviousLogRequired = currentLogNumber - 1
+            lastPreviousLogRequired = lastLogToDownload
             runOnUiThread {
                 Log.d("zzz", "About to send first command for logs [multiple commands necessary]")
                 prev_download_cycle_start = Date().time
                 PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
                 PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+                appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
             }
         }
         else
@@ -322,7 +330,7 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
                     prev_download_cycle_start = Date().time
                     PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
                     PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogs
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, numberOfLogs)
+                    appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, numberOfLogs)
                 }
             }
             else
@@ -395,18 +403,11 @@ fun TestingActivity.continueProcessingPreviousLogs()
             PREVIOUS_LOG_REQUEST_START_LOG = lastMaxLogNumber
             PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
 
-            /*
+            //Timer("prevLog1", false).schedule(157) {
+           // }
             runOnUiThread {
-                AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
-            }
-             */
-
-            // If we run these previous log commands to close together I think it stops the live log timer from requesting a log and
-            Timer("prevLog1", false).schedule(37) {
-                runOnUiThread {
-                    prev_download_cycle_start = Date().time
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
-                }
+                prev_download_cycle_start = Date().time
+                appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, MAX_PREVIOUS_LOGS)
             }
         }
         else
@@ -414,11 +415,11 @@ fun TestingActivity.continueProcessingPreviousLogs()
             Log.d("zzz", "Requesting previous logs from $lastMaxLogNumber Number: $numberOfLogsRemaining is last")
             PREVIOUS_LOG_REQUEST_START_LOG = lastMaxLogNumber
             PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogsRemaining
-            Timer("prevLog2", false).schedule(37) {
-                runOnUiThread {
-                    prev_download_cycle_start = Date().time
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, numberOfLogsRemaining)
-                }
+            //Timer("prevLog2", false).schedule(157) {
+            //}
+            runOnUiThread {
+                prev_download_cycle_start = Date().time
+                appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(lastMaxLogNumber, numberOfLogsRemaining)
             }
             lastPreviousLogRequired = -1
         }

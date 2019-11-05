@@ -26,14 +26,14 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_list)
-        AppGlobals.instance.processListActivity = this  // For getting updates from the sync manager
+        appGlobals.processListActivity = this  // For getting updates from the sync manager
 
         // Setup the location client
         setupLocationClient()
         getCurrentLocation(::locationReceived)
 
         // Set the context for the tbxDataController so we can run commands on the main thread
-        AppGlobals.instance.tibiisController.tbxDataController.context = this
+        appGlobals.tibiisController.tbxDataController.context = this
 
         // Get the processes
         processes = EXLDProcess.allProcesses(this)
@@ -59,8 +59,8 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -104,7 +104,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
 
             R.id.mnuAbout -> {
                 val version = BuildConfig.VERSION_NAME
-                val companyId = AppGlobals.instance.companyId
+                val companyId = appGlobals.companyId
 
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("About Piped", "Version: ${version}\r\nSigned in as '$companyId'")
@@ -127,7 +127,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
             {
                 val a = this
                 doAsync {
-                    AppGlobals.instance.syncManager.syncProcess(p, ctx)
+                    appGlobals.syncManager.syncProcess(p, ctx)
                 }
             }
         }
@@ -159,10 +159,10 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     // Load the process menu
     fun loadMenuForProcess(process: EXLDProcess)
     {
-        AppGlobals.instance.activeProcess = process
+        appGlobals.activeProcess = process
         val processMenuIntent = Intent(this, ProcessMenuActivity::class.java)
         processMenuIntent.putExtra(ProcessMenuActivity.MENU_MODE_KEY, ProcessMenuActivity.MENU_MODE_MAIN)
-        AppGlobals.instance.processMenuShowingTasks = false
+        appGlobals.processMenuShowingTasks = false
         startActivityForResult(processMenuIntent, 1)
     }
 
@@ -184,8 +184,8 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     {
         // Create a new process
         var process = EXLDProcess()
-        Log.d("cobalt", "New process sets company id as " + AppGlobals.instance.companyId)
-        process.company_id = AppGlobals.instance.companyId
+        Log.d("cobalt", "New process sets company id as " + appGlobals.companyId)
+        process.company_id = appGlobals.companyId
         val newProcessId = process.save(this)
 
         // Retrieve the just created process - we can't use the process we just created as the values haven't populated

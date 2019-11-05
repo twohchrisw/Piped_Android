@@ -59,11 +59,11 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
             R.id.mnuOther -> {
                 val alertHelper = AlertHelper(this)
                 if (listContext == ListContext.installTechs.value) {
-                    alertHelper.dialogForTextInput("Other Installation Technique", AppGlobals.instance.activeProcess.pt_installation_tech_other, ::installTechOtherSelected)
+                    alertHelper.dialogForTextInput("Other Installation Technique", appGlobals.activeProcess.pt_installation_tech_other, ::installTechOtherSelected)
                 }
                 if (listContext == ListContext.schemes.value)
                 {
-                    alertHelper.dialogForTextInput("Other Scheme Name", AppGlobals.instance.activeProcess.scheme_name, ::schemeOtherSelected)
+                    alertHelper.dialogForTextInput("Other Scheme Name", appGlobals.activeProcess.scheme_name, ::schemeOtherSelected)
                 }
             }
         }
@@ -73,17 +73,17 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
 
     fun installTechOtherSelected(value: String)
     {
-        AppGlobals.instance.activeProcess.pt_installation_tech_other = value
-        AppGlobals.instance.activeProcess.pt_installation_tech = "other"
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.pt_installation_tech_other = value
+        appGlobals.activeProcess.pt_installation_tech = "other"
+        appGlobals.activeProcess.save(this)
         setResult(Activity.RESULT_OK)
         finish()
     }
 
     fun schemeOtherSelected(value: String)
     {
-        AppGlobals.instance.activeProcess.scheme_name = value
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.scheme_name = value
+        appGlobals.activeProcess.save(this)
         setResult(Activity.RESULT_OK)
         finish()
     }
@@ -98,7 +98,7 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
         {
             supportActionBar?.title = "Clients"
             val clients = database.use {
-                select(EXLDClients.TABLE_NAME).whereArgs(EXLDClients.COLUMN_COMPANY_ID + " = '" + AppGlobals.instance.activeProcess.company_id + "'")
+                select(EXLDClients.TABLE_NAME).whereArgs(EXLDClients.COLUMN_COMPANY_ID + " = '" + appGlobals.activeProcess.company_id + "'")
                         .orderBy(EXLDClients.COLUMN_CLIENT_NAME).exec {
                     parseList<EXLDClients>(classParser())
                 }
@@ -140,7 +140,7 @@ class ListSelectionActivity : AppCompatActivity(), ListSelectionRecyclerAdapter.
             }
 
             val listItems = database.use {
-                select(EXLDListItems.TABLE_NAME).whereArgs(EXLDListItems.COLUMN_COMPANY_ID + " = '" + AppGlobals.instance.activeProcess.company_id + "' AND " + EXLDListItems.COLUMN_LIST_NAME + " = '" + listName + "'")
+                select(EXLDListItems.TABLE_NAME).whereArgs(EXLDListItems.COLUMN_COMPANY_ID + " = '" + appGlobals.activeProcess.company_id + "' AND " + EXLDListItems.COLUMN_LIST_NAME + " = '" + listName + "'")
                         .orderBy(EXLDListItems.COLUMN_LIST_ITEM).exec {
                             parseList<EXLDListItems>(classParser())
                         }

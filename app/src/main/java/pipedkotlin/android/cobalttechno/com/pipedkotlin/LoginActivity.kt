@@ -45,9 +45,9 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         if (existingCompanyId.length > 2)
         {
             // We have an existing company id, download list items, prefs and clients
-            AppGlobals.instance.companyId = existingCompanyId
-            AppGlobals.instance.userId = EXLDSettings.getExistingUserId(this)
-            Log.d("oct23", "List sets company id as " + AppGlobals.instance.companyId)
+            appGlobals.companyId = existingCompanyId
+            appGlobals.userId = EXLDSettings.getExistingUserId(this)
+            Log.d("oct23", "List sets company id as " + appGlobals.companyId)
             progressBar.visibility = View.VISIBLE
 
             shouldLoadProcessListAfterParsing = true
@@ -118,7 +118,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         val a = this
 
         val comms = CommsManager(a)
-        var urlString = comms.WEBSERVER_GET_LIST_ITEMS + AppGlobals.instance.companyId
+        var urlString = comms.WEBSERVER_GET_LIST_ITEMS + appGlobals.companyId
 
         comms.getXMLDocument(urlString, a)
     }
@@ -128,7 +128,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         parsingContext = ParsingContext.LoadClients
         val comms = CommsManager(this)
-        var urlString = comms.WEBSERVER_GET_CLIENTS + AppGlobals.instance.companyId
+        var urlString = comms.WEBSERVER_GET_CLIENTS + appGlobals.companyId
         comms.getXMLDocument(urlString, this)
     }
 
@@ -137,7 +137,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         parsingContext = ParsingContext.ModulePrefs
         val comms = CommsManager(this)
-        var urlString = comms.WEBSERVER_GET_MODULE_PREFS + AppGlobals.instance.companyId
+        var urlString = comms.WEBSERVER_GET_MODULE_PREFS + appGlobals.companyId
         comms.getXMLDocument(urlString, this)
     }
 
@@ -225,8 +225,8 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
         if (companyIdIsValid)
         {
-            AppGlobals.instance.companyId = ownerCompanyId
-            AppGlobals.instance.userId = userIdString
+            appGlobals.companyId = ownerCompanyId
+            appGlobals.userId = userIdString
 
             runOnUiThread {
                 EXLDSettings.writeCompanyIdToDatabase(this, ownerCompanyId, userIdString, attemptedCompanyId)
@@ -288,7 +288,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         {
             val clientId = nz(row.getFieldForKey("client_id")?.value)
             val clientName = nz(row.getFieldForKey("client_name")?.value)
-            val companyId = AppGlobals.instance.companyId
+            val companyId = appGlobals.companyId
 
             //runOnUiThread {
                 Log.d("Cobalt", "Write Clients: $clientName")

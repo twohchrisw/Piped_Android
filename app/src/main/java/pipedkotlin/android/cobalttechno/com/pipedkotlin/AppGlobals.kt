@@ -7,6 +7,7 @@ import android.os.Environment
 import android.util.Log
 import java.io.File
 
+/*
 inline fun catchAll(message: String, action: () -> Unit) {
     try {
         action()
@@ -14,14 +15,17 @@ inline fun catchAll(message: String, action: () -> Unit) {
         Log.d("Cobalt","Failed to $message. ${t.message}", t)
     }
 }
+*/
 
-public class AppGlobals private constructor() {
+val appGlobals = AppGlobals()
+
+public class AppGlobals {
 
     // Singleton setup
-    private object Holder { val INSTANCE = AppGlobals() }
+    //private object Holder { val INSTANCE = AppGlobals() }
 
     companion object {
-        val instance: AppGlobals by lazy { Holder.INSTANCE }
+        //val instance: AppGlobals by lazy { Holder.INSTANCE }
         val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
         val FILE_UPLOAD_URL = "${SERVICE_DOMAIN}fileupload.php"
 

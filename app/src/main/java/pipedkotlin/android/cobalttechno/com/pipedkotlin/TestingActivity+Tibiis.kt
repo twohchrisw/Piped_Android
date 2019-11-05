@@ -11,13 +11,13 @@ import kotlin.concurrent.schedule
 fun TestingActivity.setupTibiis()
 {
     //TODO: Not fully implemented
-    AppGlobals.instance.tibiisController.delegate = this
-    AppGlobals.instance.tibiisController.testingContext = testingSession.testingContext
-    AppGlobals.instance.tibiisController.appContext = this
-    AppGlobals.instance.tibiisController.tbxDataController.delegate = this
+    appGlobals.tibiisController.delegate = this
+    appGlobals.tibiisController.testingContext = testingSession.testingContext
+    appGlobals.tibiisController.appContext = this
+    appGlobals.tibiisController.tbxDataController.delegate = this
     tibiisSession.testingContext = testingSession.testingContext
 
-    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+    if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         formatTibiisForConnected()
     }
@@ -43,7 +43,7 @@ fun TestingActivity.formatTibiisForConnected()
     saveCalibrationDetails()
 
     // Set the log interval
-    AppGlobals.instance.tibiisController.tbxDataController.sendCommandSetLogInterval(1)
+    appGlobals.tibiisController.tbxDataController.sendCommandSetLogInterval(1)
 
     // Start the live log request loop after a 100ms delay
     Timer("LiveLogRequestLoop", false).schedule(100) {
@@ -65,7 +65,7 @@ fun TestingActivity.formatTibiisForConnected()
 fun TestingActivity.reconnectTibiis()
 {
     formatTibiisForConnected()
-    AppGlobals.instance.tibiisController.commandSendAck()
+    appGlobals.tibiisController.commandSendAck()
 }
 
 fun TestingActivity.formatTibiisForNotConnected()
@@ -75,7 +75,7 @@ fun TestingActivity.formatTibiisForNotConnected()
     btnConnect.setText("Connect")
     tibiisSession.lastReading = null
     updatePressureGuageForZero()
-    AppGlobals.instance.tibiisController.hasSendDateSync = false
+    appGlobals.tibiisController.hasSendDateSync = false
     hasCheckedIntegrity = false
     isCheckingIntegrity = false
     isDownloadingPreviousData = false
@@ -96,7 +96,7 @@ fun TestingActivity.startTibiisLiveLogRequestLoop()
 
 fun TestingActivity.tibiisStartPressurising()
 {
-    val tc = AppGlobals.instance.tibiisController
+    val tc = appGlobals.tibiisController
 
     // Get the logger name
 
@@ -191,19 +191,19 @@ fun TestingActivity.tibiisStopPressurising()
 {
     try {
         runOnUiThread {
-            AppGlobals.instance.tibiisController.commandStopLogger()
+            appGlobals.tibiisController.commandStopLogger()
         }
 
         Timer("startTest1", false).schedule(100) {
-            AppGlobals.instance.tibiisController.commandStopLogger()
+            appGlobals.tibiisController.commandStopLogger()
         }
 
         Timer("startTest1", false).schedule(200) {
-            AppGlobals.instance.tibiisController.commandStopLogger()
+            appGlobals.tibiisController.commandStopLogger()
         }
 
         Timer("startTest1", false).schedule(300) {
-            AppGlobals.instance.tibiisController.commandStopLogger()
+            appGlobals.tibiisController.commandStopLogger()
         }
 
     }
@@ -215,7 +215,7 @@ fun TestingActivity.tibiisStopPressurising()
 
 fun TestingActivity.tibiisStartLogging()
 {
-    val tc = AppGlobals.instance.tibiisController
+    val tc = appGlobals.tibiisController
     if (tc.connectStatus == TibiisController.ConnectionStatus.connected) {
         testingSession.isPressurisingWithTibiis = false
         testingSession.isLoggingWithTibiis = false

@@ -25,7 +25,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Swabbing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Swabbing, appGlobals.lastLat, appGlobals.lastLng, this)
 
     }
 
@@ -35,9 +35,9 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Swabbing, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Swabbing, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun didRequestMainImage(fieldName: String) {
@@ -48,7 +48,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun didRequestNotes(fieldName: String) {
         Log.d("cobswab", "Did request notes")
-        setNotes(AppGlobals.instance.activeProcess.swab_notes)
+        setNotes(appGlobals.activeProcess.swab_notes)
     }
 
     override fun didRequestFlowrate(position: Int) {
@@ -58,7 +58,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     override fun cameraPermissionsGranted() {
         super.cameraPermissionsGranted()
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (p.swab_photo.length < 2)
         {
             // Straight load
@@ -81,7 +81,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == CAMERA_REQUEST_CAMERA)
         {

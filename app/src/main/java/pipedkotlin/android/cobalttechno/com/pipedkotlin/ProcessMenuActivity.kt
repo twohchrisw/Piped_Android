@@ -28,10 +28,10 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_process_menu)
-        AppGlobals.instance.processMenuActivity = this
+        appGlobals.processMenuActivity = this
 
         menuMode = MENU_MODE_MAIN
-        if (AppGlobals.instance.processMenuShowingTasks)
+        if (appGlobals.processMenuShowingTasks)
         {
             menuMode = MENU_MODE_TASKS
         }
@@ -55,22 +55,22 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
         Log.d("cobsync", "Process Menu on Resume")
 
-        AppGlobals.instance.activeProcess = EXLDProcess.processForId(MainApplication.applicationContext(), AppGlobals.instance.activeProcess.columnId)!!
+        appGlobals.activeProcess = EXLDProcess.processForId(MainApplication.applicationContext(), appGlobals.activeProcess.columnId)!!
 
-        if (AppGlobals.instance.activeProcess.needsSync())
+        if (appGlobals.activeProcess.needsSync())
         {
             Log.d("cobsync", "initiating sync")
             val a = this
             doAsync {
-                AppGlobals.instance.syncManager.syncProcess(AppGlobals.instance.activeProcess, a)
+                appGlobals.syncManager.syncProcess(appGlobals.activeProcess, a)
             }
         }
         else
         {
-            Log.d("cobsync","Resume needs sync is false: Sync: ${AppGlobals.instance.activeProcess.last_sync_millis}  Update: ${AppGlobals.instance.activeProcess.last_update_millis}")
+            Log.d("cobsync","Resume needs sync is false: Sync: ${appGlobals.activeProcess.last_sync_millis}  Update: ${appGlobals.activeProcess.last_update_millis}")
         }
 
-        if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+        if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
         {
             Log.d("Cobalt", "TIBIIS IS CONNECTED")
         }
@@ -82,7 +82,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
     fun syncCompleted()
     {
         runOnUiThread {
-            headerProcess.text = AppGlobals.instance.activeProcess.processNoDescription()
+            headerProcess.text = appGlobals.activeProcess.processNoDescription()
         }
     }
 
@@ -95,14 +95,14 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         headerProcess = findViewById(R.id.tvHeaderProcess) as TextView
         headerAddress = findViewById(R.id.tvHeaderAddress) as TextView
 
-        headerProcess.text = AppGlobals.instance.activeProcess.processNoDescription()
-        headerAddress.text = AppGlobals.instance.activeProcess.address
+        headerProcess.text = appGlobals.activeProcess.processNoDescription()
+        headerAddress.text = appGlobals.activeProcess.address
     }
 
     fun loadTasksMenu()
     {
         val processMenuIntent = Intent(this, ProcessMenuActivity::class.java)
-        AppGlobals.instance.processMenuShowingTasks = true
+        appGlobals.processMenuShowingTasks = true
         startActivity(processMenuIntent)
     }
 
@@ -126,7 +126,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
     fun loadFlushing(flushType: Int)
     {
-        AppGlobals.instance.currentFlushType = flushType
+        appGlobals.currentFlushType = flushType
         val flushIntent = Intent(this, FlushingActivity::class.java)
         startActivity(flushIntent)
     }
@@ -169,7 +169,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
     override fun onBackPressed() {
         super.onBackPressed()
-        AppGlobals.instance.processMenuShowingTasks = false
+        appGlobals.processMenuShowingTasks = false
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -178,7 +178,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         // To ensure we go back to the previous menu (i.e. we're in tasks mode, since we have a parent set for the main menu)
         if (item?.itemId == android.R.id.home)
         {
-            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected && menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
+            if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected && menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
             {
                 // Prevent the user leaving the process if Tibiis is connected
                 val alert = AlertHelper(this)
@@ -199,7 +199,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
         if (menuMode == ProcessMenuActivity.MENU_MODE_MAIN)
         {
-            val hasEnteredDetails = AppGlobals.instance.activeProcess.hasEnteredProcessDetails()
+            val hasEnteredDetails = appGlobals.activeProcess.hasEnteredProcessDetails()
 
             when (menuItem)
             {

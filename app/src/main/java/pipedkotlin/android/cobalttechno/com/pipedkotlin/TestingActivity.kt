@@ -102,6 +102,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     var PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
 
     val REQUEST_ADD_NOTES = 1
+    var plMissedCandidate = -1
 
     // Menu Items
     lateinit var menuZeroTibiis: MenuItem
@@ -125,8 +126,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         Log.d("cobtimer", "onCreate isPressurisingPE: $isPressurisingPE")
 
         // Set the context for the tbxDataController so we can run commands on the main thread
-        AppGlobals.instance.tibiisController.tbxDataController.context = this
-        AppGlobals.instance.tibiisController.appContext = this
+        appGlobals.tibiisController.tbxDataController.context = this
+        appGlobals.tibiisController.appContext = this
 
         // Assign the correct testing context
         val testingContext = intent.getStringExtra(TESTING_CONTEXT_EXTRA)
@@ -143,7 +144,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
 
         // Setup the calculation manager
-        calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
+        calcManager = TestingCalcs(testingSession.testingContext, appGlobals.activeProcess)
 
         // Outlets and data
 
@@ -160,7 +161,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             //TODO: createDiBackButton - to prevent the user exiting a test
         }
 
-        Log.d("cobalt4", "Process ID: ${AppGlobals.instance.activeProcess.internalId}")
+        Log.d("cobalt4", "Process ID: ${appGlobals.activeProcess.internalId}")
 
     }
 
@@ -193,14 +194,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onStop() {
         super.onStop()
 
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         Log.d("cobtimer", "onStop isPressurisingPE: $isPressurisingPE")
     }
 
     override fun onPause() {
         super.onPause()
 
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         Log.d("cobtimer", "onPause isPressurisingPE: $isPressurisingPE")
     }
 
@@ -221,7 +222,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             {
                 // Why does this work fine when not connected but not when connected to Tibiis
                 // What is different??
-                AppGlobals.instance.activeProcess.save(this)
+                appGlobals.activeProcess.save(this)
 
                 //recyclerView.adapter = null
                 //recyclerView.layoutManager = null
@@ -272,13 +273,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             loadCheckDI()
 
-            if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_di_r60_time))
+            if (DateHelper.dateIsValid(appGlobals.activeProcess.pt_di_r60_time))
             {
                 formatActionPanelForCalculate()
             }
         }
 
-        if (testingSession.testingContext == TestingSessionData.TestingContext.di && AppGlobals.instance.activeProcess.di_is_zero_loss == -1)
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di && appGlobals.activeProcess.di_is_zero_loss == -1)
         {
             if (!preventDIAskingForLossValue)
             {
@@ -337,23 +338,23 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     {
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
         {
-            AppGlobals.instance.activeProcess.pt_section_name = value
-            AppGlobals.instance.activeProcess.pt_lat = AppGlobals.instance.lastLat
-            AppGlobals.instance.activeProcess.pt_long = AppGlobals.instance.lastLng
+            appGlobals.activeProcess.pt_section_name = value
+            appGlobals.activeProcess.pt_lat = appGlobals.lastLat
+            appGlobals.activeProcess.pt_long = appGlobals.lastLng
         }
         else
         {
-            AppGlobals.instance.activeProcess.pt_di_section_name = value
-            AppGlobals.instance.activeProcess.di_lat = AppGlobals.instance.lastLat
-            AppGlobals.instance.activeProcess.di_long = AppGlobals.instance.lastLng
+            appGlobals.activeProcess.pt_di_section_name = value
+            appGlobals.activeProcess.di_lat = appGlobals.lastLat
+            appGlobals.activeProcess.di_long = appGlobals.lastLng
         }
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         loadData()
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
     }
 
     override fun locationPermissionsGranted()
@@ -363,7 +364,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setSectionLength(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         val intValue = value.toIntOrNull()
         if (intValue == null)
@@ -385,13 +386,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     fun setPipeDiameter(value: String)
     {
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
-            AppGlobals.instance.activeProcess.pt_pe_pipe_diameter = value.toCobaltInt()
+            appGlobals.activeProcess.pt_pe_pipe_diameter = value.toCobaltInt()
         }
         else
         {
-            AppGlobals.instance.activeProcess.pt_di_pipe_diameter = value.toCobaltInt()
+            appGlobals.activeProcess.pt_di_pipe_diameter = value.toCobaltInt()
         }
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         loadData()
     }
 
@@ -416,7 +417,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setLoggerDetails(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
             p.pt_pe_logger_details = value
         }
@@ -430,7 +431,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setStartPressure(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
             p.pt_start_pressure = value.toCobaltDouble()
         }
@@ -444,7 +445,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setSTP(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
             p.pt_system_test_pressure = value.toCobaltDouble()
         }
@@ -458,7 +459,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setReading1(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_reading_1 = value.toCobaltDouble()
         p.save(this)
         loadData()
@@ -466,7 +467,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setReading2(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_reading_2 = value.toCobaltDouble()
         p.save(this)
         loadData()
@@ -474,7 +475,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setReading3(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_reading_3 = value.toCobaltDouble()
         p.save(this)
         loadData()
@@ -482,7 +483,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setReading15(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_di_r15_value = value.toCobaltDouble()
         p.save(this)
         loadData()
@@ -490,7 +491,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     fun setReading60(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         p.pt_di_r60_value = value.toCobaltDouble()
         p.save(this)
         loadData()
@@ -504,12 +505,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
         {
-            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.pt_pe_notes)
+            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, appGlobals.activeProcess.pt_pe_notes)
             startActivityForResult(notesIntent, ActivityRequestCodes.peNotes.value)
         }
         else
         {
-            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.pt_di_notes)
+            notesIntent.putExtra(NotesActivity.NOTES_EXTRA, appGlobals.activeProcess.pt_di_notes)
             startActivityForResult(notesIntent, ActivityRequestCodes.diNotes.value)
         }
     }
@@ -518,12 +519,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         if (requestCode == ActivityRequestCodes.peNotes.value && data != null)
         {
-            AppGlobals.instance.activeProcess.pt_pe_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.pt_pe_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
         }
 
         if (requestCode == ActivityRequestCodes.diNotes.value && data != null)
         {
-            AppGlobals.instance.activeProcess.pt_di_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.pt_di_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
         }
 
         if (requestCode == ActivityRequestCodes.listSelection.value && data != null)
@@ -535,7 +536,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             {
                 ListSelectionActivity.ListContext.installTechs.value -> {
                     if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
-                        AppGlobals.instance.activeProcess.pt_pe_it = listItem
+                        appGlobals.activeProcess.pt_pe_it = listItem
                     }
                     else
                     {
@@ -544,17 +545,17 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 }
                 ListSelectionActivity.ListContext.pumpType.value -> {
                     if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
-                        AppGlobals.instance.activeProcess.pt_pe_pump_size = listItem
+                        appGlobals.activeProcess.pt_pe_pump_size = listItem
                     }
                     else
                     {
-                        AppGlobals.instance.activeProcess.pt_di_pump_size = listItem
+                        appGlobals.activeProcess.pt_di_pump_size = listItem
                     }
                 }
             }
         }
 
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
         loadData()
     }
 
@@ -568,15 +569,15 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             when (which) {
                 0 -> {
                     runOnUiThread {
-                        AppGlobals.instance.activeProcess.di_is_zero_loss = 0
-                        AppGlobals.instance.activeProcess.save(this)
+                        appGlobals.activeProcess.di_is_zero_loss = 0
+                        appGlobals.activeProcess.save(this)
                         loadData()
                     }
                 }
                 1 -> {
                     runOnUiThread {
-                        AppGlobals.instance.activeProcess.di_is_zero_loss = 1
-                        AppGlobals.instance.activeProcess.save(this)
+                        appGlobals.activeProcess.di_is_zero_loss = 1
+                        appGlobals.activeProcess.save(this)
                         loadData()
                     }
                 }
@@ -597,7 +598,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun didSelectPERow(row: Int) {
         val alert = AlertHelper(this)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         when (row)
         {
@@ -618,7 +619,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun didSelectDIRow(row: Int) {
         val alert = AlertHelper(this)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         when (row)
         {
@@ -669,12 +670,12 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     {
         override fun run() {
             Log.d("petest", "Air Percentage Timer")
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
             a.loadData()
 
             if (a.testingSession.testingContext == TestingSessionData.TestingContext.pe && p.isPEPressurising() && a.testWillFailAlertIgnored == false)
             {
-                var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
+                var pstart = DateHelper.dbStringToDateOrNull(appGlobals.activeProcess.pt_pressurising_start)
                 val airCalc = AirPressureCalc(p, TestingSessionData.TestingContext.pe)
                 if (airCalc.isValid().first)
                 {
@@ -717,7 +718,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         override fun run() {
 
-            if (AppGlobals.instance.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
+            if (appGlobals.tibiisController.connectStatus != TibiisController.ConnectionStatus.connected)
             {
                 return
             }
@@ -727,14 +728,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
                 if (!a.isDownloadingPreviousData)
                 {
-                    AppGlobals.instance.tibiisController.tbxDataController.sendCommandLiveLog()
+                    appGlobals.tibiisController.tbxDataController.sendCommandLiveLog()
 
                     if (a.shouldTurnScreenOnWithNextLog)
                     {
                         Timer("screenOn", false).schedule(100) {
                             a.shouldTurnScreenOnWithNextLog = false
                             Log.d("Cobalt", "Turning Screen On")
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(true)
+                            appGlobals.tibiisController.tbxDataController.sendCommandScreenControl(true)
                         }
                     }
 
@@ -743,9 +744,34 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                         Timer("screenOff", false).schedule(100) {
                             a.shouldTurnScreenOffWithNextLog = false
                             Log.d("Cobalt", "Turning Screen Off")
-                            AppGlobals.instance.tibiisController.tbxDataController.sendCommandScreenControl(false)
+                            appGlobals.tibiisController.tbxDataController.sendCommandScreenControl(false)
                         }
                     }
+                }
+                else
+                {
+                    // There's a chance that the previous download log command has not been responded to
+                    // Here we refire it
+                    if (a.PREVIOUS_LOG_REQUEST_START_LOG > -1 && a.PREVIOUS_LOG_REQUEST_NUMBER_LOGS > -1) {
+
+                        // We only refire if we have waiting more then a second for the data
+                        val timeWaitedForResponse = Date().time - a.prev_download_cycle_start
+                        if (timeWaitedForResponse > 800)
+                        {
+                            val startAt = a.PREVIOUS_LOG_REQUEST_START_LOG
+                            val numberOfLogs = a.PREVIOUS_LOG_REQUEST_NUMBER_LOGS
+                            //a.PREVIOUS_LOG_REQUEST_START_LOG = -1
+                            //a.PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
+                            Log.d("zzz", "XX Refiring unresponded download command start log: ${startAt} number of logs: ${numberOfLogs} after waiting $timeWaitedForResponse")
+                            a.prev_download_cycle_start = Date().time
+                            appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startAt, numberOfLogs)
+                        }
+                        else
+                        {
+                            //Log.d("zzz", "XX Refire Request NOT Refired only waited $timeWaitedForResponse")
+                        }
+                    }
+
                 }
             }
             catch (e: Exception)
@@ -763,7 +789,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             val now = Date()
 
             val defaultDate = DateHelper.date1970()
-            val pressurisingStarted = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_pressurising_start, defaultDate)
+            val pressurisingStarted = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_pressurising_start, defaultDate)
 
             // Don't update the timer if we haven't got a valid pressurising start date
             val cal = Calendar.getInstance()
@@ -786,7 +812,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     {
         override fun run() {
             val now = Date()
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
 
             //Log.d("ditest", "DITimerTask TimerStage: ${a.testingSession.timerStage}")
 
@@ -815,7 +841,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                         val loss = p.getDIR15CalcResult()
                         if (p.di_is_zero_loss == 0)
                         {
-                            if (loss > AppGlobals.instance.DI_15_MIN_MAXIMUM)
+                            if (loss > appGlobals.DI_15_MIN_MAXIMUM)
                             {
                                 isFailing = true
                             }
@@ -823,7 +849,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
                         if (p.di_is_zero_loss == 1)
                         {
-                            if (loss > AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                            if (loss > appGlobals.DI_TESTING_ZERO_LOSS_VALUE)
                             {
                                 isFailing = true
                             }
@@ -878,7 +904,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
             Log.d("ditest", "Waiting for 15m")
             val millisDiff = r15Time.time - now.time
             val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
-            a.formatActionPanelForCountdown(r15Time, DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_di_pressurising_started, Date()), countdownString, "Waiting for 15m Reading")
+            a.formatActionPanelForCountdown(r15Time, DateHelper.dbStringToDate(appGlobals.activeProcess.pt_di_pressurising_started, Date()), countdownString, "Waiting for 15m Reading")
         }
 
         fun waitingFor60mReading(now: Date)
@@ -944,7 +970,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             val millisDiff = r1Time.time - Date().time
             val countdownString = DateHelper.timeDifferenceFormattedForCountdown(millisDiff)
-            a.formatActionPanelForCountdown(r1Time, DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_pressurising_finish, Date()), countdownString, "Waiting for Reading 1")
+            a.formatActionPanelForCountdown(r1Time, DateHelper.dbStringToDate(appGlobals.activeProcess.pt_pressurising_finish, Date()), countdownString, "Waiting for Reading 1")
         }
 
         fun waitingForReading2()
@@ -1033,8 +1059,8 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     override fun tibiisConnected() {
 
-        val tc = AppGlobals.instance.tibiisController
-        val p = AppGlobals.instance.activeProcess
+        val tc = appGlobals.tibiisController
+        val p = appGlobals.activeProcess
 
         formatOptionsMenuForContext(true)
 
@@ -1076,6 +1102,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         if (tibiisSession.getLogNumberForReading1() > 0)
         {
             Log.d("petest", "PE Reconnect shouldCheckForMissingLogs = true")
+
             tc.shouldCheckForMissingLogs = true
             tc.previousCommand = tc.currentCommand
 
@@ -1162,10 +1189,10 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                     Log.d("LogReading", logReading.description())
                     saveLiveLog(logReading)
 
-                    if (AppGlobals.instance.tibiisController.shouldCheckForMissingLogs)
+                    if (appGlobals.tibiisController.shouldCheckForMissingLogs)
                     {
                         Log.d("zzz", "shouldCheckForMissingLogs is true")
-                        AppGlobals.instance.tibiisController.shouldCheckForMissingLogs = false
+                        appGlobals.tibiisController.shouldCheckForMissingLogs = false
                         this.isDownloadingPreviousData= true
                         Log.d("zzz", "Downloading previous logs for lognumber: ${logReading.logNumber}")
                         downloadPreviousReadings(logReading.logNumber)
@@ -1182,6 +1209,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 {
                     PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
                     PREVIOUS_LOG_REQUEST_START_LOG = -1
+                    plMissedCandidate = -1
 
                     val message = "Received Previous Logs: Start Log No: ${previousLogData.startLogNumber}, Number of Logs: ${previousLogData.numberOfLogs}"
                     Log.d("zzz", message)
@@ -1217,7 +1245,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
             TBXDataController.Command.GetCalibrationData -> {
                 val calibResult = packet.parseAsCalibrationData()
-                val p = AppGlobals.instance.activeProcess
+                val p = appGlobals.activeProcess
                 val result = calibResult.dataString
 
                 when (calibResult.calibrationByte)

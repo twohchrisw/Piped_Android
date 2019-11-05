@@ -42,7 +42,7 @@ class DetailsRecyclerAdapter(val clickListener: DetailsRecyclerClickListener): R
         val viewHolder = holder as ViewHolderTitleValue
         val title = viewHolder.titleText
         val value = viewHolder.valueText
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         viewHolder.itemView.setOnClickListener({
             clickListener.listItemClicked(position)

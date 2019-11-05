@@ -4,7 +4,7 @@ import android.util.Log
 
 fun TestingActivity.saveReading1(pr: LogReading)
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     if (p.pt_reading_1 > 0.0)
     {
         return
@@ -27,7 +27,7 @@ fun TestingActivity.saveReading1(pr: LogReading)
 
 fun TestingActivity.saveReading2(pr: LogReading)
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     if (p.pt_reading_2 > 0.0)
     {
         return
@@ -48,7 +48,7 @@ fun TestingActivity.saveReading2(pr: LogReading)
 
 fun TestingActivity.saveReading3(pr: LogReading)
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     if (p.pt_reading_3 > 0.0)
     {
         return

@@ -25,7 +25,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Filling, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Filling, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun onResume() {
@@ -34,9 +34,9 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Filling, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Filling, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun didRequestMainImage(fieldName: String) {
@@ -44,7 +44,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
 
     override fun didRequestNotes(fieldName: String) {
         Log.d("cobswab", "Did request notes")
-        setNotes(AppGlobals.instance.activeProcess.filling_notes)
+        setNotes(appGlobals.activeProcess.filling_notes)
     }
 
     override fun didRequestFlowrate(position: Int) {
@@ -53,7 +53,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {

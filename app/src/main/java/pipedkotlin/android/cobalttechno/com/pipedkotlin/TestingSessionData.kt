@@ -19,7 +19,7 @@ class TestingSessionData {
     fun setStartLoggingTime(value: Date)
     {
         startLoggingTime = value
-        AppGlobals.instance.activeProcess.testsessStartLoggingTime = DateHelper.millisToDBString(value.time)
+        appGlobals.activeProcess.testsessStartLoggingTime = DateHelper.millisToDBString(value.time)
     }
     fun setStartLoggingTimeNull()
     {
@@ -34,7 +34,7 @@ class TestingSessionData {
     fun setLastLoggingTime(value: Date)
     {
         lastLoggingTime = value
-        AppGlobals.instance.activeProcess.testsessLastLoggingTime = DateHelper.millisToDBString(value.time)
+        appGlobals.activeProcess.testsessLastLoggingTime = DateHelper.millisToDBString(value.time)
     }
     fun setLastLoggingTimeNull()
     {
@@ -84,7 +84,7 @@ class TestingSessionData {
     fun setFirstLogReading(value: Date)
     {
         firstLogReading = value
-        AppGlobals.instance.activeProcess.testsessFirstLogReadingDate = DateHelper.millisToDBString(value.time)
+        appGlobals.activeProcess.testsessFirstLogReadingDate = DateHelper.millisToDBString(value.time)
     }
 
     companion object {
@@ -115,10 +115,10 @@ class TestingSessionData {
         lastLoggingTime = null
         loggingMode = TestingSessionData.LoggingMode.waiting
 
-        AppGlobals.instance.activeProcess.testsessFirstLogReadingDate = ""
-        AppGlobals.instance.activeProcess.testsessLastLoggingTime = ""
-        AppGlobals.instance.activeProcess.testsessStartLoggingTime = ""
-        AppGlobals.instance.activeProcess.save(MainApplication.applicationContext())
+        appGlobals.activeProcess.testsessFirstLogReadingDate = ""
+        appGlobals.activeProcess.testsessLastLoggingTime = ""
+        appGlobals.activeProcess.testsessStartLoggingTime = ""
+        appGlobals.activeProcess.save(MainApplication.applicationContext())
     }
 
 

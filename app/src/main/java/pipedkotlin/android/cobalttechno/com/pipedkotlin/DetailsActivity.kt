@@ -25,7 +25,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
-        supportActionBar?.title = AppGlobals.instance.activeProcess.processNoDescription()
+        supportActionBar?.title = appGlobals.activeProcess.processNoDescription()
         assignOutlets()
     }
 
@@ -38,7 +38,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
     fun savePipeLength(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val intValue = value.toIntOrNull()
         if (intValue != null)
         {
@@ -50,7 +50,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
     fun savePipeDiameter(value: String)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val intValue = value.toIntOrNull()
         if (intValue != null) {
             p.pipe_diameter = intValue
@@ -86,15 +86,15 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
                 if (dateContext == ActivityRequestCodes.startDate)
                 {
-                    AppGlobals.instance.activeProcess.start_time = dateAsString
+                    appGlobals.activeProcess.start_time = dateAsString
                 }
 
                 if (dateContext == ActivityRequestCodes.finishDate)
                 {
-                    AppGlobals.instance.activeProcess.finish_time = dateAsString
+                    appGlobals.activeProcess.finish_time = dateAsString
                 }
 
-                AppGlobals.instance.activeProcess.save(this)
+                appGlobals.activeProcess.save(this)
                 assignOutlets()
 
             }, hour, minute, true)
@@ -141,22 +141,22 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
             }
             DetailsRecyclerAdapter.MenuItems.pipeLength.value -> {
                 val alertHelper = AlertHelper(this)
-                alertHelper.dialogForIntegerInput("Pipe Length", AppGlobals.instance.activeProcess.pipe_length.toString(), ::savePipeLength)
+                alertHelper.dialogForIntegerInput("Pipe Length", appGlobals.activeProcess.pipe_length.toString(), ::savePipeLength)
             }
             DetailsRecyclerAdapter.MenuItems.pipeDiameter.value -> {
                 val alertHelper = AlertHelper(this)
-                alertHelper.dialogForIntegerInput("Pipe Diameter", AppGlobals.instance.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
+                alertHelper.dialogForIntegerInput("Pipe Diameter", appGlobals.activeProcess.pipe_diameter.toString(), ::savePipeDiameter)
             }
             DetailsRecyclerAdapter.MenuItems.notes.value -> {
                 val notesIntent = Intent(this, NotesActivity::class.java)
-                notesIntent.putExtra(NotesActivity.NOTES_EXTRA, AppGlobals.instance.activeProcess.general_other)
+                notesIntent.putExtra(NotesActivity.NOTES_EXTRA, appGlobals.activeProcess.general_other)
                 startActivityForResult(notesIntent, ActivityRequestCodes.notes.value)
             }
             DetailsRecyclerAdapter.MenuItems.startDate.value -> {
-                getDateTime(AppGlobals.instance.activeProcess.start_time, ActivityRequestCodes.startDate)
+                getDateTime(appGlobals.activeProcess.start_time, ActivityRequestCodes.startDate)
             }
             DetailsRecyclerAdapter.MenuItems.finishDate.value -> {
-                getDateTime(AppGlobals.instance.activeProcess.finish_time, ActivityRequestCodes.finishDate)
+                getDateTime(appGlobals.activeProcess.finish_time, ActivityRequestCodes.finishDate)
             }
         }
 
@@ -164,7 +164,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         // A list selection has been made
         if (requestCode == ActivityRequestCodes.listSelection.value && data != null)
@@ -184,12 +184,12 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
         if (requestCode == ActivityRequestCodes.addressSelection.value && data != null)
         {
-            AppGlobals.instance.activeProcess.address = data!!.getStringExtra("address")
+            appGlobals.activeProcess.address = data!!.getStringExtra("address")
         }
 
         if (requestCode == ActivityRequestCodes.notes.value && data != null)
         {
-            AppGlobals.instance.activeProcess.general_other = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.general_other = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
         }
 
         p.save(this)

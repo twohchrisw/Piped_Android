@@ -23,7 +23,7 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Sampling, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Sampling, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun onResume() {
@@ -32,9 +32,9 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Sampling, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Sampling, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun didRequestMainImage(fieldName: String) {
@@ -42,30 +42,30 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     }
 
     override fun didRequestNotes(fieldName: String) {
-        setNotes(AppGlobals.instance.activeProcess.pt_sampl_notes)
+        setNotes(appGlobals.activeProcess.pt_sampl_notes)
     }
 
     override fun didRequestFlowrate(position: Int) {
-        AppGlobals.instance.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.Sampling
+        appGlobals.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.Sampling
 
         var fr: EXLDSamplingData
         if (position < 0)
         {
-            fr = EXLDSamplingData.createFlowrate(this, AppGlobals.instance.activeProcess.columnId)
+            fr = EXLDSamplingData.createFlowrate(this, appGlobals.activeProcess.columnId)
         }
         else
         {
-            fr = EXLDSamplingData.getSamplingFlowrates(this, AppGlobals.instance.activeProcess.columnId).get(position)
+            fr = EXLDSamplingData.getSamplingFlowrates(this, appGlobals.activeProcess.columnId).get(position)
         }
 
-        AppGlobals.instance.drillSamplFlorwate = fr
+        appGlobals.drillSamplFlorwate = fr
         val intent = Intent(this, FlowrateActivity::class.java)
         startActivityForResult(intent, 99)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {

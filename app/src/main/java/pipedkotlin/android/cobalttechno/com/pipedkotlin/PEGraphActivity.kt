@@ -35,7 +35,7 @@ class PEGraphActivity : AppCompatActivity() {
 
     fun writeResults()
     {
-        val data = AppGlobals.instance.excelPEReadings
+        val data = appGlobals.excelPEReadings
         if (data.calcPass)
         {
             tvPassFailLabel.text = "Test Passed"
@@ -44,9 +44,9 @@ class PEGraphActivity : AppCompatActivity() {
         else
         {
             tvPassFailLabel.text = "Test Failed"
-            if (AppGlobals.instance.peFailMessage.length > 0)
+            if (appGlobals.peFailMessage.length > 0)
             {
-                tvPassFailLabel.text = "Test Failed: ${AppGlobals.instance.peFailMessage}"
+                tvPassFailLabel.text = "Test Failed: ${appGlobals.peFailMessage}"
                 tvPassFailLabel.setTextColor(Color.RED)
             }
         }
@@ -60,7 +60,7 @@ class PEGraphActivity : AppCompatActivity() {
 
     fun configureChart()
     {
-        var peReadings = AppGlobals.instance.excelPEReadings
+        var peReadings = appGlobals.excelPEReadings
         var dataArray = ArrayList<Entry>()
         dataArray.add(BarEntry(peReadings.log_t1.toFloat(), peReadings.log_pa_t1.toFloat()))
         dataArray.add(BarEntry(peReadings.log_t2.toFloat(), peReadings.log_pa_t2.toFloat()))

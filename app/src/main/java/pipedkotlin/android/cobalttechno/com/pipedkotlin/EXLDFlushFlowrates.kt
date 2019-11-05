@@ -73,7 +73,7 @@ class EXLDFlushFlowrates(var flush_id: Long = -1,
                 }
             }
 
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
             var runStarted = DateHelper.dbStringToDateOrNull(p.pt_flush_started)
             var swabHome = DateHelper.dbStringToDateOrNull(p.pt_flush_completed)
 

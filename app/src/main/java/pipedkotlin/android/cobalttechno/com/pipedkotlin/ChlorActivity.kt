@@ -24,7 +24,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun onResume() {
@@ -33,9 +33,9 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun didRequestMainImage(fieldName: String) {
@@ -44,23 +44,23 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
     override fun didRequestNotes(fieldName: String) {
         Log.d("cobswab", "Did request notes")
-        setNotes(AppGlobals.instance.activeProcess.pt_chlor_notes)
+        setNotes(appGlobals.activeProcess.pt_chlor_notes)
     }
 
     override fun didRequestFlowrate(position: Int) {
-        AppGlobals.instance.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.Chlor
+        appGlobals.currentFlowrateActivityType = AppGlobals.Companion.FlowrateViewType.Chlor
 
         var fr: EXLDChlorFlowrates
         if (position < 0)
         {
-            fr = EXLDChlorFlowrates.createFlowrate(this, AppGlobals.instance.activeProcess.columnId)
+            fr = EXLDChlorFlowrates.createFlowrate(this, appGlobals.activeProcess.columnId)
         }
         else
         {
-            fr = EXLDChlorFlowrates.getChlorFlowrates(this, AppGlobals.instance.activeProcess.columnId).get(position)
+            fr = EXLDChlorFlowrates.getChlorFlowrates(this, appGlobals.activeProcess.columnId).get(position)
         }
 
-        AppGlobals.instance.drillChlorFlowrate = fr
+        appGlobals.drillChlorFlowrate = fr
         val intent = Intent(this, FlowrateActivity::class.java)
         startActivityForResult(intent, 99)
     }
@@ -68,7 +68,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
     override fun cameraPermissionsGranted() {
         super.cameraPermissionsGranted()
 
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (p.pt_chlor_end_photo.length < 2)
         {
             // Straight load
@@ -91,7 +91,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {

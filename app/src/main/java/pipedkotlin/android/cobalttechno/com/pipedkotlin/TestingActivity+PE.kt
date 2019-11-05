@@ -7,8 +7,8 @@ import kotlin.concurrent.schedule
 
 fun TestingActivity.loadCheckPE()
 {
-    val p = AppGlobals.instance.activeProcess
-    val tc = AppGlobals.instance.tibiisController
+    val p = appGlobals.activeProcess
+    val tc = appGlobals.tibiisController
 
     if (tibiisSession.getLogNumberForStart() == -1)
     {
@@ -113,7 +113,7 @@ fun TestingActivity.loadCheckPE()
 fun TestingActivity.addMissedReadings()
 {
     Log.d("Cobalt", "Add missed readings")
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     var reading1: LogReading? = null
     var reading2: LogReading? = null
     var reading3: LogReading? = null
@@ -169,13 +169,13 @@ fun TestingActivity.addMissedReadings()
 fun TestingActivity.calculatePETestResults()
 {
     calcManager.calculatePETestResults()
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.save(this)
     formatActionPanelForCalculate()
 }
 
 fun TestingActivity.arePEReadingsComplete(): Boolean
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
 
     if (testingSession.timerStage > 6)
     {
@@ -203,19 +203,19 @@ fun TestingActivity.arePEReadingsComplete(): Boolean
 
 fun TestingActivity.archivePETest()
 {
-    AppGlobals.instance.activeProcess.archivePETest(this)
+    appGlobals.activeProcess.archivePETest(this)
 }
 
 fun TestingActivity.clearPEData()
 {
-    AppGlobals.instance.activeProcess.clearPEData(this)
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.clearPEData(this)
+    appGlobals.activeProcess.save(this)
     formatForReadyToPressurise()
 }
 
 fun TestingActivity.startPressurisingButtonPressed()
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     isPressurisingPE = true
 
     if (p.tibsessLogNumberForReading1 > 0)
@@ -228,8 +228,8 @@ fun TestingActivity.startPressurisingButtonPressed()
     testWillFailN1Ignored = false
     p.initialiseForPETest(this)
 
-    p.pt_lat = AppGlobals.instance.lastLat
-    p.pt_long = AppGlobals.instance.lastLng
+    p.pt_lat = appGlobals.lastLat
+    p.pt_long = appGlobals.lastLng
 
     // Start the timer
     testingSession.timerStage = 0
@@ -245,7 +245,7 @@ fun TestingActivity.startPressurisingButtonPressed()
     testingSession.isPressurisingWithTibiis = true
     p.save(this)
 
-    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+    if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         if (tibiisSession.startPressureReading != null)
         {
@@ -293,9 +293,9 @@ fun TestingActivity.beginPressurisation()
     // Reset the timer
     timer = Timer()
 
-    AppGlobals.instance.activeProcess.pt_pressurising_start = DateHelper.dateToDBString(Date())
-    AppGlobals.instance.activeProcess.needs_server_sync = 1
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.pt_pressurising_start = DateHelper.dateToDBString(Date())
+    appGlobals.activeProcess.needs_server_sync = 1
+    appGlobals.activeProcess.save(this)
     loadData()
 }
 
@@ -307,24 +307,24 @@ fun TestingActivity.stopPressurisingButtonPressed()
         cancelCountupTimer()
         isPressurisingPE = false
 
-        if (DateHelper.dateIsValid(AppGlobals.instance.activeProcess.pt_pressurising_start))
+        if (DateHelper.dateIsValid(appGlobals.activeProcess.pt_pressurising_start))
         {
-            AppGlobals.instance.activeProcess.pt_pressurising_finish = DateHelper.dateToDBString(Date())
+            appGlobals.activeProcess.pt_pressurising_finish = DateHelper.dateToDBString(Date())
 
-            if (testingSession.isPressurisingWithTibiis && tibiisSession.countReadingOfType(TibiisSessionData.TibiisReadingType.pressurising, AppGlobals.instance.activeProcess.columnId) > 0)
+            if (testingSession.isPressurisingWithTibiis && tibiisSession.countReadingOfType(TibiisSessionData.TibiisReadingType.pressurising, appGlobals.activeProcess.columnId) > 0)
             {
                 shouldTurnScreenOnWithNextLog = true
                 updatePressurisingDataFromTibiisSession()
             }
 
             var airPercentage = 0
-            var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
-            var pend = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_finish)
+            var pstart = DateHelper.dbStringToDateOrNull(appGlobals.activeProcess.pt_pressurising_start)
+            var pend = DateHelper.dbStringToDateOrNull(appGlobals.activeProcess.pt_pressurising_finish)
             if (pstart != null && pend != null)
             {
                 val pressurisingSeconds = (pend.time - pstart.time) / 1000
                 Log.d("petest", "Pressurising seconds: $pressurisingSeconds")
-                val airCalc = AirPressureCalc(AppGlobals.instance.activeProcess, TestingSessionData.TestingContext.pe)
+                val airCalc = AirPressureCalc(appGlobals.activeProcess, TestingSessionData.TestingContext.pe)
                 if (airCalc.isValid().first)
                 {
                     val airPressureSeconds = airCalc.performCalc()
@@ -350,8 +350,8 @@ fun TestingActivity.stopPressurisingButtonPressed()
                 }
             }
 
-            AppGlobals.instance.activeProcess.pt_reading_5 = airPercentage.toDouble()
-            AppGlobals.instance.activeProcess.save(this)
+            appGlobals.activeProcess.pt_reading_5 = airPercentage.toDouble()
+            appGlobals.activeProcess.save(this)
             setPETestFinishedPressurisingAndBeginLogging()
         }
         else
@@ -360,8 +360,8 @@ fun TestingActivity.stopPressurisingButtonPressed()
         }
     }
 
-    AppGlobals.instance.activeProcess.needs_server_sync = 1
-    AppGlobals.instance.activeProcess.save(this)
+    appGlobals.activeProcess.needs_server_sync = 1
+    appGlobals.activeProcess.save(this)
     testingSession.isPressurisingWithTibiis = false
 }
 
@@ -383,7 +383,7 @@ fun TestingActivity.calculatePEButtonPressed()
 
     if (!hasCheckedIntegrity)
     {
-        if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+        if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
         {
             checkLogIntegrity()
         }
@@ -398,7 +398,7 @@ fun TestingActivity.calculatePEButtonPressed()
         return
     }
 
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
 
 
     if (DateHelper.dateIsValid(p.pt_reading1_time) && DateHelper.dateIsValid(p.pt_reading2_time) && DateHelper.dateIsValid(p.pt_reading3_time))
@@ -417,8 +417,8 @@ fun TestingActivity.calculatePEButtonPressed()
         tibiisStopPressurising()
 
         Timer("stopTest", false).schedule(1000) {
-            if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-                AppGlobals.instance.tibiisController.disconnectTibiis()
+            if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+                appGlobals.tibiisController.disconnectTibiis()
             }
         }
         /*
@@ -450,8 +450,8 @@ fun TestingActivity.loadPEGraph()
 
 fun TestingActivity.saveCalibrationDetails()
 {
-    val tc = AppGlobals.instance.tibiisController
-    val p = AppGlobals.instance.activeProcess
+    val tc = appGlobals.tibiisController
+    val p = appGlobals.activeProcess
 
     Log.d("cobcalib", "saveCalibrationDetails()")
     Log.d("cobcalib", p.calibDetailsDescription())
@@ -850,7 +850,7 @@ fun TestingActivity.resetPETest()
     timer = Timer()
     liveLogTimer = Timer()
     cancelAirPercentageTimer()
-    AppGlobals.instance.activeProcess.pt_reading3_time = ""     // This stops the pe timer from resuming
+    appGlobals.activeProcess.pt_reading3_time = ""     // This stops the pe timer from resuming
 
     tibiisStopPressurising()
     testingSession.timerStage = 0
@@ -858,12 +858,12 @@ fun TestingActivity.resetPETest()
     clearPEData()  // Wire this i
     reloadTable()
     formatForViewWillAppear()
-    AppGlobals.instance.activeProcess.initialiseForPETest(this)
-    AppGlobals.instance.tibiisController.resetController()
+    appGlobals.activeProcess.initialiseForPETest(this)
+    appGlobals.tibiisController.resetController()
 
     testingSession.resetTestingSession()
     tibiisSession.resetTibiisSesssionData()
-    calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
+    calcManager = TestingCalcs(testingSession.testingContext, appGlobals.activeProcess)
     //formatForReadyToPressurise()
     formatActionPanelForDefault()
 
@@ -878,9 +878,9 @@ fun TestingActivity.resumePETimer()
     timer.cancel()
     timer = Timer()
     testingSession.timerStage = 0
-    val r1 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading1_time, Date())
-    val r2 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading2_time, Date())
-    val r3 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading3_time, Date())
+    val r1 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading1_time, Date())
+    val r2 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading2_time, Date())
+    val r3 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading3_time, Date())
     timer.scheduleAtFixedRate(TestingActivity.PETimerTask(this, r1, r2, r3), 0, 1000)
 }
 
@@ -888,9 +888,9 @@ fun TestingActivity.resumePETimerWithoutSettingStage()
 {
     timer.cancel()
     timer = Timer()
-    val r1 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading1_time, Date())
-    val r2 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading2_time, Date())
-    val r3 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading3_time, Date())
+    val r1 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading1_time, Date())
+    val r2 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading2_time, Date())
+    val r3 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading3_time, Date())
     timer.scheduleAtFixedRate(TestingActivity.PETimerTask(this, r1, r2, r3), 0, 1000)
 }
 

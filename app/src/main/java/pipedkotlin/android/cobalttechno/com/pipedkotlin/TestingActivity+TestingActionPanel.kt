@@ -287,7 +287,7 @@ fun TestingActivity.updatePressureGauge(value: Int, pressurising: Boolean, batte
             pvActivity.alpha = 0.0f
         }
 
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
     }
 
     formatForBatteryReading(batteryReading)

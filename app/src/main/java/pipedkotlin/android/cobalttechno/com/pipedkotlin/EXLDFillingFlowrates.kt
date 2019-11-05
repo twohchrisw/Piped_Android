@@ -78,7 +78,7 @@ class EXLDFillingFlowrates(var filling_id: Long = -1,
                 }
             }
 
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
             val runStarted = DateHelper.dbStringToDateOrNull(p.filling_started)
             val swabHome = DateHelper.dbStringToDateOrNull(p.filling_stopped)
             if (runStarted != null)

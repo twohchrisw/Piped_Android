@@ -138,7 +138,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         val title = viewHolder.titleText
         val value = viewHolder.valueText
         value?.setTextColor(Color.parseColor("#1c3d92"));
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
@@ -285,7 +285,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
     fun cellForTwoLineLatLng(holder: RecyclerView.ViewHolder?, position: Int)
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         val viewHolder = holder as ViewHolderTitleValueLatLng
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
@@ -326,7 +326,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
     fun cellForPEFooter(holder: RecyclerView.ViewHolder?, position: Int)
     {
         val viewHolder = holder as ViewHolderReadingsFooter
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         viewHolder.pressurisingStarted?.text = "Pressurising Started:"
         viewHolder.pressureReaced?.text = "Pressure Reached: "
@@ -361,13 +361,13 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
         if (p.isPEPressurising())
         {
             var airPercentage = 0
-            var pstart = DateHelper.dbStringToDateOrNull(AppGlobals.instance.activeProcess.pt_pressurising_start)
+            var pstart = DateHelper.dbStringToDateOrNull(appGlobals.activeProcess.pt_pressurising_start)
 
             //if (pstart != null && pend != null)
             //{
                 val pressurisingSeconds = (Date().time - pstart!!.time) / 1000
                 Log.d("petest", "Pressurising seconds: $pressurisingSeconds")
-                val airCalc = AirPressureCalc(AppGlobals.instance.activeProcess, TestingSessionData.TestingContext.pe)
+                val airCalc = AirPressureCalc(appGlobals.activeProcess, TestingSessionData.TestingContext.pe)
                 if (airCalc.isValid().first)
                 {
                     val airPressureSeconds = airCalc.performCalc()
@@ -448,7 +448,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
     fun arePEReadingsComplete(): Boolean
     {
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (testingSession.timerStage > 6)
         {
@@ -478,7 +478,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
     fun cellForDIFooter(holder: RecyclerView.ViewHolder?, position: Int)
     {
         val viewHolder = holder as ViewHolderReadingsFooter
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         viewHolder.pressurisingStarted?.text = "Test Started: N/A"
         viewHolder.pressureReaced?.text = ""
@@ -511,7 +511,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                     {
                         if (p.di_is_zero_loss == 0)
                         {
-                            if (p.getDIR15CalcResult() < AppGlobals.instance.DI_15_MIN_MAXIMUM)
+                            if (p.getDIR15CalcResult() < appGlobals.DI_15_MIN_MAXIMUM)
                             {
                                 viewHolder.testStatus?.text = "Passing . . ."
                             }
@@ -523,7 +523,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
                         if (p.di_is_zero_loss == 1)
                         {
-                            if (p.getDIR15CalcResult() < AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                            if (p.getDIR15CalcResult() < appGlobals.DI_TESTING_ZERO_LOSS_VALUE)
                             {
                                 viewHolder.testStatus?.text = "Passing . . ."
                             }
@@ -551,7 +551,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
                 {
                     if (p.di_is_zero_loss == 0)
                     {
-                        if (p.getDIR60CalcResult() < AppGlobals.instance.DI_TESTING_VALUE)
+                        if (p.getDIR60CalcResult() < appGlobals.DI_TESTING_VALUE)
                         {
                             viewHolder.testStatus?.text = "TEST PASSED!"
                         }
@@ -563,7 +563,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
 
                     if (p.di_is_zero_loss == 1)
                     {
-                        if (p.getDIR60CalcResult() < AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE)
+                        if (p.getDIR60CalcResult() < appGlobals.DI_TESTING_ZERO_LOSS_VALUE)
                         {
                             viewHolder.testStatus?.text = "TEST PASSED!"
                         }
@@ -583,7 +583,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
     fun cellForOneLineText(holder: RecyclerView.ViewHolder?, position: Int)
     {
         val viewHolder = holder as ViewHolderOneLineText
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
         if (testingContext == TestingSessionData.TestingContext.pe)
         {
             if (position == TestingRecyclerAdapter.PERows.notes.value)

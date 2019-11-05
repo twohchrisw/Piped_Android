@@ -25,7 +25,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, appGlobals.lastLat, appGlobals.lastLng, null, this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -40,7 +40,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         when (item?.itemId)
         {
             R.id.mnuAdd -> {
-                val fr = EXLDSurveyNotes.createFlowrate(this, AppGlobals.instance.activeProcess.columnId)
+                val fr = EXLDSurveyNotes.createFlowrate(this, appGlobals.activeProcess.columnId)
 
                 runOnUiThread {
                     didRequestNote(fr)
@@ -52,21 +52,21 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, this)
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Surveying, appGlobals.lastLat, appGlobals.lastLng, null, this)
     }
 
     override fun didRequestNote(note: EXLDSurveyNotes) {
         currentSurveyNote = note
         setNotes(currentSurveyNote!!.sn_note)
-        AppGlobals.instance.activeProcess.save(this)    // The updates forces a sync
+        appGlobals.activeProcess.save(this)    // The updates forces a sync
     }
 
     override fun didRequestImage(note: EXLDSurveyNotes) {
         currentSurveyNote = note
         requestCameraPermissions()
-        AppGlobals.instance.activeProcess.save(this)    // The updates forces a sync
+        appGlobals.activeProcess.save(this)    // The updates forces a sync
     }
 
 
@@ -94,13 +94,13 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
             currentSurveyNote!!.sn_note = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
-            currentSurveyNote!!.sn_lat = AppGlobals.instance.lastLat
-            currentSurveyNote!!.sn_long = AppGlobals.instance.lastLng
+            currentSurveyNote!!.sn_lat = appGlobals.lastLat
+            currentSurveyNote!!.sn_long = appGlobals.lastLng
             currentSurveyNote!!.save(this)
         }
 

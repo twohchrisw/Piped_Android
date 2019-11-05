@@ -81,7 +81,7 @@ class EXLDChlorFlowrates(var chlor_id: Long = -1,
                 }
             }
 
-            val p = AppGlobals.instance.activeProcess
+            val p = appGlobals.activeProcess
             var runStarted = DateHelper.dbStringToDateOrNull(p.pt_chlor_start_time)
             var swabHome = DateHelper.dbStringToDateOrNull(p.pt_chlor_main_chlorinated)
 

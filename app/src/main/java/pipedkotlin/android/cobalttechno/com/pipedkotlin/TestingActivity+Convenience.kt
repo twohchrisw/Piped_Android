@@ -6,7 +6,7 @@ import kotlin.concurrent.schedule
 
 fun TestingActivity.updatePressurisingDataFromTibiisSession()
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
 
     if (testingSession.getStartLoggingTime() != null && testingSession.getLastLoggingTime() != null)
     {
@@ -38,7 +38,7 @@ fun TestingActivity.updatePressurisingDataFromTibiisSession()
 
 fun TestingActivity.turnOutputPumpOff()
 {
-    val tc = AppGlobals.instance.tibiisController
+    val tc = appGlobals.tibiisController
     if (tc.connectStatus != TibiisController.ConnectionStatus.connected)
     {
         return
@@ -75,7 +75,7 @@ fun TestingActivity.turnOutputPumpOff()
 
 fun TestingActivity.turnOutputPumpOn()
 {
-    val tc = AppGlobals.instance.tibiisController
+    val tc = appGlobals.tibiisController
     if (tc.connectStatus != TibiisController.ConnectionStatus.connected)
     {
         return
@@ -113,10 +113,10 @@ fun TestingActivity.turnOutputPumpOn()
 fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
 {
 
-    AppGlobals.instance.activeProcess.calculatePEReadingTimes(this)
+    appGlobals.activeProcess.calculatePEReadingTimes(this)
     loadData()
 
-    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+    if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
     {
         turnOutputPumpOff()
     }
@@ -126,8 +126,8 @@ fun TestingActivity.setPETestFinishedPressurisingAndBeginLogging()
     // Assign the timer function
     timer.cancel()
     timer = Timer()
-    val r1 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading1_time, Date())
-    val r2 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading2_time, Date())
-    val r3 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading3_time, Date())
+    val r1 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading1_time, Date())
+    val r2 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading2_time, Date())
+    val r3 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading3_time, Date())
     timer.scheduleAtFixedRate(TestingActivity.PETimerTask(this, r1, r2, r3), 0, 1000)
 }

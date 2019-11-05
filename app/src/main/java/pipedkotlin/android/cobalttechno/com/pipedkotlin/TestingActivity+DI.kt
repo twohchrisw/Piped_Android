@@ -9,7 +9,7 @@ import kotlin.concurrent.schedule
 
 fun TestingActivity.startDITest(pumpEnabled: Boolean = true)
 {
-    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+    if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
         Log.d("ditest", "Begin DI Tibiis Logging")
         testingSession.loggingMode = TestingSessionData.LoggingMode.logging
         testingSession.isPressurisingDI = false
@@ -44,11 +44,11 @@ fun TestingActivity.startDITest(pumpEnabled: Boolean = true)
 fun TestingActivity.beginStartDITest()
 {
     val now = Date()
-    val p = AppGlobals.instance.activeProcess
-    AppGlobals.instance.activeProcess.pt_di_r15_value = 0.0
-    AppGlobals.instance.activeProcess.pt_di_r60_value = 0.0
+    val p = appGlobals.activeProcess
+    appGlobals.activeProcess.pt_di_r15_value = 0.0
+    appGlobals.activeProcess.pt_di_r60_value = 0.0
 
-    if (AppGlobals.instance.DI_TEST_MODE)
+    if (appGlobals.DI_TEST_MODE)
     {
         val r15Time = now.time + (10 * 1000)
         val r60Time = now.time + (30 * 1000)
@@ -81,8 +81,8 @@ fun TestingActivity.beginStartDITest()
         }
     }
 
-    p.di_lat = AppGlobals.instance.lastLat
-    p.di_long = AppGlobals.instance.lastLng
+    p.di_lat = appGlobals.lastLat
+    p.di_long = appGlobals.lastLng
     p.needs_server_sync = 1
     reloadTable()
     runOnUiThread {
@@ -94,7 +94,7 @@ fun TestingActivity.beginStartDITest()
     timer = Timer()
     val r15 = DateHelper.dbStringToDate(p.pt_di_r15_time, Date())
     val r60 = DateHelper.dbStringToDate(p.pt_di_r60_time, Date())
-    val r3 = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading3_time, Date())
+    val r3 = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading3_time, Date())
 
     //timer.scheduleAtFixedRate(TestingActivity.PETimerTask(this, r1, r2, r3), 0, 1000)
     timer.scheduleAtFixedRate(TestingActivity.DITimerTask(this, r15, r60), 0, 1000)
@@ -102,7 +102,7 @@ fun TestingActivity.beginStartDITest()
 
 fun TestingActivity.calculateDIButtonPressed()
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
 
     /*
     // This isn't reliable, came on when not downloading previous readings
@@ -141,15 +141,15 @@ fun TestingActivity.calculateDIButtonPressed()
                 tibiisStopPressurising()
 
                 Timer("stopTest", false).schedule(1000) {
-                    if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-                        AppGlobals.instance.tibiisController.disconnectTibiis()
+                    if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+                        appGlobals.tibiisController.disconnectTibiis()
                     }
                 }
 
-                var lossValue = AppGlobals.instance.DI_TESTING_VALUE
+                var lossValue = appGlobals.DI_TESTING_VALUE
                 if (p.di_is_zero_loss == 1)
                 {
-                    lossValue = AppGlobals.instance.DI_TESTING_ZERO_LOSS_VALUE
+                    lossValue = appGlobals.DI_TESTING_ZERO_LOSS_VALUE
                 }
 
                 if (p.getDIR60CalcResult() < lossValue)
@@ -187,7 +187,7 @@ fun TestingActivity.calculateDIButtonPressed()
 
 fun TestingActivity.loadCheckDI()
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
 
     if (tibiisSession.getLogNumberForStartDI() < 1)
     {
@@ -264,11 +264,11 @@ fun TestingActivity.loadCheckDI()
 fun TestingActivity.saveReading15(pr: LogReading)
 {
     val press = pr.pressure / 1000.0
-    AppGlobals.instance.activeProcess.pt_di_r15_value = press
+    appGlobals.activeProcess.pt_di_r15_value = press
     Log.d("ditest", "Saving reading 15 as $press")
 
     runOnUiThread {
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
     }
 
     tibiisSession.setLogDIReading15(pr)
@@ -279,12 +279,12 @@ fun TestingActivity.saveReading15(pr: LogReading)
 fun TestingActivity.saveReading60(pr: LogReading)
 {
     val press = pr.pressure / 1000.0
-    AppGlobals.instance.activeProcess.pt_di_r60_value = press
+    appGlobals.activeProcess.pt_di_r60_value = press
     tibiisSession.setLogDIReading60(pr)
     Log.d("ditest", "Saving reading 60 as $press")
 
     runOnUiThread {
-        AppGlobals.instance.activeProcess.save(this)
+        appGlobals.activeProcess.save(this)
     }
 
     loadData()
@@ -299,11 +299,11 @@ fun TestingActivity.resetDITest()
     clearDIData()
     reloadTable()
     formatForViewWillAppear()
-    AppGlobals.instance.tibiisController.resetController()
+    appGlobals.tibiisController.resetController()
     testingSession.resetTestingSession()
     tibiisSession = TibiisSessionData()
     tibiisSession.testingContext = TestingSessionData.TestingContext.di
-    calcManager = TestingCalcs(testingSession.testingContext, AppGlobals.instance.activeProcess)
+    calcManager = TestingCalcs(testingSession.testingContext, appGlobals.activeProcess)
     formatForStartTest()
     liveLogTimer = Timer()
 }
@@ -315,7 +315,7 @@ fun TestingActivity.archiveDITest()
 
 fun TestingActivity.clearDIData()
 {
-    val p = AppGlobals.instance.activeProcess
+    val p = appGlobals.activeProcess
     p.pt_di_start_pressure = 0.0
     p.pt_di_stp = 0.0
     p.pt_di_r15_value = 0.0
@@ -331,7 +331,7 @@ fun TestingActivity.clearDIData()
     p.di_test_has_calculated = 0
     p.di_is_zero_loss = -1
 
-    AppGlobals.instance.activeProcess.clearDIData(this)
+    appGlobals.activeProcess.clearDIData(this)
     formatForStartTest()
 }
 

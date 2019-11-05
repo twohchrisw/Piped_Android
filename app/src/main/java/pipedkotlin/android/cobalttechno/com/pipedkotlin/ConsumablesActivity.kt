@@ -19,11 +19,11 @@ class ConsumablesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Consumables, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, this)
+        recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Consumables, appGlobals.lastLat, appGlobals.lastLng, this)
     }
 
     override fun didRequestNotes(fieldName: String) {
-        setNotes(AppGlobals.instance.activeProcess.consum_notes)
+        setNotes(appGlobals.activeProcess.consum_notes)
     }
 
     override fun didRequestMainImage(fieldName: String) {
@@ -36,7 +36,7 @@ class ConsumablesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val p = AppGlobals.instance.activeProcess
+        val p = appGlobals.activeProcess
 
         if (requestCode == NOTES_REQUEST && data != null)
         {

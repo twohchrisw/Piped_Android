@@ -102,7 +102,7 @@ class TibiisSessionData {
     fun setLogNumberForStart(value: Int)
     {
         logNumberForStart = value
-        AppGlobals.instance.activeProcess.tibsessLogNumberForStart = value
+        appGlobals.activeProcess.tibsessLogNumberForStart = value
     }
 
     private var logNumberForStartDI = -1
@@ -113,7 +113,7 @@ class TibiisSessionData {
     fun setLogNumberForStartDI(value: Int)
     {
         logNumberForStartDI = value
-        AppGlobals.instance.activeProcess.tibsessDILogNumberForStart = value
+        appGlobals.activeProcess.tibsessDILogNumberForStart = value
     }
 
     private var logNumberForReading1 = -1
@@ -124,7 +124,7 @@ class TibiisSessionData {
     fun setLogNumberForReading1(value: Int)
     {
         logNumberForReading1 = value
-        AppGlobals.instance.activeProcess.tibsessLogNumberForReading1 = value
+        appGlobals.activeProcess.tibsessLogNumberForReading1 = value
     }
 
     private var logNumberForReading2 = -1
@@ -135,7 +135,7 @@ class TibiisSessionData {
     fun setLogNumberForReading2(value: Int)
     {
         logNumberForReading2 = value
-        AppGlobals.instance.activeProcess.tibsessLogNumberForReading2 = value
+        appGlobals.activeProcess.tibsessLogNumberForReading2 = value
     }
 
     private var logNumberForReading3 = -1
@@ -146,7 +146,7 @@ class TibiisSessionData {
     fun setLogNumberForReading3(value: Int)
     {
         logNumberForReading3 = value
-        AppGlobals.instance.activeProcess.tibsessLogNumberForReading3 = value
+        appGlobals.activeProcess.tibsessLogNumberForReading3 = value
     }
 
     private var logNumberForR15 = -1
@@ -157,7 +157,7 @@ class TibiisSessionData {
     fun setLogNumberForR15(value: Int)
     {
         logNumberForR15 = value
-        AppGlobals.instance.activeProcess.tibsessLogR15 = value
+        appGlobals.activeProcess.tibsessLogR15 = value
     }
 
     private var logNumberForR60 = -1
@@ -168,7 +168,7 @@ class TibiisSessionData {
     fun setLogNumberForR60(value: Int)
     {
         logNumberForR60 = value
-        AppGlobals.instance.activeProcess.tibsessLogR60 = value
+        appGlobals.activeProcess.tibsessLogR60 = value
     }
 
 
@@ -189,9 +189,9 @@ class TibiisSessionData {
                 // Calc the log numbers for each reading
                 Log.d("Cobalt", "Calculating Log Numbers - First Log Number: $logNumberForStart")
                 val loggingStarted = highestLogData!!.recordedDate
-                val r1time = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading1_time, DateHelper.date1970())
-                val r2time = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading2_time, DateHelper.date1970())
-                val r3time = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_reading3_time, DateHelper.date1970())
+                val r1time = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading1_time, DateHelper.date1970())
+                val r2time = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading2_time, DateHelper.date1970())
+                val r3time = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_reading3_time, DateHelper.date1970())
 
                 val timeDiff1 = (r1time.time - loggingStarted.time) / 1000.0
                 val timeDiff2 = (r2time.time - loggingStarted.time) / 1000.0
@@ -214,14 +214,14 @@ class TibiisSessionData {
                 Log.d("Cobalt", "Calculating Log Numbers for DI")
 
                 // Double check the pressurising started date
-                if (AppGlobals.instance.activeProcess.pt_di_pressurising_started.length < 4)
+                if (appGlobals.activeProcess.pt_di_pressurising_started.length < 4)
                 {
-                    AppGlobals.instance.activeProcess.pt_di_pressurising_started = DateHelper.dateToDBString(Date())
+                    appGlobals.activeProcess.pt_di_pressurising_started = DateHelper.dateToDBString(Date())
                 }
 
-                val loggingStarted = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_di_pressurising_started, DateHelper.date1970())
-                val r15time = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_di_r15_time, DateHelper.date1970())
-                val r60time = DateHelper.dbStringToDate(AppGlobals.instance.activeProcess.pt_di_r60_time, DateHelper.date1970())
+                val loggingStarted = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_di_pressurising_started, DateHelper.date1970())
+                val r15time = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_di_r15_time, DateHelper.date1970())
+                val r60time = DateHelper.dbStringToDate(appGlobals.activeProcess.pt_di_r60_time, DateHelper.date1970())
                 val timeDiff15 = (r15time.time - loggingStarted.time) / 1000.0
                 val timeDiff60 = (r60time.time - loggingStarted.time) / 1000.0
                 setLogNumberForR15(logNumberForStartDI + timeDiff15.toInt())
@@ -234,8 +234,8 @@ class TibiisSessionData {
                 if (!isDIConditioning)
                 {
                     val convertedPress = press.toDouble() / 1000.0
-                    AppGlobals.instance.activeProcess.pt_di_stp = convertedPress
-                    AppGlobals.instance.activeProcess.pt_di_start_pressure = convertedPress
+                    appGlobals.activeProcess.pt_di_stp = convertedPress
+                    appGlobals.activeProcess.pt_di_start_pressure = convertedPress
                 }
             }
         }
@@ -304,7 +304,7 @@ class TibiisSessionData {
 
         if (testingContext == TestingSessionData.TestingContext.di)
         {
-            if (AppGlobals.instance.activeProcess.di_test_has_calculated == 0)
+            if (appGlobals.activeProcess.di_test_has_calculated == 0)
             {
                 if (pressureReading.logNumber >= logNumberForR15 && pressureReading.logNumber <= logNumberForR60)
                 {
@@ -335,17 +335,17 @@ class TibiisSessionData {
         tibiisReading.pressure = logReading.pressure
         tibiisReading.flowRate = logReading.flowRate
         tibiisReading.readingType = typeDescription
-        tibiisReading.processId = AppGlobals.instance.activeProcess.columnId
+        tibiisReading.processId = appGlobals.activeProcess.columnId
         tibiisReading.testType = testType
-        tibiisReading.save(AppGlobals.instance.tibiisController.appContext!!)
+        tibiisReading.save(appGlobals.tibiisController.appContext!!)
 
         if (testType == "PE")
         {
-            AppGlobals.instance.activeProcess.peNeedsUploading = 1
+            appGlobals.activeProcess.peNeedsUploading = 1
         }
         else
         {
-            AppGlobals.instance.activeProcess.diNeedsUploading = 1
+            appGlobals.activeProcess.diNeedsUploading = 1
         }
 
         return tibiisReading
@@ -360,9 +360,9 @@ class TibiisSessionData {
 
     fun getReadingForLogNumber(logNumber: Int): LogReading?
     {
-        var logs = AppGlobals.instance.tibiisController.appContext!!.database.use {
+        var logs = appGlobals.tibiisController.appContext!!.database.use {
             select(EXLDTibiisReading.TABLE_NAME).whereArgs(EXLDTibiisReading.COLUMN_LOG_NUMBER +
-                    " = $logNumber AND processId = ${AppGlobals.instance.activeProcess.columnId} AND testType = '${testingContext.value}'").exec {
+                    " = $logNumber AND processId = ${appGlobals.activeProcess.columnId} AND testType = '${testingContext.value}'").exec {
                 parseList<EXLDTibiisReading>(classParser())
             }
         }
@@ -395,7 +395,7 @@ class TibiisSessionData {
             TibiisReadingType.pressurising -> typeDescription = "Pressurising"
         }
 
-        val db = AppGlobals.instance.tibiisController.appContext!!.database
+        val db = appGlobals.tibiisController.appContext!!.database
         val whereString = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_READING_TYPE} = '$typeDescription'"
         var readings = db.use {
             select(EXLDTibiisReading.TABLE_NAME).whereArgs(whereString).exec {
@@ -408,7 +408,7 @@ class TibiisSessionData {
 
     fun maxLogNumberReceived(processId: Long): Int
     {
-        val db = AppGlobals.instance.tibiisController.appContext!!.database
+        val db = appGlobals.tibiisController.appContext!!.database
         val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}'"
         var maxlogNumber = 0
         db.use {
@@ -423,7 +423,7 @@ class TibiisSessionData {
 
     fun getMaxPressurisingValue(processId: Long): Double
     {
-        val db = AppGlobals.instance.tibiisController.appContext!!.database
+        val db = appGlobals.tibiisController.appContext!!.database
         val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_READING_TYPE} = 'Pressurising'"
         var maxPressure = 0
         db.use {
@@ -438,8 +438,8 @@ class TibiisSessionData {
 
     fun maxLogLessThanSuppliedLogNumner(processId: Long, currentLogNumber: Int): Int
     {
-        val db = AppGlobals.instance.tibiisController.appContext!!.database
-        val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_LOG_NUMBER} < $currentLogNumber"
+        val db = appGlobals.tibiisController.appContext!!.database
+        val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_LOG_NUMBER} < $currentLogNumber AND readingType = 'Logging'"
         var maxlogNumber = 0
         db.use {
             select(EXLDTibiisReading.TABLE_NAME, "MAX(${EXLDTibiisReading.COLUMN_LOG_NUMBER}) as max").whereArgs(where).exec {

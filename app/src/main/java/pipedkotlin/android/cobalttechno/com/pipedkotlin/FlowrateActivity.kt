@@ -47,26 +47,26 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     fun bindRecycler()
     {
-        when (AppGlobals.instance.currentFlowrateActivityType)
+        when (appGlobals.currentFlowrateActivityType)
         {
             AppGlobals.Companion.FlowrateViewType.Chlor -> {
                 title = "Flowrate"
-                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.ChlorFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, this)
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.ChlorFlowrate, appGlobals.lastLat, appGlobals.lastLng, null, null, this)
             }
             AppGlobals.Companion.FlowrateViewType.DeChlor -> {
                 title = "Flowrate"
-                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DecFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, null, this)
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.DecFlowrate, appGlobals.lastLat, appGlobals.lastLng, null, null, null, this)
             }
             AppGlobals.Companion.FlowrateViewType.Sampling -> {
                 title = "Sampling Data"
-                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.SamplingFlowrate, AppGlobals.instance.lastLat, AppGlobals.instance.lastLng, null, null, null, null, this)
+                recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.SamplingFlowrate, appGlobals.lastLat, appGlobals.lastLng, null, null, null, null, this)
             }
         }
     }
 
     fun locationReceived(lat: Double, lng: Double) {
-        AppGlobals.instance.lastLat = lat
-        AppGlobals.instance.lastLng = lng
+        appGlobals.lastLat = lat
+        appGlobals.lastLng = lng
         bindRecycler()
     }
 
@@ -92,7 +92,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     override fun cameraPermissionsGranted() {
         super.cameraPermissionsGranted()
 
-        when (AppGlobals.instance.currentFlowrateActivityType)
+        when (appGlobals.currentFlowrateActivityType)
         {
             AppGlobals.Companion.FlowrateViewType.Chlor -> {
                 if (chlorFlowrate!!.chlor_photo.length < 2)
@@ -167,7 +167,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         {
             val uuid = UUID.randomUUID().toString()
 
-            when (AppGlobals.instance.currentFlowrateActivityType)
+            when (appGlobals.currentFlowrateActivityType)
             {
                 AppGlobals.Companion.FlowrateViewType.Chlor -> {
                     val fileName = "chlor_${uuid}.jpg"

@@ -53,6 +53,8 @@ fun TestingActivity.didPressActionButton(menuId: Int)
 
              */
 
+            //appGlobals.activeProcess.clearTibiisUploadFlag(this)
+
             setNotes()
         }
 
@@ -139,6 +141,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
 
             //TODO: Needs completing
         }
+
 
     }
 }

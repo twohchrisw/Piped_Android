@@ -121,11 +121,24 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
 
         if (currentTibiisReadings.size > 0) {
 
+            // Prevent the data from being wiped when we're syncing missed readings
+            if (currentTibiisReadings.size > 0)
+            {
+                if (currentTibiisReadings.first().logNumber > 2)
+                {
+                    Log.d("cobsync", "Not first log (${currentTibiisReadings.first().logNumber}) so isFirst = 0")
+                    isFirst = 0
+                }
+            }
+
             if (currentTibiisReadings.size <= MAX_PE_UPLOAD_RECORDS) {
                 processBeingSynced!!.tibiisReadings = currentTibiisReadings
                 currentTibiisReadings = ArrayList<EXLDTibiisReading>()
                 Log.d("cobsync", "Single batch upload of ${processBeingSynced!!.tibiisReadings.size}")
             } else {
+
+
+
                 processBeingSynced!!.tibiisReadings = ArrayList(currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS))
                 isLast = 0
                 currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS).clear()
@@ -133,6 +146,8 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
             }
 
         }
+
+
 
         syncBatch(startLog, isFirst, isLast)
     }

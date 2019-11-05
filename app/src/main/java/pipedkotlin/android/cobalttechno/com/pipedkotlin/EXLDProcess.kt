@@ -586,6 +586,14 @@ data class EXLDProcess(val columnId: Long = -1,
         Log.d("cobprev", "Archive Test: Count is: ${tests.size}")
     }
 
+    public fun clearTibiisUploadFlag(context: Context)
+    {
+        context.database.use {
+            update(EXLDTibiisReading.TABLE_NAME, EXLDTibiisReading.COLUMN_UPLOADED to 0)
+                    .whereArgs(EXLDTibiisReading.COLUMN_PROCESS_ID + " = " + columnId.toString()).exec()
+        }
+    }
+
     // Save the process
     public fun save(context: Context): Long
     {

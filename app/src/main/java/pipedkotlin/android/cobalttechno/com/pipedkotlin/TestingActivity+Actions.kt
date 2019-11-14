@@ -3,16 +3,12 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.util.Log
-import android.view.MenuItem
-import junit.framework.Test
-import org.jetbrains.anko.runOnUiThread
-import org.jetbrains.anko.startActivityForResult
 import java.util.*
 import kotlin.concurrent.schedule
 
 fun TestingActivity.reloadTable()
 {
-    recyclerView.adapter.notifyDataSetChanged()
+    recyclerView.adapter?.notifyDataSetChanged()
 }
 
 fun TestingActivity.formatOptionsMenuForContext(connected: Boolean)

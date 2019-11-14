@@ -297,12 +297,13 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
     }
 
     // We don't need to download any logs after the the R3 log
-    var lastLogToDownload = currentLogNumber
+    var lastLogToDownload = currentLogNumber + 1
     if (lastLogToDownload > tibiisSession.getLogNumberForReading3())
     {
-        lastLogToDownload = tibiisSession.getLogNumberForReading3()
+        lastLogToDownload = tibiisSession.getLogNumberForReading3() + 1
         Log.d("zzz", "Resetting max log to download from ${currentLogNumber} to R3 Log ${lastLogToDownload}")
     }
+    Log.d("zzz", "Log R3 is ${tibiisSession.getLogNumberForReading3()}")
 
     if (lastLogToDownload > startLogNumber)
     {

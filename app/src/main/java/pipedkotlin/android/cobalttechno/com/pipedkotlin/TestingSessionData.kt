@@ -96,7 +96,6 @@ class TestingSessionData {
 
     fun resetTestingSession()
     {
-
         hasCalculatedPETest = false
         timerStage = 0
         startLoggingTime = null

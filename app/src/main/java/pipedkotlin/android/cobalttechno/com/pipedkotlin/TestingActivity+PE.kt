@@ -254,6 +254,10 @@ fun TestingActivity.startPressurisingButtonPressed()
             p.save(this)
             recyclerView.adapter.notifyDataSetChanged()
         }
+        else
+        {
+            Log.d("zzz", "Start Pressure Reading is null")
+        }
 
         tibiisStartPressurising()
         saveCalibrationDetails()
@@ -463,6 +467,14 @@ fun TestingActivity.saveCalibrationDetails()
             Log.d("cobcalib", "Requesting Calib name")
             runOnUiThread {
                 tc.tbxDataController.sendCommandGetCalibrationData(TBXDataController.CalibrationData.Name)
+            }
+        }
+
+        if (p.pt_pe_logger_details.length < 1 || p.pt_di_logger_details.length < 1)
+        {
+            Log.d("zzz", "Requesting Serial Number")
+            runOnUiThread {
+                tc.tbxDataController.sendCommandGetOptionBytes(TBXDataController.OptionBytes.SerialNumber)
             }
         }
 

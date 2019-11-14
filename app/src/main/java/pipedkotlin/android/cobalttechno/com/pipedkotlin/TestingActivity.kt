@@ -1243,6 +1243,43 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 Log.d("Cobalt", "TIME SYNC RECEIVED")
             }
 
+            TBXDataController.Command.GetOptionBytes -> {
+
+                val serialNumber = packet.parseAsSerialNumber()
+                val trimmedSerialNumber = serialNumber.trim()
+                var actualSerialNumner = ""
+                if (trimmedSerialNumber.length == 1)
+                {
+                    actualSerialNumner = "Tibiis0000${trimmedSerialNumber}"
+                }
+                if (trimmedSerialNumber.length == 2)
+                {
+                    actualSerialNumner = "Tibiis000${trimmedSerialNumber}"
+                }
+                if (trimmedSerialNumber.length == 3)
+                {
+                    actualSerialNumner = "Tibiis00${trimmedSerialNumber}"
+                }
+                if (trimmedSerialNumber.length == 4)
+                {
+                    actualSerialNumner = "Tibiis0${trimmedSerialNumber}"
+                }
+
+                if (tibiisSession.testingContext == TestingSessionData.TestingContext.pe)
+                {
+                    appGlobals.activeProcess.pt_pe_logger_details = actualSerialNumner
+                }
+                else
+                {
+                    appGlobals.activeProcess.pt_di_logger_details = actualSerialNumner
+                }
+                runOnUiThread {
+                    appGlobals.activeProcess.save(this)
+                    loadData()
+                }
+
+            }
+
             TBXDataController.Command.GetCalibrationData -> {
                 val calibResult = packet.parseAsCalibrationData()
                 val p = appGlobals.activeProcess

@@ -10,6 +10,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
+import org.jetbrains.anko.db.select
 import org.jetbrains.anko.runOnUiThread
 import java.io.File
 import java.util.*
@@ -124,9 +125,10 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
             // Prevent the data from being wiped when we're syncing missed readings
             if (currentTibiisReadings.size > 0)
             {
-                if (currentTibiisReadings.first().logNumber > 2)
+                val lowestTibReading = currentTibiisReadings.first()
+                if (lowestTibReading.logNumber > 100)
                 {
-                    Log.d("cobsync", "Not first log (${currentTibiisReadings.first().logNumber}) so isFirst = 0")
+                    Log.d("cobsync", "Not first log (${lowestTibReading.logNumber}) so isFirst = 0")
                     isFirst = 0
                 }
             }
@@ -405,6 +407,7 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
         }
 
     }
+
 
 
 }

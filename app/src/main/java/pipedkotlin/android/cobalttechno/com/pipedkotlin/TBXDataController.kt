@@ -661,6 +661,20 @@ class TBXDataController(val tibiisController: TibiisController) {
             return CalibrationDataResult(calibrationByte, string)
         }
 
+        fun parseAsSerialNumber(): String {
+            var byteArray = ArrayList<Byte>()
+            for (i in data)
+            {
+                byteArray.add(i.toByte())
+            }
+
+            val bytesArrayTyped = byteArray.toByteArray()
+            val string = String(bytesArrayTyped)
+            Log.d("zzz", "Serial number is ${string}")
+            return string
+        }
+
+
     }
 }
 
@@ -700,23 +714,23 @@ class LogReading(val data: ArrayList<Int>) {
             val int2 = (data[1] shl 8)
 
             logNumber = (data[0].toInt() shl 16) or (data[1].toInt() shl 8) or data[2].toInt()
-            pressure = data[3].toInt() shl 8 or data[4].toInt()
-            if (controlByte and 0x80 == 128) {
+            pressure = (data[3].toInt() shl 8) or data[4].toInt()
+            if ((controlByte and 0x80) == 128) {
                 pressure = pressure * -1
             }
 
-            flowRate = data[5].toInt() shl 8 or data[6].toInt()
-            if (controlByte and 0x40 == 64)
+            flowRate = (data[5].toInt() shl 8) or data[6].toInt()
+            if ((controlByte and 0x40) == 64)
             {
                 flowrateType = FlowrateType.Pulse
             }
-            if (controlByte and 0x10 == 16)
+            if ((controlByte and 0x10) == 16)
             {
                 flowrateType = FlowrateType.Current
             }
 
             temperature = data[7].toInt()
-            if (controlByte and 0x20 == 32)
+            if ((controlByte and 0x20) == 32)
             {
                 temperature = temperature * -1
             }
@@ -729,22 +743,22 @@ class LogReading(val data: ArrayList<Int>) {
         {
             val controlByte = data[6]
             pressure = data[0] shl 8 or data[1]
-            if (controlByte and 0x80 == 128) {
+            if ((controlByte and 0x80) == 128) {
                 pressure = pressure * -1
             }
 
-            flowRate = data[2].toInt() shl 8 or data[3].toInt()
-            if (controlByte and 0x40 == 64)
+            flowRate = (data[2].toInt() shl 8) or data[3].toInt()
+            if ((controlByte and 0x40) == 64)
             {
                 flowrateType = FlowrateType.Pulse
             }
-            if (controlByte and 0x10 == 16)
+            if ((controlByte and 0x10) == 16)
             {
                 flowrateType = FlowrateType.Current
             }
 
             temperature = data[4].toInt()
-            if (controlByte and 0x20 == 32)
+            if ((controlByte and 0x20) == 32)
             {
                 temperature = temperature * -1
             }
@@ -756,7 +770,7 @@ class LogReading(val data: ArrayList<Int>) {
 
     fun description(): String
     {
-        return "LogNo: $logNumber Pressure: $pressure FlowRate: ${flowRate} Temo: $temperature Battery: $battery Control: $control"
+        return "LogNo: $logNumber Pressure: $pressure FlowRate: ${flowRate} FlowRateType: ${flowrateType} Temp: $temperature Battery: $battery Control: $control"
     }
 
 }

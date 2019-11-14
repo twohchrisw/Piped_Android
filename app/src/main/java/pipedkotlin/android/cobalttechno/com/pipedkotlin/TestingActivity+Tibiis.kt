@@ -1,9 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.util.Log
-import android.view.View
-import junit.framework.Test
-import org.jetbrains.anko.runOnUiThread
 import java.lang.Exception
 import java.util.*
 import kotlin.concurrent.schedule
@@ -110,37 +107,40 @@ fun TestingActivity.tibiisStartPressurising()
 
         runOnUiThread {
             tc.tbxDataController.sendCommandTimeSync()
-
         }
 
+        /*
         Timer("startTest1", false).schedule(100) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandTimeSync()
 
             }
         }
+         */
 
-        Timer("startTest2", false).schedule(200) {
+        Timer("startTest2", false).schedule(300) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandStartTest()
-
             }
         }
 
+        /*
         Timer("startTest3", false).schedule(300) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandStartTest()
-
             }
         }
+        */
 
-        Timer("outputControlOn4", false).schedule(400) {
+
+        Timer("outputControlOn4", false).schedule(600) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandOutputControl(true)
 
             }
         }
 
+        /*
         Timer("outputControlOn5", false).schedule(500) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandOutputControl(true)
@@ -148,19 +148,24 @@ fun TestingActivity.tibiisStartPressurising()
             }
         }
 
-        Timer("screenOn", false).schedule(600) {
+         */
+
+        Timer("screenOn", false).schedule(900) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandSetLCDOnTime(20)
 
             }
         }
 
+        /*
         Timer("screenOn", false).schedule(700) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandSetLCDOnTime(20)
 
             }
         }
+
+         */
 
         //TODO: We can't get the tibiis serial number
         /*

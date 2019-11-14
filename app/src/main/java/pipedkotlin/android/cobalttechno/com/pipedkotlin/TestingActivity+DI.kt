@@ -2,7 +2,6 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.app.Activity
 import android.util.Log
-import junit.framework.Test
 import java.util.*
 import kotlin.concurrent.schedule
 

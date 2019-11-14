@@ -1,5 +1,6 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -19,7 +20,12 @@ inline fun catchAll(message: String, action: () -> Unit) {
 
 val appGlobals = AppGlobals()
 
-public class AppGlobals {
+// Extending the Application() class should keep the global vars in place
+public class AppGlobals: Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+    }
 
     // Singleton setup
     //private object Holder { val INSTANCE = AppGlobals() }

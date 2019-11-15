@@ -1274,6 +1274,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                     appGlobals.activeProcess.pt_di_logger_details = actualSerialNumner
                 }
                 runOnUiThread {
+                    Log.d("zzz", "Saving serial number ${actualSerialNumner}")
                     appGlobals.activeProcess.save(this)
                     loadData()
                 }

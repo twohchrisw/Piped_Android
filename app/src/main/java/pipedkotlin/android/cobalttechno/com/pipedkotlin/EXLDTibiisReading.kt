@@ -67,6 +67,19 @@ data class EXLDTibiisReading(var _id: Long = -1,
             return readings.firstOrNull()
         }
 
+        fun getTibiisReadingsForPressurising(ctx: Context, processId: Long, testType: String): List<EXLDTibiisReading>
+        {
+            return ctx.database.use {
+                select(EXLDTibiisReading.TABLE_NAME)
+                        .whereArgs("${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND ${COLUMN_TEST_TYPE} = '$testType' AND ${COLUMN_READING_TYPE} = 'Pressurising'")
+                        .orderBy(EXLDTibiisReading.COLUMN_LOG_NUMBER)
+                        .exec {
+                            parseList<EXLDTibiisReading>(classParser())
+                        }
+            }
+        }
+
+
     }
 
     var txNumber = 0

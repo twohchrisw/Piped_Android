@@ -737,6 +737,8 @@ class LogReading(val data: ArrayList<Int>) {
 
             battery = data[8].toInt()
             control = controlByte
+
+            Log.d("flow", "Live log reading: Pressure: ${pressure} Flowrate: ${flowRate}  Data5: ${data[5]} Data6: ${data[6]} flowrateType: ${flowrateType}")
         }
 
         if (data.size == 7)
@@ -765,7 +767,11 @@ class LogReading(val data: ArrayList<Int>) {
 
             battery = data[5].toInt()
             control = controlByte
+
+            Log.d("flow", "Previous log reading: Pressure: ${pressure} Flowrate: ${flowRate}  Data5: ${data[2]} Data6: ${data[3]} Flowrate Type: ${flowrateType}")
         }
+
+
     }
 
     fun description(): String

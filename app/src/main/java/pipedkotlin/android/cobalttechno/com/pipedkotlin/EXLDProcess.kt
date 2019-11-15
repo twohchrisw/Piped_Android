@@ -918,6 +918,15 @@ data class EXLDProcess(val columnId: Long = -1,
 
     fun waterVolumePressurisedString(testingContext: TestingSessionData.TestingContext): String
     {
+        // Calc from Tibiis Data
+        val tibiisWaterVolume = waterVolumeFromTibiisData()
+        if (tibiisWaterVolume > 0)
+        {
+            return tibiisWaterVolume.formatForDecPlaces(2)
+        }
+
+        // Standard Calc
+
         val litresPerSecond = pumpLitersPerSecond(testingContext)
         val pressureTime = pumpVolumeTimeSeconds(testingContext)
 
@@ -930,6 +939,28 @@ data class EXLDProcess(val columnId: Long = -1,
         {
             return "N/A"
         }
+    }
+
+    fun waterVolumeFromTibiisData(): Double
+    {
+        val WATER_VOLUME_LITRES_PER_PULSE = 0.25
+        var waterVolume = 0.0
+
+        for (reading in EXLDTibiisReading.getTibiisReadingsForPressurising(MainApplication.applicationContext(), appGlobals.activeProcess.columnId, "PE"))
+        {
+            val flowrate = reading.flowrate
+            waterVolume = waterVolume + (WATER_VOLUME_LITRES_PER_PULSE * flowrate)
+            /*
+            val log = reading.logNumber
+            val readingType = reading.testType
+            val processId = reading.processId
+            val readingStage = reading.readingType
+
+            Log.d("flow", "Water Vol: Process: $processId Log: $log Reading Type: $readingStage Flowrate: $flowrate")
+             */
+        }
+
+        return waterVolume
     }
 
     fun pumpLitersPerSecond(testingContext: TestingSessionData.TestingContext): Double

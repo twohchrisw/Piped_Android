@@ -18,7 +18,7 @@ inline fun catchAll(message: String, action: () -> Unit) {
 }
 */
 
-val appGlobals = AppGlobals()
+var appGlobals = AppGlobals()
 
 // Extending the Application() class should keep the global vars in place
 public class AppGlobals: Application() {

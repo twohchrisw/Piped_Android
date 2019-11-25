@@ -103,6 +103,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
     val REQUEST_ADD_NOTES = 1
     var plMissedCandidate = -1
+    var safetyAppGlobals: AppGlobals? = null
 
     // Menu Items
     lateinit var menuZeroTibiis: MenuItem
@@ -128,6 +129,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         // Set the context for the tbxDataController so we can run commands on the main thread
         appGlobals.tibiisController.tbxDataController.context = this
         appGlobals.tibiisController.appContext = this
+        safetyAppGlobals = appGlobals   // Keep a reference to app globals to try and stop it resetting
 
         // Assign the correct testing context
         val testingContext = intent.getStringExtra(TESTING_CONTEXT_EXTRA)
@@ -168,9 +170,22 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onResume() {
         super.onResume()
 
-        Log.d("cobtimer", "onResume isPressurisingPE: $isPressurisingPE")
-        recyclerView.adapter.notifyDataSetChanged()
-        formatForViewWillAppear()
+        /* Check that the appGlobals have not reverted to null */
+        if (appGlobals.activeProcess.columnId < 0)
+        {
+            /* AppGlobals has reset itself, need to return to login menu */
+            appGlobals = AppGlobals()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+
+        }
+        else {
+            /* Refresh the view */
+            Log.d("cobtimer", "onResume isPressurisingPE: $isPressurisingPE")
+            recyclerView.adapter.notifyDataSetChanged()
+            formatForViewWillAppear()
+        }
     }
 
     override fun onDestroy() {
@@ -194,14 +209,18 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
     override fun onStop() {
         super.onStop()
 
-        appGlobals.activeProcess.save(this)
+        if (appGlobals.activeProcess.columnId > -1) {
+            appGlobals.activeProcess.save(this)
+        }
         Log.d("cobtimer", "onStop isPressurisingPE: $isPressurisingPE")
     }
 
     override fun onPause() {
         super.onPause()
 
-        appGlobals.activeProcess.save(this)
+        if (appGlobals.activeProcess.columnId > -1) {
+            appGlobals.activeProcess.save(this)
+        }
         Log.d("cobtimer", "onPause isPressurisingPE: $isPressurisingPE")
     }
 
@@ -1219,7 +1238,9 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                         saveLiveLog(log, true)
                     }
 
+                    // Save the actual reading
                     saveLiveLog(previousLogData!!.liveLog)
+
                     prev_cycle_marker3 = Date().time
                     lastMaxLogNumber = previousLogData!!.maxLogNumber
 

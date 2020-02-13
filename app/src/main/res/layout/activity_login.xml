@@ -74,8 +74,19 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="68dp"
+        android:layout_marginBottom="130dp"
         android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/btnEnterCompanyId"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnPipeCalculator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Pipe Calculator"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/btnEnterCompanyId"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

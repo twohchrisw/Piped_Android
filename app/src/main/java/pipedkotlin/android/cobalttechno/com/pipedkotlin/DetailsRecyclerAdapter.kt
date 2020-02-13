@@ -33,12 +33,12 @@ class DetailsRecyclerAdapter(val clickListener: DetailsRecyclerClickListener): R
         return MenuItems.count.value
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_title_value, parent, false)
         return ViewHolderTitleValue(view)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val viewHolder = holder as ViewHolderTitleValue
         val title = viewHolder.titleText
         val value = viewHolder.valueText

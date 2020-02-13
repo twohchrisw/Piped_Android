@@ -28,7 +28,7 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun onResume() {
         super.onResume()
-        recyclerView.adapter.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     fun locationReceived(lat: Double, lng: Double) {
@@ -76,7 +76,7 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
     }
 }

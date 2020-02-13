@@ -45,7 +45,7 @@ class ConsumablesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
     }
 }

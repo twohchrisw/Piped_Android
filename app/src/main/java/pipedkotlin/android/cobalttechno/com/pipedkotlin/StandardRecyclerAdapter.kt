@@ -601,7 +601,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType)
         {
             PipedTableRow.PipedTableRowType.SectionHeader.value -> {
@@ -655,8 +655,11 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
         }
 
-        return null
+        // Will never hit this
+        val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_title_value, parent, false)
+        return ViewHolderTitleValue(view)
     }
+
 
     fun isFlowratePosition(position: Int): Pair<Boolean, Int>
     {
@@ -723,7 +726,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
         val p = appGlobals.activeProcess
         var tableRow: PipedTableRow? = null

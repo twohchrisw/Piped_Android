@@ -76,7 +76,7 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
     }
 
     // Return the correct cell for the row
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType)
         {
             TestingViewType.twoLineStandard.value -> {
@@ -105,10 +105,12 @@ class TestingRecyclerAdapter(val testingContext: TestingSessionData.TestingConte
             }
         }
 
-        return null
+        // Will never hit this
+        val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_title_value, parent, false)
+        return ViewHolderTitleValue(view)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder?.itemViewType)
         {
             TestingViewType.twoLineStandard.value -> cellForTwoLineStandard(holder, position)

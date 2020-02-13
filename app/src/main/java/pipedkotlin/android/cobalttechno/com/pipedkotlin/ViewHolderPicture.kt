@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 
-class ViewHolderPicture(itemView: View?): RecyclerView.ViewHolder(itemView)
+class ViewHolderPicture(itemView: View): RecyclerView.ViewHolder(itemView)
 {
     val titleText = itemView?.findViewById<TextView>(R.id.tvTitle)
     val valueText = itemView?.findViewById<TextView>(R.id.tvValue)

@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 
-class ViewHolderDateSet(itemView: View?): RecyclerView.ViewHolder(itemView) {
+class ViewHolderDateSet(itemView: View): RecyclerView.ViewHolder(itemView) {
     val tvTitle = itemView?.findViewById<TextView>(R.id.tvTitle)
     val tvValue = itemView?.findViewById<TextView>(R.id.tvValue)
     val tvLocation = itemView?.findViewById<TextView>(R.id.tvLocation)

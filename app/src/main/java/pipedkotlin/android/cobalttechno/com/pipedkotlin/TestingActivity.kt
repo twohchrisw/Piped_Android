@@ -183,7 +183,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         else {
             /* Refresh the view */
             Log.d("cobtimer", "onResume isPressurisingPE: $isPressurisingPE")
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
             formatForViewWillAppear()
         }
     }

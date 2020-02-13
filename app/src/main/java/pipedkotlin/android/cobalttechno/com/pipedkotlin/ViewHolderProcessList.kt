@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 
-class ViewHolderProcessList(itemView: View?): RecyclerView.ViewHolder(itemView)
+class ViewHolderProcessList(itemView: View): RecyclerView.ViewHolder(itemView)
 {
     val processNo = itemView?.findViewById<TextView>(R.id.tvProcessNo) as TextView
     val address = itemView?.findViewById<TextView>(R.id.tvAddress) as TextView

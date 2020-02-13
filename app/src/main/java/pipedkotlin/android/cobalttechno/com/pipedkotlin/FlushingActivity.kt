@@ -40,7 +40,7 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun onResume() {
         super.onResume()
-        recyclerView.adapter.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     fun locationReceived(lat: Double, lng: Double) {

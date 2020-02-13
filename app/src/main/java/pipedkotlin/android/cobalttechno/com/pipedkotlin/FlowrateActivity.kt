@@ -108,7 +108,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                         chlorFlowrate!!.chlor_photo = ""
                         chlorFlowrate!!.save(this)
                         runOnUiThread {
-                            recyclerView.adapter.notifyDataSetChanged()
+                            recyclerView.adapter?.notifyDataSetChanged()
                         }
                     })
                 }
@@ -128,7 +128,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                         decFlowrate!!.dec_photo = ""
                         decFlowrate!!.save(this)
                         runOnUiThread {
-                            recyclerView.adapter.notifyDataSetChanged()
+                            recyclerView.adapter?.notifyDataSetChanged()
                         }
                     })
                 }
@@ -147,7 +147,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                         samplFlowrate!!.sampl_photo = ""
                         samplFlowrate!!.save(this)
                         runOnUiThread {
-                            recyclerView.adapter.notifyDataSetChanged()
+                            recyclerView.adapter?.notifyDataSetChanged()
                         }
                     })
                 }
@@ -193,7 +193,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
     }
 }

@@ -125,7 +125,7 @@ class EquipmentRecycler(val ctx: Context): RecyclerView.Adapter<RecyclerView.Vie
         return VIEW_TYPE_TEXT_LINE
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == VIEW_TYPE_HEADER)
         {
             val view = LayoutInflater.from(parent?.context).inflate(R.layout.view_holder_standard_header, parent, false)
@@ -142,7 +142,7 @@ class EquipmentRecycler(val ctx: Context): RecyclerView.Adapter<RecyclerView.Vie
         return ViewHolderEquip(view)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val row = equipRows[position]
 
         if (row.isHeader)

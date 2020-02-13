@@ -29,7 +29,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
     override fun onResume() {
         super.onResume()
-        recyclerView.adapter.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     fun locationReceived(lat: Double, lng: Double) {
@@ -83,7 +83,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
                 runOnUiThread {
                     p.save(this)
-                    recyclerView.adapter.notifyDataSetChanged()
+                    recyclerView.adapter?.notifyDataSetChanged()
                 }
             })
         }

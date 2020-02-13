@@ -109,9 +109,19 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
                 val alert = AlertHelper(this)
                 alert.dialogForOKAlertNoAction("About Piped", "Version: ${version}\r\nSigned in as '$companyId'")
             }
+
+            R.id.mnuPipeCalculator -> {
+                loadPipeCalculator()
+            }
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    fun loadPipeCalculator()
+    {
+        val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+        startActivity(pipeCalculatorIntent)
     }
 
     override fun onBackPressed() {
@@ -203,7 +213,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     override fun processHasSynced(process: EXLDProcess) {
         Log.d("cobsync", "Process Has Synced")
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
     }
 

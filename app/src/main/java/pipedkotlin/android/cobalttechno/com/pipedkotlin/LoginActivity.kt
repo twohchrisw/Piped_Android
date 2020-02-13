@@ -20,6 +20,7 @@ import kotlin.concurrent.schedule
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     lateinit var btnEnterCompanyId: Button
+    lateinit var btnPipeCalculator: Button
     lateinit var progressBar: ProgressBar
 
     var attemptedCompanyId = ""
@@ -74,6 +75,11 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         btnEnterCompanyId = findViewById(R.id.btnEnterCompanyId)
         btnEnterCompanyId.visibility = View.VISIBLE
         btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
+
+        btnPipeCalculator = findViewById(R.id.btnPipeCalculator)
+        btnPipeCalculator.visibility = View.VISIBLE
+        btnPipeCalculator.setOnClickListener { v -> loadPipeCalculator() }
+
         supportActionBar?.hide()
         shouldLoadProcessListAfterParsing = true
         progressBar.visibility = View.GONE
@@ -98,6 +104,12 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         val alertHelper = AlertHelper(this)
         alertHelper.dialogForTextInput("Company ID", "", ::validateCompanyId)
+    }
+
+    fun loadPipeCalculator()
+    {
+        val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+        startActivity(pipeCalculatorIntent)
     }
 
     // Validate the company id with the server

@@ -86,7 +86,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
                 currentSurveyNote!!.sn_photo = ""
                 currentSurveyNote!!.save(this)
                 runOnUiThread {
-                    recyclerView.adapter.notifyDataSetChanged()
+                    recyclerView.adapter?.notifyDataSetChanged()
                 }
             })
         }
@@ -114,7 +114,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         }
 
         runOnUiThread {
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
     }
 }

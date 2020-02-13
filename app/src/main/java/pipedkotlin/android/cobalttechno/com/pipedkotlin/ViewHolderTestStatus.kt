@@ -6,7 +6,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 
-class ViewHolderTestStatus(itemView: View?): RecyclerView.ViewHolder(itemView) {
+class ViewHolderTestStatus(itemView: View): RecyclerView.ViewHolder(itemView) {
     val radioGroup = itemView?.findViewById<RadioGroup>(R.id.radioGroup)
     val rdNotSet = itemView?.findViewById<RadioButton>(R.id.rdNotSet)
     val rdFail = itemView?.findViewById<RadioButton>(R.id.rdFail)

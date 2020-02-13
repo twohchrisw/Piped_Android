@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 
-class ViewHolderReadingsFooter(itemView: View?): RecyclerView.ViewHolder(itemView)
+class ViewHolderReadingsFooter(itemView: View): RecyclerView.ViewHolder(itemView)
 {
     val headerText = itemView?.findViewById<TextView>(R.id.tvHeaderText)
     val pressurisingStarted = itemView?.findViewById<TextView>(R.id.tvPressurisingStarted)

@@ -252,7 +252,7 @@ fun TestingActivity.startPressurisingButtonPressed()
             val press = tibiisSession.startPressureReading!!.pressure / 1000.0
             p.pt_start_pressure = press
             p.save(this)
-            recyclerView.adapter.notifyDataSetChanged()
+            recyclerView.adapter?.notifyDataSetChanged()
         }
         else
         {

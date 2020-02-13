@@ -31,7 +31,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
     override fun onResume() {
         super.onResume()
-        recyclerView.adapter.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     fun locationReceived(lat: Double, lng: Double) {
@@ -73,7 +73,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
                 runOnUiThread {
                     p.save(this)
-                    recyclerView.adapter.notifyDataSetChanged()
+                    recyclerView.adapter?.notifyDataSetChanged()
                 }
             })
         }

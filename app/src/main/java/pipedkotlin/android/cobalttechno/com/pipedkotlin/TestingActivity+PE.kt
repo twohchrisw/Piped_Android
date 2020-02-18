@@ -10,6 +10,13 @@ fun TestingActivity.loadCheckPE()
     val p = appGlobals.activeProcess
     val tc = appGlobals.tibiisController
 
+    // We use this spare field to saved the checked integrity value
+    if (p.iphone_sync_id == "yes")
+    {
+        hasCheckedIntegrity = true
+        Log.d("feb", "Retrieved positive has set integrity from data store")
+    }
+
     if (tibiisSession.getLogNumberForStart() == -1)
     {
         tibiisSession.setLogNumberForStart(p.tibsessDILogNumberForStart)
@@ -390,6 +397,17 @@ fun TestingActivity.calculatePEButtonPressed()
         if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
         {
             checkLogIntegrity()
+        }
+        else
+        {
+            if (tibiisSession.getLogNumberForReading3() > 0)
+            {
+                val alert = AlertHelper(this)
+                runOnUiThread {
+                    alert.dialogForOKAlertNoAction("Connect Tibiis!", "Please reconnect the Tibiis and wait for any missed readings to be downloaded before Calculating!")
+                }
+                return
+            }
         }
     }
 

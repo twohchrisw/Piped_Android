@@ -164,7 +164,6 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         }
 
         Log.d("cobalt4", "Process ID: ${appGlobals.activeProcess.internalId}")
-
     }
 
     override fun onResume() {

@@ -41,6 +41,19 @@ data class EXLDTibiisReading(var _id: Long = -1,
             }
         }
 
+        // For checking integrity
+        fun getAllLogNumbers(ctx: Context): List<Int>
+        {
+            return ctx.database.use {
+                select(EXLDTibiisReading.TABLE_NAME)
+                        .column(EXLDTibiisReading.COLUMN_LOG_NUMBER)
+                        .orderBy(EXLDTibiisReading.COLUMN_LOG_NUMBER)
+                        .exec {
+                            parseList<Int>(IntParser)
+                        }
+            }
+        }
+
         fun getTibiisReadingsForUpload(ctx: Context, processId: Long, testType: String): List<EXLDTibiisReading>
         {
             return ctx.database.use {

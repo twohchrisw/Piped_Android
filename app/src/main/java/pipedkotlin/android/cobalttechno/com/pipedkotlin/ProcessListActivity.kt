@@ -120,6 +120,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
 
     fun loadPipeCalculator()
     {
+        appGlobals.calculatorTitle = "Process List"
         val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
         startActivity(pipeCalculatorIntent)
     }

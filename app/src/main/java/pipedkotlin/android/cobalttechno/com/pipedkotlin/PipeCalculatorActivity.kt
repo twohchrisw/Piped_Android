@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_pipe_calculator.*
 import org.w3c.dom.Text
 
 class PipeCalculatorActivity : AppCompatActivity() {
@@ -37,6 +38,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
     lateinit var lblTimeToFillTitle: TextView
     lateinit var vwSeperator: View
     lateinit var btnCalculate: Button
+    lateinit var lblViewName: TextView
 
     enum class CalculatorTab {
         Metallic, PE
@@ -52,6 +54,12 @@ class PipeCalculatorActivity : AppCompatActivity() {
         formatForSelection()
         initialiseInputBoxes()
         supportActionBar?.title = "Pipe Calculator"
+
+        if (appGlobals.calculatorTitle.isNotBlank())
+        {
+            tvViewName.text = "(" + appGlobals.calculatorTitle + ")";
+            appGlobals.calculatorTitle = ""
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -91,6 +99,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
         lblTimeToFillTitle = findViewById(R.id.lblTimeToFillTitle)
         vwSeperator = findViewById(R.id.vwSeperator)
         btnCalculate = findViewById(R.id.btnCalculate)
+        lblViewName = findViewById(R.id.tvViewName)
     }
 
     fun addListeners()
@@ -166,6 +175,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
         lblTimeToFillTitle.bringToFront()
         lblTimeToFill.bringToFront()
         btnCalculate.bringToFront()
+        tvViewName.bringToFront()
     }
 
     fun initialiseInputBoxes()

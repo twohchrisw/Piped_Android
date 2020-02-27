@@ -82,4 +82,6 @@ public class AppGlobals: Application() {
     val DI_TESTING_VALUE = 0.201
     val DI_15_MIN_MAXIMUM = 0.051
 
+    var calculatorTitle = ""
+
 }

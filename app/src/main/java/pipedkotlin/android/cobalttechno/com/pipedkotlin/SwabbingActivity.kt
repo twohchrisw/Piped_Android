@@ -8,6 +8,8 @@ import android.provider.MediaStore
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import java.util.*
 
 class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdapterInterface {
@@ -27,6 +29,24 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Swabbing, appGlobals.lastLat, appGlobals.lastLng, this)
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.calc_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        if (item?.itemId == R.id.mnuCalc)
+        {
+            appGlobals.calculatorTitle = "Swabbing"
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {

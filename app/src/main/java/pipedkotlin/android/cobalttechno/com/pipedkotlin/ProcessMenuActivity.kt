@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import org.jetbrains.anko.doAsync
@@ -76,6 +77,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         }
 
     }
+
 
 
 
@@ -172,6 +174,12 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         appGlobals.processMenuShowingTasks = false
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.calc_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         Log.d("cobalt", "Finished")
 
@@ -190,6 +198,13 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
             }
 
             return true
+        }
+
+        if (item?.itemId == R.id.mnuCalc)
+        {
+            appGlobals.calculatorTitle = "Process Menu"
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
         }
 
         return super.onOptionsItemSelected(item)

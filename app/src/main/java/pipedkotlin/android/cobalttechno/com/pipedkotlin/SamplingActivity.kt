@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import java.util.*
 
 class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdapterInterface {
@@ -29,6 +31,24 @@ class SamplingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
     override fun onResume() {
         super.onResume()
         recyclerView.adapter?.notifyDataSetChanged()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.calc_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        if (item?.itemId == R.id.mnuCalc)
+        {
+            appGlobals.calculatorTitle = "Sampling"
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     fun locationReceived(lat: Double, lng: Double) {

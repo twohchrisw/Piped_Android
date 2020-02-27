@@ -4,13 +4,18 @@ import android.Manifest
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.TextView
 import com.android.volley.VolleyError
+import kotlinx.android.synthetic.main.activity_pipe_calculator.*
 import org.jetbrains.anko.UI
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
@@ -20,8 +25,34 @@ import kotlin.concurrent.schedule
 class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     lateinit var btnEnterCompanyId: Button
-    lateinit var btnPipeCalculator: Button
     lateinit var progressBar: ProgressBar
+
+    lateinit var vwContainerView: View
+    lateinit var vwButtonPEView: View
+    lateinit var vwButtonMetallicView: View
+    lateinit var btnPE: Button
+    lateinit var btnMetallic: Button
+    lateinit var lblTitleLabel: TextView
+    lateinit var etDiameter: EditText
+    lateinit var etFlowrate: EditText
+    lateinit var etLength: EditText
+    lateinit var etSDR: EditText
+    lateinit var lblSDR: TextView
+    lateinit var lblVolume: TextView
+    lateinit var lblTimeToFill: TextView
+    lateinit var lblDiameter: TextView
+    lateinit var lblFlowrate: TextView
+    lateinit var lblLength: TextView
+    lateinit var lblVolumeTitle: TextView
+    lateinit var lblTimeToFillTitle: TextView
+    lateinit var vwSeperator: View
+    lateinit var btnCalculate: Button
+    lateinit var lblViewName: TextView
+
+    enum class CalculatorTab {
+        Metallic, PE
+    }
+    var selectedTab = CalculatorTab.Metallic
 
     var attemptedCompanyId = ""
 
@@ -32,6 +63,11 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        assignOutlets()
+        addListeners()
+
+        formatForSelection()
+        initialiseInputBoxes()
         startUp()
     }
 
@@ -76,9 +112,9 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
         btnEnterCompanyId.visibility = View.VISIBLE
         btnEnterCompanyId.setOnClickListener { v -> getCompanyId() }
 
-        btnPipeCalculator = findViewById(R.id.btnPipeCalculator)
-        btnPipeCalculator.visibility = View.VISIBLE
-        btnPipeCalculator.setOnClickListener { v -> loadPipeCalculator() }
+        //btnPipeCalculator = findViewById(R.id.btnPipeCalculator)
+        //btnPipeCalculator.visibility = View.VISIBLE
+        //btnPipeCalculator.setOnClickListener { v -> loadPipeCalculator() }
 
         supportActionBar?.hide()
         shouldLoadProcessListAfterParsing = true
@@ -339,6 +375,210 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
         if (shouldLoadProcessListAfterParsing) {
             loadMainProcessList()
+        }
+    }
+
+    /* MARK: Calculator */
+
+    fun assignOutlets()
+    {
+        vwContainerView = findViewById(R.id.vwContainerView)
+        vwButtonMetallicView = findViewById(R.id.buttonMetallicView)
+        vwButtonPEView = findViewById(R.id.buttonPEView)
+        btnMetallic = findViewById(R.id.btnMetallic)
+        btnPE = findViewById(R.id.btnPE)
+        lblTitleLabel = findViewById(R.id.lblTitleLabel)
+        etDiameter = findViewById(R.id.etDiameter)
+        etFlowrate = findViewById(R.id.etFlowrate)
+        etLength = findViewById(R.id.etLength)
+        etSDR = findViewById(R.id.etSDR)
+        lblSDR = findViewById(R.id.lblSDR)
+        lblVolume = findViewById(R.id.lblVolume)
+        lblTimeToFill = findViewById(R.id.lblTimeToFill)
+        lblDiameter = findViewById(R.id.lblDiameter)
+        lblFlowrate = findViewById(R.id.lblFlowrate)
+        lblLength = findViewById(R.id.lblLength)
+        lblVolumeTitle = findViewById(R.id.lblVolumeTitle)
+        lblTimeToFillTitle = findViewById(R.id.lblTimeToFillTitle)
+        vwSeperator = findViewById(R.id.vwSeperator)
+        btnCalculate = findViewById(R.id.btnCalculate)
+        lblViewName = findViewById(R.id.tvViewName)
+    }
+
+    fun addListeners()
+    {
+        btnPE.setOnClickListener {
+            selectedTab = CalculatorTab.PE
+            formatForSelection()
+        }
+
+        btnMetallic.setOnClickListener {
+            selectedTab = CalculatorTab.Metallic
+            formatForSelection()
+        }
+
+        btnCalculate.setOnClickListener {
+            calculate()
+        }
+    }
+
+    fun formatForSelection()
+    {
+        initialiseInputBoxes()
+
+        tvViewName.visibility = View.GONE
+        etDiameter.setTextColor(Color.BLACK)
+        etFlowrate.setTextColor(Color.BLACK)
+        etSDR.setTextColor(Color.BLACK)
+        etLength.setTextColor(Color.BLACK)
+
+        if (selectedTab == CalculatorTab.Metallic)
+        {
+            vwButtonMetallicView.bringToFront()
+            vwContainerView.bringToFront()
+            vwButtonMetallicView.background = resources.getDrawable(R.drawable.calc_active_tab)
+            vwButtonPEView.background = resources.getDrawable(R.drawable.calc_inactive_tab)
+            btnPE.setTextColor(Color.BLACK)
+            btnMetallic.setTextColor(Color.WHITE)
+            lblTitleLabel.setText("Metallic Pipe")
+            lblSDR.visibility = View.GONE
+            etSDR.visibility = View.GONE
+            etLength.imeOptions = EditorInfo.IME_ACTION_DONE
+        }
+
+        if (selectedTab == CalculatorTab.PE)
+        {
+            vwButtonPEView.bringToFront()
+            vwContainerView.bringToFront()
+            vwButtonMetallicView.background = resources.getDrawable(R.drawable.calc_inactive_tab)
+            vwButtonPEView.background = resources.getDrawable(R.drawable.calc_active_tab)
+            btnPE.setTextColor(Color.WHITE)
+            btnMetallic.setTextColor(Color.BLACK)
+            lblTitleLabel.setText("Polyethelene Pipe")
+            lblSDR.visibility = View.VISIBLE
+            etSDR.visibility = View.VISIBLE
+
+            etLength.imeOptions = EditorInfo.IME_ACTION_NEXT
+            etSDR.imeOptions = EditorInfo.IME_ACTION_DONE
+        }
+
+        btnMetallic.bringToFront()
+        btnPE.bringToFront()
+        lblTitleLabel.bringToFront()
+        lblDiameter.bringToFront()
+        etDiameter.bringToFront()
+        lblFlowrate.bringToFront()
+        etFlowrate.bringToFront()
+        lblLength.bringToFront()
+        etLength.bringToFront()
+        lblSDR.bringToFront()
+        etSDR.bringToFront()
+        vwSeperator.bringToFront()
+        lblVolumeTitle.bringToFront()
+        lblVolume.bringToFront()
+        lblTimeToFillTitle.bringToFront()
+        lblTimeToFill.bringToFront()
+        btnCalculate.bringToFront()
+    }
+
+    fun initialiseInputBoxes()
+    {
+        etDiameter.setText("0")
+        etLength.setText("0")
+        etSDR.setText("0")
+        etFlowrate.setText("0")
+        lblVolume.setText("0 Ltrs")
+        lblTimeToFill.setText("0hr 0m")
+    }
+
+    fun validateInputs(): PipeCalculatorActivity.CalcInputs
+    {
+        var isValid = true
+        etDiameter.setTextColor(Color.BLACK)
+        etLength.setTextColor(Color.BLACK)
+        etSDR.setTextColor(Color.BLACK)
+        etFlowrate.setTextColor(Color.BLACK)
+
+        val failColor = Color.RED
+
+        val diameterInput = etDiameter.text.toString()
+        val sdrInput = etSDR.text.toString()
+        val lengthInput = etLength.text.toString()
+        val flowrateInput = etFlowrate.text.toString()
+
+        val diam = diameterInput.toDoubleOrNull()
+        val sdr = sdrInput.toDoubleOrNull()
+        val len = lengthInput.toDoubleOrNull()
+        val flowrate = flowrateInput.toDoubleOrNull()
+
+        if (diam == null) {
+            isValid = false
+            etDiameter.setTextColor(failColor)
+        }
+
+        if (sdr == null)
+        {
+            isValid = false
+            etSDR.setTextColor(failColor)
+        }
+
+        if (len == null)
+        {
+            isValid = false
+            etLength.setTextColor(failColor)
+        }
+
+        if (flowrate == null)
+        {
+            isValid = false
+            etFlowrate.setTextColor(failColor)
+        }
+
+        if (isValid)
+        {
+            val calcInputs = PipeCalculatorActivity.CalcInputs()
+            calcInputs.isValid = true
+            calcInputs.diameter = diam!!
+            calcInputs.flowrate = flowrate!!
+            calcInputs.length = len!!
+            calcInputs.sdr = sdr!!
+            return calcInputs
+        }
+        else
+        {
+            val calcInputs = PipeCalculatorActivity.CalcInputs()
+            calcInputs.isValid = false
+            return calcInputs
+        }
+    }
+
+    fun calculate()
+    {
+        val calcs = validateInputs()
+
+        if (!calcs.isValid)
+        {
+            lblVolume.setText("#Error")
+            lblTimeToFill.setText("#Error")
+            return
+        }
+
+        if (selectedTab == CalculatorTab.PE)
+        {
+            val volString = calcs.calcPEVolume().formatForDecPlaces(2)
+            lblVolume.text = volString
+
+            val fillingTime = calcs.peFillingTime()
+            lblTimeToFill.text = fillingTime.first.toString() + "hr " + fillingTime.second.toString() + "m"
+        }
+
+        if (selectedTab == CalculatorTab.Metallic)
+        {
+            val volSgtring = calcs.calcDIVolumne().formatForDecPlaces(2)
+            lblVolume.text = volSgtring
+
+            val fillingTime = calcs.diFillingTime()
+            lblTimeToFill.text = fillingTime.first.toString() + "hr " + fillingTime.second.toString() + "m"
         }
     }
 

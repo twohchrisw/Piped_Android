@@ -40,6 +40,20 @@ fun TestingActivity.didPressActionButton(menuId: Int)
 {
     when(menuId)
     {
+        R.id.mnuCalc -> {
+            if (testingSession.testingContext == TestingSessionData.TestingContext.pe)
+            {
+                appGlobals.calculatorTitle = "PE Test"
+            }
+            else
+            {
+                appGlobals.calculatorTitle = "Metallic Test"
+            }
+            
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
+        }
+
         R.id.mnuAddNote -> {
             /*
             runOnUiThread {

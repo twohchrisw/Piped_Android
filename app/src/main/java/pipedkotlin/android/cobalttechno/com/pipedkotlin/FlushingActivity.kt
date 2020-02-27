@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_swabbing.*
 
 class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdapterInterface {
@@ -36,6 +38,32 @@ class FlushingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         else {
             recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Flushing2, appGlobals.lastLat, appGlobals.lastLng, this)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.calc_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        if (item?.itemId == R.id.mnuCalc)
+        {
+            if (appGlobals.currentFlushType == 1)
+            {
+                appGlobals.calculatorTitle = "Flushing"
+            }
+            else
+            {
+                appGlobals.calculatorTitle = "Flushing 2"
+            }
+
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {

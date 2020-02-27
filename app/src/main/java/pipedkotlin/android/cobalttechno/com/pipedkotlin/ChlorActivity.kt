@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import java.util.*
 
 class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdapterInterface {
@@ -25,6 +27,24 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.Chlorination, appGlobals.lastLat, appGlobals.lastLng, this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.calc_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        if (item?.itemId == R.id.mnuCalc)
+        {
+            appGlobals.calculatorTitle = "Chlorination"
+            val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
+            startActivity(pipeCalculatorIntent)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {

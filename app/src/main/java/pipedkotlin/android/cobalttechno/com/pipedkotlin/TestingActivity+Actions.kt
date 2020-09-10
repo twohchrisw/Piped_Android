@@ -49,7 +49,7 @@ fun TestingActivity.didPressActionButton(menuId: Int)
             {
                 appGlobals.calculatorTitle = "Metallic Test"
             }
-            
+
             val pipeCalculatorIntent = Intent(this, PipeCalculatorActivity::class.java)
             startActivity(pipeCalculatorIntent)
         }

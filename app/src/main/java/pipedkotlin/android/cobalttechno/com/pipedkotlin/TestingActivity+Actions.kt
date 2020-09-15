@@ -286,11 +286,35 @@ fun TestingActivity.abortDITest()
 {
     runOnUiThread {
         btnAction.isEnabled = true
-        tibiisStopPressurising()
-        resetDITest()
     }
 
-    appGlobals.tibiisController.disconnectTibiis()
+    tibiisStopPressurising()
+    resetDITest()
+
+    Timer("stopTest", false).schedule(100) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+        appGlobals.tibiisController.disconnectTibiis()
+        //}
+    }
+
+    Timer("stopTest1", false).schedule(400) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+        appGlobals.tibiisController.disconnectTibiis()
+        //}
+    }
+
+    Timer("stopTest2", false).schedule(700) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+        appGlobals.tibiisController.disconnectTibiis()
+        //}
+    }
+
+    Timer("stopTes3", false).schedule(1000) {
+        //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
+        appGlobals.tibiisController.disconnectTibiis()
+        //}
+    }
+
     appGlobals.activeProcess.needs_server_sync = 1
     appGlobals.activeProcess.save(this)
 }

@@ -48,6 +48,12 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
         updatePressureGauge(logReading.pressure, false, logReading.battery)
         Log.d("ditest", "Log recevied but not logging")
 
+        if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+        {
+            //Log.d("cobsep1", "Setting Log Reading before logging for DI Test.  Pressure ${logReading.pressure.toDouble()}")
+            tibiisSession.lastReading = logReading
+        }
+
         //TODO: DI Auto Pressurisation needed here
         if (testingSession.isPressurisingDI)
         {

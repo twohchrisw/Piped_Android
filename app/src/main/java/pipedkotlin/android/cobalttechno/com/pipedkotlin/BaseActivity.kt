@@ -2,12 +2,14 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -22,8 +24,8 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.EditText
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import kotlinx.android.synthetic.main.activity_testing_acitivty.*
 import org.jetbrains.anko.act
 import org.jetbrains.anko.db.NULL
 import java.io.File
@@ -37,20 +39,30 @@ import java.util.logging.LogRecord
 open class BaseActivity: AppCompatActivity() {
 
     lateinit var fusedLocationClient: FusedLocationProviderClient
+
+
     val NULL_COORDINATE: Double = -10000.0
     val LOCATION_PERMISSION_REQUEST_CODE = 1
     val CAMERA_PERMISSION_REQUEST_CODE  = 2
-    //var lastLat: Double = NULL_COORDINATE
-    //var lastLng: Double = NULL_COORDINATE
+
 
     val CAMERA_REQUEST_CAMERA = 1
     val CAMERA_REQUEST_GALLERY = 2
     val NOTES_REQUEST = 3
     var TEMP_IMAGE_LOCATION = "/sdcard/temppic.jpg"
 
+    var isUpdatingLocation = false
+    var mLocationManager: LocationManager? = null
+    var mLocationRequest: LocationRequest? = null
+    private val LOCATION_INTERVAL = (10 * 1000).toLong()
+    private val LOCATION_INTERVAL_FASTEST = (2 * 1000).toLong()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        mLocationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        requestLocationPermissions()
     }
 
     // MARK: Location
@@ -135,9 +147,28 @@ open class BaseActivity: AppCompatActivity() {
         return null
     }
 
+    fun startUpdatingLocation()
+    {
+        Log.d("cobsep1", "Start Updating Location")
+
+        if (!isUpdatingLocation)
+        {
+            mLocationRequest = LocationRequest.create().apply {
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                interval = LOCATION_INTERVAL
+                fastestInterval = LOCATION_INTERVAL_FASTEST
+            }
+        }
+        else
+        {
+            Log.d("cobsep1", "Already updating location")
+        }
+
+    }
+
     open fun locationPermissionsGranted()
     {
-        // STUB:
+        startUpdatingLocation()
     }
 
     open fun cameraPermissionsGranted()

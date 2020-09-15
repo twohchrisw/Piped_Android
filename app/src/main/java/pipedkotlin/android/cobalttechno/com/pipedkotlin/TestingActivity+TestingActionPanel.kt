@@ -2,8 +2,6 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.util.Log
 import android.view.View
-import kotlinx.android.synthetic.main.activity_testing_acitivty.*
-import kotlinx.android.synthetic.main.view_holder_process_list.*
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.concurrent.schedule

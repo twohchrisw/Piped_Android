@@ -74,10 +74,19 @@ fun TestingActivity.beginStartDITest()
     {
         if (tibiisSession.lastReading != null)
         {
-            val press = tibiisSession.lastReading!!.pressure / 1000
+            val press = tibiisSession.lastReading!!.pressure.toDouble() / 1000.0
+            Log.d("cobsep1", "Setting STP and Start Pressure as ${press}")
             p.pt_di_stp = press.toDouble()
             p.pt_di_start_pressure = press.toDouble()
         }
+        else
+        {
+            Log.d("cobsep1", "Last reading is null")
+        }
+    }
+    else
+    {
+        Log.d("cobsep1", "Is DI Conditioning")
     }
 
     p.di_lat = appGlobals.lastLat
@@ -236,6 +245,7 @@ fun TestingActivity.loadCheckDI()
         testingSession.isLoggingWithTibiis = true
         testingSession.isPressurisingWithTibiis = false
         testingSession.isAmbientLoggingWithTibiis = false
+
     }
     else
     {
@@ -249,15 +259,48 @@ fun TestingActivity.loadCheckDI()
     {
         testingSession.hasCalculatedPETest = true
         tibiisSession.hasCalculated = true
+
+        Log.d("cobsep1", "Test has been calculated")
+        formatActionPanelForCalculate()
     }
     else
     {
         testingSession.hasCalculatedPETest = false
         tibiisSession.hasCalculated = false
+
+        if (DateHelper.dateIsValid(p.pt_di_r15_time) && DateHelper.dateIsValid(p.pt_di_r60_time))
+        {
+            //val r60Time = DateHelper.dbStringToDate(p.pt_di_r60_time, DateHelper.date1970()).time
+            //val nowTime = Date()
+            if (DateHelper.dbStringToDate(p.pt_di_r60_time, DateHelper.date1970()) > Date()) {
+                Log.d("cobsep1", "Resuming DI Timer")
+                resumeDITimer()
+            }
+            else
+            {
+                Log.d("cobsep1", "Test is complete but not calculated")
+                formatActionPanelForCalculate()
+            }
+        }
+
     }
+
+
 
 }
 
+fun TestingActivity.resumeDITimer()
+{
+    val p = appGlobals.activeProcess
+
+    timer.cancel()
+    timer = Timer()
+
+    val r15 = DateHelper.dbStringToDate(p.pt_di_r15_time, Date())
+    val r60 = DateHelper.dbStringToDate(p.pt_di_r60_time, Date())
+
+    timer.scheduleAtFixedRate(TestingActivity.DITimerTask(this, r15, r60), 0, 1000)
+}
 
 
 fun TestingActivity.saveReading15(pr: LogReading)
@@ -292,6 +335,12 @@ fun TestingActivity.saveReading60(pr: LogReading)
 
 fun TestingActivity.resetDITest()
 {
+
+    timer.cancel()
+    timer = Timer()
+    liveLogTimer.cancel()
+    liveLogTimer = Timer()
+
     testingSession.timerStage = 0
     isPressurisingDI = false
     archiveDITest()

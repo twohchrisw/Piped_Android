@@ -199,6 +199,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
                 ListSelectionActivity.ListContext.installTechs.value -> p.pt_installation_tech = listItem
                 ListSelectionActivity.ListContext.clients.value -> p.client = listItem
                 ListSelectionActivity.ListContext.pipeType.value -> p.pipe_description = listItem
+                ListSelectionActivity.ListContext.schemes.value -> p.scheme_name = listItem
             }
         }
 

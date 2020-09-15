@@ -17,7 +17,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 
-import kotlinx.android.synthetic.main.activity_testing_acitivty.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.find
 import org.jetbrains.anko.startActivityForResult
@@ -291,10 +290,14 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         {
             loadCheckDI()
 
+            /*
             if (DateHelper.dateIsValid(appGlobals.activeProcess.pt_di_r60_time))
             {
+                Log.d("cobsep1", "PT DI 60 Time is valid")
                 formatActionPanelForCalculate()
             }
+
+             */
         }
 
         if (testingSession.testingContext == TestingSessionData.TestingContext.di && appGlobals.activeProcess.di_is_zero_loss == -1)

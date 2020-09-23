@@ -109,31 +109,30 @@ fun TestingActivity.tibiisStartPressurising()
             tc.tbxDataController.sendCommandTimeSync()
         }
 
-        /*
-        Timer("startTest1", false).schedule(100) {
-            runOnUiThread {
-                tc.tbxDataController.sendCommandTimeSync()
-
-            }
+        Timer("startTest8", false).schedule(150) {
+            tc.tbxDataController.sendCommandTimeSync()
         }
-         */
 
-        Timer("startTest2", false).schedule(300) {
+
+
+
+        Timer("startTest2", false).schedule(750) {
             runOnUiThread {
+                Log.d("LogReading", "CommandStartTest 1")
                 tc.tbxDataController.sendCommandStartTest()
             }
         }
 
-        /*
-        Timer("startTest3", false).schedule(300) {
+/*
+        Timer("startTest3", false).schedule(450) {
             runOnUiThread {
+                Log.d("LogReading", "CommandStartTest 2")
                 tc.tbxDataController.sendCommandStartTest()
             }
         }
-        */
+*/
 
-
-        Timer("outputControlOn4", false).schedule(600) {
+        Timer("outputControlOn4", false).schedule(850) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandOutputControl(true)
 
@@ -150,7 +149,7 @@ fun TestingActivity.tibiisStartPressurising()
 
          */
 
-        Timer("screenOn", false).schedule(900) {
+        Timer("screenOn", false).schedule(950) {
             runOnUiThread {
                 tc.tbxDataController.sendCommandSetLCDOnTime(20)
 

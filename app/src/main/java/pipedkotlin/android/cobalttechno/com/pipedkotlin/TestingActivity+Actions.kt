@@ -254,27 +254,35 @@ fun TestingActivity.abortPETest()
     tibiisStopPressurising()
     resetPETest()
 
+    /*
     Timer("stopTest", false).schedule(100) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
         appGlobals.tibiisController.disconnectTibiis()
         //}
     }
+    */
 
-    Timer("stopTest1", false).schedule(400) {
+
+    Timer("stopTest1", false).schedule(500) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
-        //}
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
     }
 
     Timer("stopTest2", false).schedule(700) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
         //}
     }
 
     Timer("stopTes3", false).schedule(1000) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
         //}
     }
 
@@ -291,27 +299,36 @@ fun TestingActivity.abortDITest()
     tibiisStopPressurising()
     resetDITest()
 
+    /*
     Timer("stopTest", false).schedule(100) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
         appGlobals.tibiisController.disconnectTibiis()
         //}
     }
+    */
 
-    Timer("stopTest1", false).schedule(400) {
+
+    Timer("stopTest1", false).schedule(500) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
         //}
     }
 
     Timer("stopTest2", false).schedule(700) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
         //}
     }
 
     Timer("stopTes3", false).schedule(1000) {
         //if (AppGlobals.instance.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected) {
-        appGlobals.tibiisController.disconnectTibiis()
+        runOnUiThread {
+            appGlobals.tibiisController.disconnectTibiis()
+        }
         //}
     }
 

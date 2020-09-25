@@ -440,6 +440,7 @@ class TibiisSessionData {
     {
         val db = appGlobals.tibiisController.appContext!!.database
         val where = "${EXLDTibiisReading.COLUMN_PROCESS_ID} = $processId AND testType='${testingContext.value}' AND ${EXLDTibiisReading.COLUMN_LOG_NUMBER} < $currentLogNumber AND readingType = 'Logging'"
+        Log.d("LogReading", "Where: ${where}")
         var maxlogNumber = 0
         db.use {
             select(EXLDTibiisReading.TABLE_NAME, "MAX(${EXLDTibiisReading.COLUMN_LOG_NUMBER}) as max").whereArgs(where).exec {

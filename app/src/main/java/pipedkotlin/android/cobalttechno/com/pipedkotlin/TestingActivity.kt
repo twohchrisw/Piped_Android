@@ -1120,37 +1120,40 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         /* PE */
 
         // Is this a reconnection whilst logging
-        if (tibiisSession.getLogNumberForReading1() > 0)
+        if (tc.testingContext == TestingSessionData.TestingContext.pe)
         {
-            Log.d("petest", "PE Reconnect shouldCheckForMissingLogs = true")
-
-            tc.shouldCheckForMissingLogs = true
-            tc.previousCommand = tc.currentCommand
-
-            if (tc.currentCommand == TibiisController.CurrentCommand.none)
+            if (tibiisSession.getLogNumberForReading1() > 0)
             {
-                tc.currentCommand = TibiisController.CurrentCommand.logger
-            }
-        }
-        else
-        {
-            Log.d("petest", "PE Reconnect did not set shouldCheckForMissingLogs")
-            if (!testingSession.isPressurisingWithTibiis)
-            {
-                testingSession.loggingMode = TestingSessionData.LoggingMode.waiting
-                testingSession.isPressurisingWithTibiis = false
-                testingSession.isLoggingWithTibiis = false
-                testingSession.isAmbientLoggingWithTibiis = false
-                tc.tibiisHasBeenConnected = true
-                tc.startPressureSession()
+                Log.d("petest", "PE Reconnect shouldCheckForMissingLogs = true")
+
+                tc.shouldCheckForMissingLogs = true
+                tc.previousCommand = tc.currentCommand
+
+                if (tc.currentCommand == TibiisController.CurrentCommand.none)
+                {
+                    tc.currentCommand = TibiisController.CurrentCommand.logger
+                }
             }
             else
             {
-                Log.d("Cobalt", "Reconnection whilst pressurising")
+                Log.d("petest", "PE Reconnect did not set shouldCheckForMissingLogs")
+                if (!testingSession.isPressurisingWithTibiis)
+                {
+                    testingSession.loggingMode = TestingSessionData.LoggingMode.waiting
+                    testingSession.isPressurisingWithTibiis = false
+                    testingSession.isLoggingWithTibiis = false
+                    testingSession.isAmbientLoggingWithTibiis = false
+                    tc.tibiisHasBeenConnected = true
+                    tc.startPressureSession()
+                }
+                else
+                {
+                    Log.d("Cobalt", "Reconnection whilst pressurising")
+                }
             }
-        }
 
-        formatTibiisForConnected()
+            formatTibiisForConnected()
+        }
     }
 
     override fun tibiisDisconnected() {
@@ -1212,10 +1215,10 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
                     if (appGlobals.tibiisController.shouldCheckForMissingLogs)
                     {
-                        Log.d("zzz", "shouldCheckForMissingLogs is true")
+                        Log.d("LogReading", "shouldCheckForMissingLogs is true")
                         appGlobals.tibiisController.shouldCheckForMissingLogs = false
                         this.isDownloadingPreviousData= true
-                        Log.d("zzz", "Downloading previous logs for lognumber: ${logReading.logNumber}")
+                        Log.d("LogReading", "Downloading previous logs for lognumber: ${logReading.logNumber}")
                         downloadPreviousReadings(logReading.logNumber)
                     }
                 }

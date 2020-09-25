@@ -44,6 +44,7 @@ fun TestingActivity.formatTibiisForConnected()
 
     // Start the live log request loop after a 100ms delay
     Timer("LiveLogRequestLoop", false).schedule(100) {
+        Log.d("LogReading", "Starting Live Log Request Loop")
         startTibiisLiveLogRequestLoop()
 
     }
@@ -88,6 +89,9 @@ fun TestingActivity.formatTibiisForConnecting()
 fun TestingActivity.startTibiisLiveLogRequestLoop()
 {
     Log.d("Cobalt", "Starting Live Log Request Loop")
+
+    liveLogTimer.cancel()
+    liveLogTimer = Timer()
     liveLogTimer.scheduleAtFixedRate(TestingActivity.LiveLogTimerTask(this), 0, 1000)
 }
 
@@ -112,9 +116,6 @@ fun TestingActivity.tibiisStartPressurising()
         Timer("startTest8", false).schedule(150) {
             tc.tbxDataController.sendCommandTimeSync()
         }
-
-
-
 
         Timer("startTest2", false).schedule(750) {
             runOnUiThread {
@@ -199,15 +200,21 @@ fun TestingActivity.tibiisStopPressurising()
         }
 
         Timer("startTest1", false).schedule(100) {
-            appGlobals.tibiisController.commandStopLogger()
+            runOnUiThread {
+                appGlobals.tibiisController.commandStopLogger()
+            }
         }
 
-        Timer("startTest1", false).schedule(200) {
-            appGlobals.tibiisController.commandStopLogger()
+        Timer("startTest1", false).schedule(220) {
+            runOnUiThread {
+                appGlobals.tibiisController.commandStopLogger()
+            }
         }
 
-        Timer("startTest1", false).schedule(300) {
-            appGlobals.tibiisController.commandStopLogger()
+        Timer("startTest1", false).schedule(330) {
+            runOnUiThread {
+                appGlobals.tibiisController.commandStopLogger()
+            }
         }
 
     }

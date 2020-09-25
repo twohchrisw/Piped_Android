@@ -115,7 +115,7 @@ fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = fa
 
     if (!isPrevious)
     {
-        Log.d("Cobalt", "Save Live Log: ${logReading.description()} Context: ${testingSession.testingContext.value}")
+        Log.d("LogReading", "Save Live Log: ${logReading.description()} Context: ${testingSession.testingContext.value}")
         tibiisSession.lastReading = logReading
     }
 
@@ -297,7 +297,7 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
     val lastLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(appGlobals.activeProcess.columnId, currentLogNumber - 1)
     var startLogNumber = lastLogButThis + 1
 
-    Log.d("zzz", "downloadPreviousReadings(currentLog: $currentLogNumber startLog: $startLogNumber)")
+    Log.d("LogReading", "downloadPreviousReadings(currentLog: $currentLogNumber startLog: $startLogNumber) lastLogButThis: $lastLogButThis")
     if (startLogNumber < 1)
     {
         startLogNumber = 1
@@ -305,24 +305,35 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
 
     // We don't need to download any logs after the the R3 log
     var lastLogToDownload = currentLogNumber + 1
-    if (lastLogToDownload > tibiisSession.getLogNumberForReading3())
-    {
-        lastLogToDownload = tibiisSession.getLogNumberForReading3() + 1
-        Log.d("zzz", "Resetting max log to download from ${currentLogNumber} to R3 Log ${lastLogToDownload}")
+    if (testingSession.testingContext == TestingSessionData.TestingContext.pe) {
+        if (lastLogToDownload > tibiisSession.getLogNumberForReading3()) {
+            lastLogToDownload = tibiisSession.getLogNumberForReading3() + 1
+            Log.d("zzz", "Resetting max log to download from ${currentLogNumber} to R3 Log ${lastLogToDownload}")
+        }
+        Log.d("zzz", "Log R3 is ${tibiisSession.getLogNumberForReading3()}")
     }
-    Log.d("zzz", "Log R3 is ${tibiisSession.getLogNumberForReading3()}")
+
+    if (testingSession.testingContext == TestingSessionData.TestingContext.di)
+    {
+        val r60Log = tibiisSession.getLogNumberForR60()
+        Log.d("LogReading", "r60Log: ${r60Log}")
+        if (lastLogToDownload > tibiisSession.getLogNumberForR60())
+        {
+            lastLogToDownload = tibiisSession.getLogNumberForR60() + 1
+        }
+    }
 
     if (lastLogToDownload > startLogNumber)
     {
         val numberOfLogs = lastLogToDownload - startLogNumber
         previousDownloadStartLog = startLogNumber
 
-        Log.d("zzz", "[Previous Download Start Log: $startLogNumber Max Log To Download: $lastLogToDownload Count: $numberOfLogs")
+        Log.d("LogReading", "[Previous Download Start Log: $startLogNumber Max Log To Download: $lastLogToDownload Count: $numberOfLogs")
         if (numberOfLogs > MAX_PREVIOUS_LOGS)
         {
             lastPreviousLogRequired = lastLogToDownload
             runOnUiThread {
-                Log.d("zzz", "About to send first command for logs [multiple commands necessary]")
+                Log.d("LogReading", "About to send first command for logs [multiple commands necessary]")
                 prev_download_cycle_start = Date().time
                 PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
                 PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
@@ -334,7 +345,7 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
             if (numberOfLogs > 0)
             {
                 runOnUiThread {
-                    Log.d("zzz", "About to send first command for logs single request only")
+                    Log.d("LogReading", "About to send first command for logs single request only")
                     prev_download_cycle_start = Date().time
                     PREVIOUS_LOG_REQUEST_START_LOG = startLogNumber // We use this with a timer to test if it was actually downloaded
                     PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogs

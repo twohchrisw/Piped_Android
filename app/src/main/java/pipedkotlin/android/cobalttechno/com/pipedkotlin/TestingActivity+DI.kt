@@ -31,8 +31,9 @@ fun TestingActivity.startDITest(pumpEnabled: Boolean = true)
         }
 
         beginStartDITest()
-        tibiisStartLogging()
         tibiisStartPressurising()
+        tibiisStartLogging()
+
     }
     else
     {
@@ -49,8 +50,8 @@ fun TestingActivity.beginStartDITest()
 
     if (appGlobals.DI_TEST_MODE)
     {
-        val r15Time = now.time + (10 * 1000)
-        val r60Time = now.time + (30 * 1000)
+        val r15Time = now.time + (20 * 1000)
+        val r60Time = now.time + (60 * 1000)
         p.pt_di_r15_time = DateHelper.millisToDBString(r15Time)
         p.pt_di_r60_time = DateHelper.millisToDBString(r60Time)
     }
@@ -335,7 +336,7 @@ fun TestingActivity.saveReading60(pr: LogReading)
 
 fun TestingActivity.resetDITest()
 {
-
+    Log.d("LogReading", "Reset DI Test")
     timer.cancel()
     timer = Timer()
     liveLogTimer.cancel()
@@ -348,6 +349,7 @@ fun TestingActivity.resetDITest()
     reloadTable()
     formatForViewWillAppear()
     appGlobals.tibiisController.resetController()
+    appGlobals.tibiisController.tibiisHasBeenConnected = false
     testingSession.resetTestingSession()
     tibiisSession = TibiisSessionData()
     tibiisSession.testingContext = TestingSessionData.TestingContext.di

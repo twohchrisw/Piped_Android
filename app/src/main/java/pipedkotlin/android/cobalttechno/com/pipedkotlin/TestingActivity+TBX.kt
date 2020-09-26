@@ -339,6 +339,25 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
                 PREVIOUS_LOG_REQUEST_NUMBER_LOGS = MAX_PREVIOUS_LOGS
                 appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
             }
+
+            // Run a timer here to ensure the log has been downloaded, otherwise fire the command again
+            Timer("prevLogCheck1", false).schedule(930) {
+                runOnUiThread {
+                    if (tibiisSession.getReadingForLogNumber(startLogNumber + 1) == null) {
+                        Log.d("LogReading", "XXX We do not have first log number - refiring previous logs command 1")
+                        appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+                    }
+                }
+            }
+
+            Timer("prevLogCheck2", false).schedule(1920) {
+                runOnUiThread {
+                    if (tibiisSession.getReadingForLogNumber(startLogNumber + 1) == null) {
+                        Log.d("LogReading", "XXX We do not have first log number - refiring previous logs command 2")
+                        appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+                    }
+                }
+            }
         }
         else
         {
@@ -351,6 +370,26 @@ fun TestingActivity.downloadPreviousReadings(currentLogNumber: Int)
                     PREVIOUS_LOG_REQUEST_NUMBER_LOGS = numberOfLogs
                     appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, numberOfLogs)
                 }
+
+                // Run timer again here
+                Timer("prevLogCheck3", false).schedule(930) {
+                    runOnUiThread {
+                        if (tibiisSession.getReadingForLogNumber(startLogNumber + 1) == null) {
+                            Log.d("LogReading", "XXX We do not have first log number - refiring previous logs command 1 (single)")
+                            appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+                        }
+                    }
+                }
+
+                Timer("prevLogCheck4", false).schedule(1920) {
+                    runOnUiThread {
+                        if (tibiisSession.getReadingForLogNumber(startLogNumber + 1) == null) {
+                            Log.d("LogReading", "XXX We do not have first log number - refiring previous logs command 2 (single)")
+                            appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startLogNumber, MAX_PREVIOUS_LOGS)
+                        }
+                    }
+                }
+
             }
             else
             {

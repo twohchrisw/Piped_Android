@@ -117,7 +117,28 @@ fun TestingActivity.tibiisStartPressurising()
             tc.tbxDataController.sendCommandTimeSync()
         }
 
-        Timer("startTest2", false).schedule(750) {
+        Timer("startTest2", false).schedule(350) {
+            runOnUiThread {
+                Log.d("LogReading", "CommandStartTest 1")
+                tc.tbxDataController.sendCommandStartTest()
+            }
+        }
+
+        Timer("startTest2", false).schedule(450) {
+            runOnUiThread {
+                Log.d("LogReading", "CommandStartTest 1")
+                tc.tbxDataController.sendCommandStartTest()
+            }
+        }
+
+        Timer("startTest2", false).schedule(550) {
+            runOnUiThread {
+                Log.d("LogReading", "CommandStartTest 1")
+                tc.tbxDataController.sendCommandStartTest()
+            }
+        }
+
+        Timer("startTest2", false).schedule(650) {
             runOnUiThread {
                 Log.d("LogReading", "CommandStartTest 1")
                 tc.tbxDataController.sendCommandStartTest()

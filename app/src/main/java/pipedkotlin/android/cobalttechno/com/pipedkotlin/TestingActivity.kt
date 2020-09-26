@@ -783,13 +783,16 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                             val numberOfLogs = a.PREVIOUS_LOG_REQUEST_NUMBER_LOGS
                             //a.PREVIOUS_LOG_REQUEST_START_LOG = -1
                             //a.PREVIOUS_LOG_REQUEST_NUMBER_LOGS = -1
-                            Log.d("zzz", "XX Refiring unresponded download command start log: ${startAt} number of logs: ${numberOfLogs} after waiting $timeWaitedForResponse")
+                            Log.d("LogReading", "Refiring unresponded download command start log: ${startAt} number of logs: ${numberOfLogs} after waiting $timeWaitedForResponse")
                             a.prev_download_cycle_start = Date().time
-                            appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startAt, numberOfLogs)
+
+                            a.runOnUiThread {
+                                appGlobals.tibiisController.tbxDataController.sendCommandFetchOldLogs(startAt, numberOfLogs)
+                            }
                         }
                         else
                         {
-                            //Log.d("zzz", "XX Refire Request NOT Refired only waited $timeWaitedForResponse")
+                            Log.d("LogReading", "Refire Request NOT Refired only waited $timeWaitedForResponse")
                         }
                     }
 

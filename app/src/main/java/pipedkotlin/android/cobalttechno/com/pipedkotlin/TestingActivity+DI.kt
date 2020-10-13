@@ -1,6 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.util.Log
 import java.util.*
 import kotlin.concurrent.schedule
@@ -33,6 +34,38 @@ fun TestingActivity.startDITest(pumpEnabled: Boolean = true)
         beginStartDITest()
         tibiisStartPressurising()
         tibiisStartLogging()
+
+        // Add a fail safe timer to check we have logs 1 and 2 after 5 seconds, abort if not
+        if (appGlobals.tibiisController.connectStatus == TibiisController.ConnectionStatus.connected)
+        {
+            val context = this
+
+            Timer("LogFailsafe", false).schedule(5000) {
+                val log1 = tibiisSession.getReadingForLogNumber(1)
+                val log2 = tibiisSession.getReadingForLogNumber(2)
+
+                if (log1 == null || log2 == null)
+                {
+                    runOnUiThread {
+                        val abortDialog = AlertDialog.Builder(context)
+                        abortDialog.setTitle("Tibiis Connection is not properly established.  Test will abort and then please try again.")
+                        val choiceDialogItems = arrayOf("OK")
+                        abortDialog.setItems(choiceDialogItems) { dialog, which ->
+                            when (which) {
+                                0 -> {
+                                    runOnUiThread {
+                                        abortDITest()
+                                    }
+                                }
+                            }
+                        }
+
+                        val dialog = abortDialog.create()
+                        dialog.show()
+                    }
+                }
+            }
+        }
 
     }
     else

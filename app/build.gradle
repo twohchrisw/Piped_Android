@@ -10,8 +10,8 @@ android {
         applicationId "pipedkotlin.android.cobalttechno.com.pipedkotlin"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 23
-        versionName "3.4.3"
+        versionCode 25
+        versionName "3.4.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -108,6 +108,7 @@ fun TestingActivity.tibiisStartPressurising()
         tibiisSession.resetMissedReadingFlags()
         testingSession.loggingMode = TestingSessionData.LoggingMode.pressurising
 
+        tc.ignoreLoopCommands = true
 
         runOnUiThread {
             tc.tbxDataController.sendCommandTimeSync()
@@ -141,7 +142,7 @@ fun TestingActivity.tibiisStartPressurising()
         Timer("startTest2", false).schedule(650) {
             runOnUiThread {
                 Log.d("LogReading", "CommandStartTest 1")
-                tc.tbxDataController.sendCommandStartTest()
+                tc.ignoreLoopCommands = false
             }
         }
 
@@ -216,6 +217,9 @@ fun TestingActivity.tibiisStartPressurising()
 fun TestingActivity.tibiisStopPressurising()
 {
     try {
+
+        appGlobals.tibiisController.ignoreLoopCommands = true
+
         runOnUiThread {
             appGlobals.tibiisController.commandStopLogger()
         }
@@ -235,6 +239,12 @@ fun TestingActivity.tibiisStopPressurising()
         Timer("startTest1", false).schedule(330) {
             runOnUiThread {
                 appGlobals.tibiisController.commandStopLogger()
+            }
+        }
+
+        Timer("startTest1", false).schedule(500) {
+            runOnUiThread {
+                appGlobals.tibiisController.ignoreLoopCommands = false
             }
         }
 

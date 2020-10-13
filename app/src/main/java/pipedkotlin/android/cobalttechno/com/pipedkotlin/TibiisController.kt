@@ -52,6 +52,7 @@ class TibiisController() {
     var autoPumpEnableHasBeenSet = false
     var tibiisHasBeenConnected = false
     var deviceSerialNumber = ""
+    var ignoreLoopCommands = false
 
 
     enum class CurrentCommand {

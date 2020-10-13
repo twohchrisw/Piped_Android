@@ -12,35 +12,15 @@ import kotlin.concurrent.schedule
 fun TestingActivity.saveLiveLog(logReading: LogReading, isPrevious: Boolean = false)
 {
 
-    /* TEST STUFF */
-/*
-
-    if (logReading.logNumber > 10)
+    /* Test - Ignore Reading 1 and 2 */
+    /*
+    if (logReading.logNumber == 1 || logReading.logNumber == 2)
     {
-        val log2 = tibiisSession.getReadingForLogNumber(2)
-        if (log2 != null)
-        {
-            Log.d("Cobalt", "DB TEST: Reading 2: ${log2!!.description()}")
-        }
+        Log.d("LogReading", "TEST IGNORE LOGNUMBER ${logReading.logNumber}")
+        return
     }
-
-    val pressurisingCount = tibiisSession.countReadingOfType(TibiisSessionData.TibiisReadingType.pressurising, AppGlobals.instance.activeProcess.columnId)
-    Log.d("Cobalt", "DB TeST Count of Pressurising: $pressurisingCount")
-
-    val maxLog = tibiisSession.maxLogNumberReceived(AppGlobals.instance.activeProcess.columnId)
-    Log.d("Cobalt", "DB TEST: Max Log = $maxLog")
-
-    val maxLogButThis = tibiisSession.maxLogLessThanSuppliedLogNumner(AppGlobals.instance.activeProcess.columnId, logReading.logNumber)
-    Log.d("Cobalt", "DB TEST: Max Log but this = $maxLogButThis")
-*/
-
-    //val maxLog = tibiisSession.maxLogNumberReceived(AppGlobals.instance.activeProcess.columnId)
-    //Log.d("Cobalt", "DB TEST: Max Log = $maxLog")
-
-    //val maxPressure = tibiisSession.getMaxPressurisingValue(AppGlobals.instance.activeProcess.columnId)
-    //Log.d("Cobalt", "Max Pressurising valye = $maxPressure  THIS SHOULD BE > 0")
-
-    /* END OF TEST STUFF */
+    */
+    /* End of Test */
 
     if (logReading.logNumber < 1)
     {

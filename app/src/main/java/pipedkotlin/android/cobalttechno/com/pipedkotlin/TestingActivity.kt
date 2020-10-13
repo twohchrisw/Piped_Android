@@ -744,6 +744,13 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
                 return
             }
 
+            if (appGlobals.tibiisController.ignoreLoopCommands == true)
+            {
+                // This only applies when connecting or disconnecting
+                Log.d("oct13", "ignoreLoopCommands = true")
+                return
+            }
+
             try {
                 val now = Date()
 

@@ -40,7 +40,9 @@ class ConsumablesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            p.consum_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            p.consum_notes =
+                data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+                    .toString()
             p.save(this)
         }
 

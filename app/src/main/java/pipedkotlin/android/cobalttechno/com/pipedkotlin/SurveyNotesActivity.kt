@@ -35,7 +35,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item?.itemId)
         {
@@ -98,7 +98,7 @@ class SurveyNotesActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecy
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            currentSurveyNote!!.sn_note = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            currentSurveyNote!!.sn_note = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
             currentSurveyNote!!.sn_lat = appGlobals.lastLat
             currentSurveyNote!!.sn_long = appGlobals.lastLng
             currentSurveyNote!!.save(this)

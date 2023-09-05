@@ -37,7 +37,7 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuCalc)
         {
@@ -194,23 +194,24 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
 
             when (listId)
             {
-                ListSelectionActivity.ListContext.technicians.value -> p.technician_name = listItem
-                ListSelectionActivity.ListContext.vehicles.value -> p.vehicle_name = listItem
-                ListSelectionActivity.ListContext.installTechs.value -> p.pt_installation_tech = listItem
-                ListSelectionActivity.ListContext.clients.value -> p.client = listItem
-                ListSelectionActivity.ListContext.pipeType.value -> p.pipe_description = listItem
-                ListSelectionActivity.ListContext.schemes.value -> p.scheme_name = listItem
+                ListSelectionActivity.ListContext.technicians.value -> p.technician_name =
+                    listItem.toString()
+                ListSelectionActivity.ListContext.vehicles.value -> p.vehicle_name = listItem.toString()
+                ListSelectionActivity.ListContext.installTechs.value -> p.pt_installation_tech = listItem.toString()
+                ListSelectionActivity.ListContext.clients.value -> p.client = listItem.toString()
+                ListSelectionActivity.ListContext.pipeType.value -> p.pipe_description = listItem.toString()
+                ListSelectionActivity.ListContext.schemes.value -> p.scheme_name = listItem.toString()
             }
         }
 
         if (requestCode == ActivityRequestCodes.addressSelection.value && data != null)
         {
-            appGlobals.activeProcess.address = data!!.getStringExtra("address")
+            appGlobals.activeProcess.address = data!!.getStringExtra("address").toString()
         }
 
         if (requestCode == ActivityRequestCodes.notes.value && data != null)
         {
-            appGlobals.activeProcess.general_other = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.general_other = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
         }
 
         p.save(this)

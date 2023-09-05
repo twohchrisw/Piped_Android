@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pipedkotlin.android.cobalttechno.com.pipedkotlin">
 
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -20,64 +22,76 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".PipeCalculatorActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".PipeCalculatorActivity" android:screenOrientation="portrait" android:exported="true"></activity>
         <activity
             android:name=".SamplingActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ConsumablesActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".EquipmentActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FlowrateActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity
             android:name=".SurveyNotesActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DecActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ChlorActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FlushingActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FillingActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".SwabbingActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".PEGraphActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".TestingActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".LoginActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -88,31 +102,37 @@
         <activity
             android:name=".ProcessListActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ProcessMenuActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessListActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".DetailsActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ListSelectionActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".DetailsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".GetAddressActivity"
             android:configChanges="orientation"
+            android:exported="true"
             android:parentActivityName=".DetailsActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".NotesActivity" />
-        <activity android:name=".DateTimeActivity" />
+        <activity android:name=".NotesActivity" android:exported="true" />
+        <activity android:name=".DateTimeActivity" android:exported="true" />
         <activity
             android:name=".TestingActivity"
+            android:exported="true"
             android:configChanges="orientation"
             android:parentActivityName=".ProcessMenuActivity"
             android:screenOrientation="portrait" />

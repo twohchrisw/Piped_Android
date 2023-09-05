@@ -35,7 +35,7 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuCalc)
         {
@@ -115,7 +115,9 @@ class ChlorActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAd
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            p.pt_chlor_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            p.pt_chlor_notes =
+                data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+                    .toString()
             runOnUiThread {
                 p.save(this)
             }

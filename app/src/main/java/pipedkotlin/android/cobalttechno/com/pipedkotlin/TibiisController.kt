@@ -1,12 +1,15 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
+import android.Manifest
 import android.bluetooth.*
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.content.pm.PackageManager
 import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.ParcelUuid
+import android.support.v4.app.ActivityCompat
 import android.util.Log
 import org.jetbrains.anko.runOnUiThread
 import java.util.*
@@ -286,6 +289,22 @@ class TibiisController() {
         }
 
         Log.d("cobalt", "TibiisController.connectToTibiis() Beginning bluetooth scan")
+
+        if (ActivityCompat.checkSelfPermission(
+                appContext!!,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+
         mBluetoothAdapter!!.bluetoothLeScanner.startScan(bleScannerCallback)
 
         // Cancel the scanning after a timeout - using bleScanner
@@ -341,6 +360,20 @@ class TibiisController() {
             return
         }
 
+        if (ActivityCompat.checkSelfPermission(
+                appContext!!,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
         mBluetoothGatt!!.writeCharacteristic(characteristic)
     }
 

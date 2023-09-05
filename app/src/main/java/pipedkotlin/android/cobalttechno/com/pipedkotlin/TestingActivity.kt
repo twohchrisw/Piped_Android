@@ -311,7 +311,7 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
         preventDIAskingForLossValue = false
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item != null)
         {
@@ -540,18 +540,18 @@ class TestingActivity : BaseActivity(), TestingRecyclerAdapter.TestingRecyclerCl
 
         if (requestCode == ActivityRequestCodes.peNotes.value && data != null)
         {
-            appGlobals.activeProcess.pt_pe_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.pt_pe_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
         }
 
         if (requestCode == ActivityRequestCodes.diNotes.value && data != null)
         {
-            appGlobals.activeProcess.pt_di_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            appGlobals.activeProcess.pt_di_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
         }
 
         if (requestCode == ActivityRequestCodes.listSelection.value && data != null)
         {
             val listId = data!!.getIntExtra("listId", -1)
-            val listItem = data!!.getStringExtra("listValue")
+            val listItem = data!!.getStringExtra("listValue").toString()
 
             when (listId)
             {

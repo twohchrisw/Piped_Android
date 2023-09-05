@@ -27,7 +27,7 @@ class DateTimeActivity : BaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuDone)
         {
@@ -50,9 +50,11 @@ class DateTimeActivity : BaseActivity() {
         // Set current date
         val dateAsString = intent.getStringExtra(DateTimeActivity.DATE_EXTRA)
         var currentDate = Date()
-        if (dateAsString.isNotEmpty())
-        {
-            currentDate = DateHelper.dbStringToDate(dateAsString, Date())
+        if (dateAsString != null) {
+            if (dateAsString.isNotEmpty())
+            {
+                currentDate = DateHelper.dbStringToDate(dateAsString, Date())
+            }
         }
     }
 }

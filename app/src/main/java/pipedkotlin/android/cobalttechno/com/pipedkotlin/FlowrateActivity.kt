@@ -35,7 +35,7 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuDone)
         {

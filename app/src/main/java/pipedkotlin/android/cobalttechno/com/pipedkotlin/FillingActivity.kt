@@ -41,7 +41,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuCalc)
         {
@@ -77,7 +77,7 @@ class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycler
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            p.filling_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            p.filling_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
             p.save(this)
         }
 

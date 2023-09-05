@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "pipedkotlin.android.cobalttechno.com.pipedkotlin",
+  "variantName": "processDebugResources",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "versionCode": 26,
+      "versionName": "3.4.6",
+      "outputFile": "app-debug.apk"
+    }
+  ]
+}

@@ -44,6 +44,7 @@ open class BaseActivity: AppCompatActivity() {
     val NULL_COORDINATE: Double = -10000.0
     val LOCATION_PERMISSION_REQUEST_CODE = 1
     val CAMERA_PERMISSION_REQUEST_CODE  = 2
+    val BLUETOOTH_PERMISSION_REQUEST_CODE = 3
 
 
     val CAMERA_REQUEST_CAMERA = 1
@@ -84,6 +85,8 @@ open class BaseActivity: AppCompatActivity() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
                 CAMERA_PERMISSION_REQUEST_CODE)
     }
+
+
 
     fun getCurrentLocation(action: (lat: Double, lng: Double) -> Unit)
     {

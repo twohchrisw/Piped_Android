@@ -180,7 +180,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.d("cobalt", "Finished")
 
         // To ensure we go back to the previous menu (i.e. we're in tasks mode, since we have a parent set for the main menu)

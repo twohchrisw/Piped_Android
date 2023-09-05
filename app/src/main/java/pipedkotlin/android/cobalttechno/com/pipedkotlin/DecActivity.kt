@@ -38,7 +38,7 @@ class DecActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdap
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuCalc)
         {
@@ -88,7 +88,9 @@ class DecActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdap
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            p.pt_dec_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            p.pt_dec_notes =
+                data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+                    .toString()
             p.save(this)
         }
 

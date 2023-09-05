@@ -37,7 +37,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item?.itemId == R.id.mnuCalc)
         {
@@ -117,7 +117,7 @@ class SwabbingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
 
         if (requestCode == NOTES_REQUEST && data != null)
         {
-            p.swab_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA)
+            p.swab_notes = data!!.getStringExtra(NotesActivity.NOTES_EXTRA).toString()
         }
 
         runOnUiThread {

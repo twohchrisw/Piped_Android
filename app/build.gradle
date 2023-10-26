@@ -5,13 +5,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "pipedkotlin.android.cobalttechno.com.pipedkotlin"
         minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 27
-        versionName "3.4.6"
+        targetSdkVersion 33
+        versionCode 30
+        versionName "3.4.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

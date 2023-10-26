@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.util.Log
 import java.io.File
@@ -32,15 +33,25 @@ public class AppGlobals: Application() {
 
     companion object {
         //val instance: AppGlobals by lazy { Holder.INSTANCE }
-        val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+        //val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+        val SERVICE_DOMAIN = "http://www.pipedserver.com/"
         val FILE_UPLOAD_URL = "${SERVICE_DOMAIN}fileupload.php"
 
 
         fun uriForSavedImage(filename: String): Uri
         {
-            val path = Environment.getExternalStorageDirectory().toString()
-            val file = File(path, filename)
-            return Uri.parse(file.absolutePath)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+                val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()
+                val file = File(path, filename)
+                return Uri.parse(file.absolutePath)
+            }
+            else
+            {
+                val path = Environment.getExternalStorageDirectory().toString()
+                val file = File(path, filename)
+                return Uri.parse(file.absolutePath)
+            }
+
         }
 
         enum class FlowrateViewType {

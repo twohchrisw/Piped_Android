@@ -27,7 +27,8 @@ interface CommsManagerDelegate {
 class CommsManager(delegate: CommsManagerDelegate) {
 
     val delegate = delegate
-    val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+    //val SERVICE_DOMAIN = "http://pipedapp-001-site1.dtempurl.com/"
+    val SERVICE_DOMAIN = "http://www.pipedserver.com/"
     public final val WEBSERVER_VALIDATE_COMPANY_ID = "${SERVICE_DOMAIN}irateservice.asmx/GetCompanyIDCount2?company_id="
     public final val WEBSERVER_GET_LIST_ITEMS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelListItems?company_id="
     public final val WEBSERVER_GET_CLIENTS = "${SERVICE_DOMAIN}irateservice.asmx/GetExcelClients?company_id="

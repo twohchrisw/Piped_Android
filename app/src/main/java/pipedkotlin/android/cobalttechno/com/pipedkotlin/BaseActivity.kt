@@ -11,10 +11,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.PersistableBundle
-import android.os.StrictMode
+import android.os.*
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AlertDialog
@@ -45,7 +42,6 @@ open class BaseActivity: AppCompatActivity() {
     val LOCATION_PERMISSION_REQUEST_CODE = 1
     val CAMERA_PERMISSION_REQUEST_CODE  = 2
     val BLUETOOTH_PERMISSION_REQUEST_CODE = 3
-
 
     val CAMERA_REQUEST_CAMERA = 1
     val CAMERA_REQUEST_GALLERY = 2
@@ -82,11 +78,9 @@ open class BaseActivity: AppCompatActivity() {
     fun requestCameraPermissions()
     {
         ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES),
                 CAMERA_PERMISSION_REQUEST_CODE)
     }
-
-
 
     fun getCurrentLocation(action: (lat: Double, lng: Double) -> Unit)
     {
@@ -124,7 +118,7 @@ open class BaseActivity: AppCompatActivity() {
 
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE)
         {
-            if (grantResults.size == 3 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.size == 4 && grantResults[2] == PackageManager.PERMISSION_GRANTED && grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                 cameraPermissionsGranted()
             }
         }
@@ -139,10 +133,11 @@ open class BaseActivity: AppCompatActivity() {
         {
             val geocoder = Geocoder(this, Locale.getDefault())
             val addresses = geocoder.getFromLocation(lat, lng, 1)
-            if (addresses.isNotEmpty())
-            {
-                val foundAddress = addresses.get(0)
-                return foundAddress
+            if (addresses != null) {
+                if (addresses.isNotEmpty()) {
+                    val foundAddress = addresses.get(0)
+                    return foundAddress
+                }
             }
 
         }
@@ -179,17 +174,7 @@ open class BaseActivity: AppCompatActivity() {
         // STUB:
     }
 
-    fun choosePicFromCamera()
-    {
-        val builder = StrictMode.VmPolicy.Builder()
-        StrictMode.setVmPolicy(builder.build())
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
-        val outfile = File(TEMP_IMAGE_LOCATION)
-        val outuri = Uri.fromFile(outfile)
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outuri)
-        startActivityForResult(cameraIntent, CAMERA_REQUEST_CAMERA)
-    }
 
     /*
     fun saveImageToExternalStorage(bitmap: Bitmap, filename: String)
@@ -215,27 +200,54 @@ open class BaseActivity: AppCompatActivity() {
     }
     */
 
+    fun choosePicFromCamera()
+    {
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        var tempImageLocation = TEMP_IMAGE_LOCATION;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            //tempImageLocation = this.getExternalFilesDir(Environment.DIRECTORY_DCIM).toString() + "/temppic.jpg";
+            tempImageLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/temppic.jpg";
+        }
+
+        val outfile = File(tempImageLocation)
+        val outuri = Uri.fromFile(outfile)
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outuri)
+        startActivityForResult(cameraIntent, CAMERA_REQUEST_CAMERA)
+    }
 
     fun saveImageToExternalStorage(filename: String)
     {
         val options = BitmapFactory.Options()
         options.inPreferredConfig = Bitmap.Config.ARGB_8888
         //options.inJustDecodeBounds = true
-        val internalBitmap = BitmapFactory.decodeFile(TEMP_IMAGE_LOCATION, options) // The bitmap in the parameter is the thumbnail
+
+        var tempImageLocation = TEMP_IMAGE_LOCATION;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            tempImageLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/temppic.jpg";
+        }
+        val internalBitmap = BitmapFactory.decodeFile(tempImageLocation, options) // The bitmap in the parameter is the thumbnail
 
         //val inWidth = options.outWidth
         //val inHeight = options.outHeight
 
-        val path = Environment.getExternalStorageDirectory().toString()
+        var path = Environment.getExternalStorageDirectory().toString()
+        // FIX for Android 11
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()
+        }
+
         val file = File(path, filename)
 
         try {
             val stream: OutputStream = FileOutputStream(file)
-
             val reducedBitmp = Bitmap.createScaledBitmap(internalBitmap, 1000, 1000, false)
             reducedBitmp.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             stream.flush()
             stream.close()
+
             Log.d("cobswab", "image saved successfully!!")
             appGlobals.activeProcess.save(this)    // To force an update check
         }

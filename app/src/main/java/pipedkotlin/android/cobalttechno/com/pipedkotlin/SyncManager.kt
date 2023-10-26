@@ -2,6 +2,7 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Environment
 import android.util.Log
 import com.android.volley.DefaultRetryPolicy
@@ -298,7 +299,11 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
 
     fun uploadImage(imageName: String)
     {
-        val path = Environment.getExternalStorageDirectory().toString()
+        var path = Environment.getExternalStorageDirectory().toString()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
+        }
+
         val file = File(path, imageName)
         val bitmap = BitmapFactory.decodeFile(file.path)
         val fileuploadManager = FileUploadManager()

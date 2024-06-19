@@ -1,17 +1,17 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat.startActivityForResult
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_process_list.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivityForResult
+import pipedkotlin.android.cobalttechno.com.pipedkotlin.databinding.ActivityProcessListBinding
 import java.util.*
 
 class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessListRecyclerViewClickListener, SyncManager.SyncManagerDelegate {
@@ -19,13 +19,14 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     // Outlets
     lateinit var recyclerView: RecyclerView
     lateinit var processes: List<EXLDProcess>
-
+    lateinit var binding: ActivityProcessListBinding
 
     // MARK: View Setup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_process_list)
+        binding = ActivityProcessListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         appGlobals.processListActivity = this  // For getting updates from the sync manager
 
         // Setup the location client
@@ -125,6 +126,9 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
         startActivity(pipeCalculatorIntent)
     }
 
+    @Deprecated(
+        "Deprecated in Java"
+    )
     override fun onBackPressed() {
         return
     }
@@ -155,7 +159,7 @@ class ProcessListActivity : BaseActivity(), ProcessListRecyclerAdapter.ProcessLi
     fun addListeners()
     {
         // FAB Button
-        fab.setOnClickListener { view ->
+        binding.fab.setOnClickListener {
 
             val alert = AlertHelper(this)
             alert.dialogForOKAlert("Create new Process?", "", {

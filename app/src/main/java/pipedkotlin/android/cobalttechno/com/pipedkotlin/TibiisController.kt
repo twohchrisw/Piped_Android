@@ -1,6 +1,7 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
@@ -9,11 +10,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.ParcelUuid
-import android.support.v4.app.ActivityCompat
 import android.util.Log
 import org.jetbrains.anko.runOnUiThread
 import java.util.*
 import java.util.logging.Handler
+import androidx.core.app.ActivityCompat
 
 class TibiisController() {
 
@@ -86,6 +87,9 @@ class TibiisController() {
 
     private val bleScannerCallback = object: ScanCallback()
     {
+        @SuppressLint(
+            "MissingPermission"
+        )
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
 
@@ -126,6 +130,9 @@ class TibiisController() {
     }
 
     private val mGattCallback = object: BluetoothGattCallback() {
+        @SuppressLint(
+            "MissingPermission"
+        )
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED)
             {
@@ -153,6 +160,9 @@ class TibiisController() {
             }
         }
 
+        @Deprecated(
+            "Deprecated in Java"
+        )
         override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             //Log.d("cobalt", "Gatt onCharacteristicRead")
             //TODO: This is where the data comes in
@@ -167,6 +177,9 @@ class TibiisController() {
             //Log.d("cobalt", "Gatt onCharacteristicWrite")
         }
 
+        @Deprecated(
+            "Deprecated in Java"
+        )
         override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
             //TODO: Or it may come in here
             //Log.d("cobalt", "Gatt onCharacteristicChanged")
@@ -178,6 +191,9 @@ class TibiisController() {
         }
     }
 
+    @SuppressLint(
+        "MissingPermission"
+    )
     fun findMDLPGattService(gattServices: List<BluetoothGattService>)
     {
         var myUUID = ""

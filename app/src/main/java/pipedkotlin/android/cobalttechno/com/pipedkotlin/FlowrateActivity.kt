@@ -3,8 +3,8 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import java.util.*
@@ -61,6 +61,8 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                 title = "Sampling Data"
                 recyclerView.adapter = StandardRecyclerAdapter(this, StandardRecyclerAdapter.PipedTask.SamplingFlowrate, appGlobals.lastLat, appGlobals.lastLng, null, null, null, null, this)
             }
+
+            else -> {}
         }
     }
 
@@ -152,6 +154,8 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                     })
                 }
             }
+
+            else -> {}
         }
     }
 
@@ -189,6 +193,8 @@ class FlowrateActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecycle
                     samplFlowrate!!.sampl_photo = fileName
                     samplFlowrate!!.save(this)
                 }
+
+                else -> {}
             }
         }
 

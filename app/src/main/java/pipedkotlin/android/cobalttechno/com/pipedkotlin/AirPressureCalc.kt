@@ -178,6 +178,8 @@ class AirPressureCalc(val process: EXLDProcess, val context: TestingSessionData.
                 toFill = toFill21[pipeIndex]
                 isError = false
             }
+
+            else -> {}
         }
 
         if (!isError)

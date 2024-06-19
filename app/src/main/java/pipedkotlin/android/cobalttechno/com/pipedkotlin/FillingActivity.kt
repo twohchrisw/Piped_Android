@@ -1,15 +1,13 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Intent
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.graphics.Bitmap
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_swabbing.*
 import java.util.*
 
 class FillingActivity : BaseActivity(), StandardRecyclerAdapter.StandardRecyclerAdapterInterface {

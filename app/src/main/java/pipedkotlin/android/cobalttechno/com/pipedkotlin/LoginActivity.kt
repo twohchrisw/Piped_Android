@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -14,11 +13,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
 import com.android.volley.VolleyError
-import kotlinx.android.synthetic.main.activity_pipe_calculator.*
 import org.jetbrains.anko.UI
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
+import pipedkotlin.android.cobalttechno.com.pipedkotlin.databinding.ActivityLoginBinding
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -48,6 +48,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     lateinit var vwSeperator: View
     lateinit var btnCalculate: Button
     lateinit var lblViewName: TextView
+    lateinit var binding: ActivityLoginBinding
 
     enum class CalculatorTab {
         Metallic, PE
@@ -62,6 +63,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_login)
         assignOutlets()
         addListeners()
@@ -426,7 +428,7 @@ class LoginActivity : BaseActivity(), CommsManagerDelegate {
     {
         initialiseInputBoxes()
 
-        tvViewName.visibility = View.GONE
+        //binding. = View.GONE
         etDiameter.setTextColor(Color.BLACK)
         etFlowrate.setTextColor(Color.BLACK)
         etSDR.setTextColor(Color.BLACK)

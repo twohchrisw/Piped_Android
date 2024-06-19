@@ -283,6 +283,7 @@ class TBXDataController(val tibiisController: TibiisController) {
             OptionBytes.LogInterval -> data = arrayOf(0x00, 0x03)
             OptionBytes.UnitType -> data = arrayOf(0x00, 0x04)
             OptionBytes.SerialNumber -> data = arrayOf(0x00, 0x05)
+            else -> {}
         }
 
         sendPacket(Command.GetOptionBytes.value.sendCommand, Command.GetOptionBytes.value.sendLength, data)
@@ -303,6 +304,7 @@ class TBXDataController(val tibiisController: TibiisController) {
             CalibrationData.Date -> data = arrayOf(0x00, 0x07)
             CalibrationData.Time -> data = arrayOf(0x00, 0x08)
             CalibrationData.Name -> data = arrayOf(0x00, 0x09)
+            else -> {}
         }
 
         sendPacket(Command.GetCalibrationData.value.sendCommand, Command.GetCalibrationData.value.sendLength, data, OptionBytes.None, calibrationByte)

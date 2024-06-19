@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Binder
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -13,8 +12,9 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_pipe_calculator.*
+import androidx.appcompat.app.AppCompatActivity
 import org.w3c.dom.Text
+import pipedkotlin.android.cobalttechno.com.pipedkotlin.databinding.ActivityPipeCalculatorBinding
 
 class PipeCalculatorActivity : AppCompatActivity() {
 
@@ -39,6 +39,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
     lateinit var vwSeperator: View
     lateinit var btnCalculate: Button
     lateinit var lblViewName: TextView
+    lateinit var binding: ActivityPipeCalculatorBinding
 
     enum class CalculatorTab {
         Metallic, PE
@@ -47,6 +48,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityPipeCalculatorBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_pipe_calculator)
         assignOutlets()
         addListeners()
@@ -57,7 +59,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
 
         if (appGlobals.calculatorTitle.isNotBlank())
         {
-            tvViewName.text = "(" + appGlobals.calculatorTitle + ")";
+            binding.tvViewName.text = "(" + appGlobals.calculatorTitle + ")";
             appGlobals.calculatorTitle = ""
         }
     }
@@ -175,7 +177,7 @@ class PipeCalculatorActivity : AppCompatActivity() {
         lblTimeToFillTitle.bringToFront()
         lblTimeToFill.bringToFront()
         btnCalculate.bringToFront()
-        tvViewName.bringToFront()
+        binding.tvViewName.bringToFront()
     }
 
     fun initialiseInputBoxes()

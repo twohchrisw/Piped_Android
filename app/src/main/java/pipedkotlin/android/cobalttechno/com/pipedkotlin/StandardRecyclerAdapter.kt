@@ -1,11 +1,12 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+//import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.view_holder_picture.view.*
+import androidx.recyclerview.widget.RecyclerView
+//import kotlinx.android.synthetic.main.view_holder_picture.view.*
 import org.jetbrains.anko.db.classParser
 import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.parseList
@@ -746,13 +747,13 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
 
             if (sn.sn_photo.length > 2)
             {
-                viewHolder.itemView.ivPicture?.visibility = View.VISIBLE
+                viewHolder.ivPicture?.visibility = View.VISIBLE
                 val imageUri = AppGlobals.uriForSavedImage(sn.sn_photo)
                 viewHolder.ivPicture?.setImageURI(imageUri)
             }
             else
             {
-                viewHolder.itemView.ivPicture?.visibility = View.GONE
+                viewHolder.ivPicture?.visibility = View.GONE
             }
 
             viewHolder.itemView.setOnClickListener {
@@ -956,6 +957,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     }
                     ignoreDefaultStyling = true
                 }
+
+                else -> {}
             }
 
             if (!ignoreDefaultStyling) {
@@ -1016,6 +1019,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                                 viewHolder.headerText?.text = "$title$pauseText"
                             }
 
+                            else -> {}
                         }
 
                     }
@@ -2051,6 +2055,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     }
 
                 }
+
+                else -> {}
             }
         }
     }
@@ -2812,6 +2818,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                 }
                 fr.save(ctx)
             }
+
+            else -> {}
         }
 
         updateTotalWater()
@@ -2944,6 +2952,8 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
                     return 0.0
                 }
             }
+
+            else -> {}
         }
 
         return 0.0
@@ -2960,6 +2970,7 @@ class StandardRecyclerAdapter(val ctx: Context, val pipedTask: PipedTask, var la
             PipedTask.DeChlorination -> pauseType = EXLDPauseSessions.PAUSE_TYPE_DECHLOR
             PipedTask.Flushing -> pauseType = EXLDPauseSessions.PAUSE_TYPE_FLUSH
             PipedTask.Flushing2 -> pauseType = EXLDPauseSessions.PAUSE_TYPE_FLUSH2
+            else -> {}
         }
 
         return pauseType

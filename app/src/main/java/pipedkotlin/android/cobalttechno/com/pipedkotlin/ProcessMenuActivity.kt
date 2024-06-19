@@ -1,14 +1,14 @@
 package pipedkotlin.android.cobalttechno.com.pipedkotlin
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
 import java.util.*
@@ -169,6 +169,9 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
         startActivity(samp)
     }
 
+    @Deprecated(
+        "Deprecated in Java"
+    )
     override fun onBackPressed() {
         super.onBackPressed()
         appGlobals.processMenuShowingTasks = false

@@ -3,14 +3,14 @@ package pipedkotlin.android.cobalttechno.com.pipedkotlin
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.format.Time
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import org.jetbrains.anko.db.INTEGER
 import org.jetbrains.anko.startActivityForResult
 import java.util.*
@@ -183,6 +183,11 @@ class DetailsActivity : AppCompatActivity(), DetailsRecyclerAdapter.DetailsRecyc
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(
+            requestCode,
+            resultCode,
+            data
+        )
 
         val p = appGlobals.activeProcess
 

@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.runOnUiThread
 import java.io.File
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -180,51 +181,59 @@ class SyncManager: FileUploadManager.FileUploadManagerDelegate {
 
         var stringRequest = StringRequest(Request.Method.GET, urlString, Response.Listener<String> { response ->
 
-            if (isFirst == 1)
-            {
-                // Server Process ID
-                val serverProcessId = getServerProcessIdFromXml(response.toString())
-                Log.d("cobsync", "Server Process ID: $serverProcessId")
-                processBeingSynced!!.server_process_id = serverProcessId
-                //processBeingSynced!!.save(MainApplication.applicationContext())
+            try {
+                if (isFirst == 1)
+                {
+                    // Server Process ID
+                    val serverProcessId = getServerProcessIdFromXml(response.toString())
+                    Log.d("cobsync", "Server Process ID: $serverProcessId")
+                    processBeingSynced!!.server_process_id = serverProcessId
+                    //processBeingSynced!!.save(MainApplication.applicationContext())
 
-                if (processBeingSynced != null && ctx != null) {
-                    processBeingSynced!!.save(ctx!!)
+                    if (processBeingSynced != null && ctx != null) {
+                        processBeingSynced!!.save(ctx!!)
+                    }
+
+                    uploadProcessImages()
                 }
 
-                uploadProcessImages()
-            }
+                markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadings)
+                markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadingsDI)
 
-            markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadings)
-            markTibiisRecordsAsUploaded(processBeingSynced!!.tibiisReadingsDI)
-
-            if (isLast == 1)
-            {
-
-                updateForSuccess()
-            }
-            else
-            {
-                val originalBatchSize = currentTibiisReadings.size
-                if (currentTibiisReadings.size <= MAX_PE_UPLOAD_RECORDS)
+                if (isLast == 1)
                 {
-                    processBeingSynced!!.tibiisReadings = currentTibiisReadings
-                    currentTibiisReadings = ArrayList<EXLDTibiisReading>()
-                    Log.d("cobsync", "Last batch upload of ${processBeingSynced!!.tibiisReadings.size}")
-                    isLast = 1
-                    isFirst = 0
-                    syncBatch(0, 0, 1)
+
+                    updateForSuccess()
                 }
                 else
                 {
-                    processBeingSynced!!.tibiisReadings = ArrayList(currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS))
-                    isLast = 0
-                    isFirst = 0
-                    currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS).clear()
-                    Log.d("cobsync", "In Process Multi batch upload of ${processBeingSynced!!.tibiisReadings.size} with ${currentTibiisReadings.size} remaining from total of $originalBatchSize")
-                    syncBatch(0, 0, 0)
+                    val originalBatchSize = currentTibiisReadings.size
+                    if (currentTibiisReadings.size <= MAX_PE_UPLOAD_RECORDS)
+                    {
+                        processBeingSynced!!.tibiisReadings = currentTibiisReadings
+                        currentTibiisReadings = ArrayList<EXLDTibiisReading>()
+                        Log.d("cobsync", "Last batch upload of ${processBeingSynced!!.tibiisReadings.size}")
+                        isLast = 1
+                        isFirst = 0
+                        syncBatch(0, 0, 1)
+                    }
+                    else
+                    {
+                        processBeingSynced!!.tibiisReadings = ArrayList(currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS))
+                        isLast = 0
+                        isFirst = 0
+                        currentTibiisReadings.subList(0, MAX_PE_UPLOAD_RECORDS).clear()
+                        Log.d("cobsync", "In Process Multi batch upload of ${processBeingSynced!!.tibiisReadings.size} with ${currentTibiisReadings.size} remaining from total of $originalBatchSize")
+                        syncBatch(0, 0, 0)
+                    }
                 }
             }
+            catch (e: Exception)
+            {
+
+            }
+
+
 
         }, Response.ErrorListener {
             Log.d("cobsync", "Failure prodding server: ${urlString}")

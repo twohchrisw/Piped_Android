@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.startActivity
 import java.util.*
@@ -179,7 +180,7 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
-        inflater.inflate(R.menu.calc_menu, menu)
+        inflater.inflate(R.menu.process_menu, menu)
         return true
     }
 
@@ -210,7 +211,31 @@ class ProcessMenuActivity : AppCompatActivity(), ProcessMenuRecyclerAdapter.Proc
             startActivity(pipeCalculatorIntent)
         }
 
+        if (item?.itemId == R.id.mnuDeleteProcess)
+        {
+            val alert = AlertHelper(this)
+            alert.dialogForOKAlert("Delete Process?", "", {
+                runOnUiThread {
+                    deleteProcess()
+                }
+            })
+        }
+
         return super.onOptionsItemSelected(item)
+    }
+
+    fun deleteProcess()
+    {
+        val whereString = "${EXLDProcess.COLUMN_ID} = ${appGlobals.activeProcess.columnId}"
+        Log.d("june", whereString)
+        var rowsDeleted = 0
+        this.database.use {
+            rowsDeleted = delete(EXLDProcess.TABLE_NAME, whereString)
+        }
+        Log.d("june", "Rows deleted = " + rowsDeleted.toString())
+        appGlobals.activeProcess = EXLDProcess()
+
+        super.onBackPressed()
     }
 
     override fun listItemClicked(menuMode: Int, menuItem: Int) {
